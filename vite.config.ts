@@ -11,4 +11,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: '0.0.0.0', // Accept connections from any network
+    port: 8000,       // Ensure you're using the correct port
+  },
 })

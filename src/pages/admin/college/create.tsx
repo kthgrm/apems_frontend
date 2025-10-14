@@ -131,112 +131,118 @@ const CollegeCreate = () => {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Add New College</h1>
+            {isLoading ? (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                    Loading...
                 </div>
+            ) : (
+                <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
+                    <div className="flex items-center justify-between">
+                        <h1 className="text-2xl font-semibold">Add New College</h1>
+                    </div>
 
-                <form onSubmit={handleSubmit} className="max-w-2xl">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <GraduationCap className="h-5 w-5" />
-                                College Information
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {/* Campus Selection */}
-                            <div className="space-y-2">
-                                <Label htmlFor="campus_id" className="text-base font-medium">
-                                    Campus <span className="text-red-500">*</span>
-                                </Label>
-                                <Select
-                                    value={data.campus_id}
-                                    onValueChange={handleCampusChange}
-                                    disabled={processing}
-                                >
-                                    <SelectTrigger className="h-10 w-full">
-                                        <SelectValue placeholder="Select campus..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {campuses.map((campus) => (
-                                            <SelectItem key={campus.id} value={campus.id.toString()}>
-                                                {campus.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.campus_id} />
-                            </div>
-
-                            {/* College Name */}
-                            <div className="space-y-2">
-                                <Label htmlFor="name" className="text-base font-medium">
-                                    College Name <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="name"
-                                    value={data.name}
-                                    onChange={handleChange}
-                                    placeholder="Enter college name"
-                                    disabled={processing}
-                                    className="h-10"
-                                />
-                                <InputError message={errors.name} />
-                            </div>
-
-                            {/* College Code */}
-                            <div className="space-y-2">
-                                <Label htmlFor="code" className="text-base font-medium">
-                                    College Code <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="code"
-                                    value={data.code}
-                                    onChange={handleChange}
-                                    placeholder="Enter college code (e.g., CICT, COE)"
-                                    maxLength={10}
-                                    disabled={processing}
-                                    className="h-10"
-                                />
-                                <InputError message={errors.code} />
-                            </div>
-
-                            {/* College Logo */}
-                            <div className="space-y-2">
-                                <Label htmlFor="logo" className="text-base font-medium">
-                                    Logo (max size: 2MB)
-                                </Label>
+                    <form onSubmit={handleSubmit} className="max-w-2xl">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <GraduationCap className="h-5 w-5" />
+                                    College Information
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {/* Campus Selection */}
                                 <div className="space-y-2">
+                                    <Label htmlFor="campus_id" className="text-base font-medium">
+                                        Campus <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Select
+                                        value={data.campus_id}
+                                        onValueChange={handleCampusChange}
+                                        disabled={processing}
+                                    >
+                                        <SelectTrigger className="h-10 w-full">
+                                            <SelectValue placeholder="Select campus..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {campuses.map((campus) => (
+                                                <SelectItem key={campus.id} value={campus.id.toString()}>
+                                                    {campus.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError message={errors.campus_id} />
+                                </div>
+
+                                {/* College Name */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="name" className="text-base font-medium">
+                                        College Name <span className="text-red-500">*</span>
+                                    </Label>
                                     <Input
-                                        id="logo"
-                                        type="file"
-                                        accept=".jpg,.jpeg,.png"
-                                        onChange={handleFileChange}
+                                        id="name"
+                                        value={data.name}
+                                        onChange={handleChange}
+                                        placeholder="Enter college name"
                                         disabled={processing}
                                         className="h-10"
                                     />
-                                    <p className="text-sm text-muted-foreground">
-                                        Supported formats: JPG, JPEG, PNG
-                                    </p>
+                                    <InputError message={errors.name} />
                                 </div>
-                                <InputError message={errors.logo} />
-                            </div>
 
-                            {/* Submit Button */}
-                            <div className="flex justify-end pt-4">
-                                <Button
-                                    type="submit"
-                                    disabled={processing}
-                                >
-                                    {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                    Create College
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </form>
-            </div>
+                                {/* College Code */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="code" className="text-base font-medium">
+                                        College Code <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                        id="code"
+                                        value={data.code}
+                                        onChange={handleChange}
+                                        placeholder="Enter college code (e.g., CICT, COE)"
+                                        maxLength={10}
+                                        disabled={processing}
+                                        className="h-10"
+                                    />
+                                    <InputError message={errors.code} />
+                                </div>
+
+                                {/* College Logo */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="logo" className="text-base font-medium">
+                                        Logo (max size: 2MB)
+                                    </Label>
+                                    <div className="space-y-2">
+                                        <Input
+                                            id="logo"
+                                            type="file"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={handleFileChange}
+                                            disabled={processing}
+                                            className="h-10"
+                                        />
+                                        <p className="text-sm text-muted-foreground">
+                                            Supported formats: JPG, JPEG, PNG
+                                        </p>
+                                    </div>
+                                    <InputError message={errors.logo} />
+                                </div>
+
+                                {/* Submit Button */}
+                                <div className="flex justify-end pt-4">
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                    >
+                                        {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                        Create College
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </form>
+                </div>
+            )}
         </AppLayout>
     )
 }

@@ -100,3 +100,27 @@ export interface Resolution {
     created_at: string;
     updated_at: string;
 }
+
+export interface InternationalPartner {
+    id: number;
+    user_id: number;
+    user: User;
+    college_id: number;
+    college: College;
+
+    agency_partner: string;
+    location: string;
+    activity_conducted: string;
+    start_date: string;
+    end_date: string;
+    number_of_participants: number;
+    number_of_committee: number;
+    narrative: string;
+
+    attachment_paths?: string[] | null;
+    attachment_link?: string | null;
+    is_archived: boolean;
+
+    created_at: string;
+    updated_at: string;
+}

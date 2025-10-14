@@ -20,6 +20,9 @@ import ResolutionEdit from "./pages/admin/resolution/edit"
 import { AdminRoute } from "./components/AdminRoutes"
 import { UserRoute } from "./components/PrivateRoutes"
 import UserDashboard from "./pages/user/dashboard"
+import InternationalPartner from "./pages/admin/intl-partner"
+import InternationalPartnerShow from "./pages/admin/intl-partner/show"
+import InternationalPartnerEdit from "./pages/admin/intl-partner/edit"
 
 function App() {
   return (
@@ -51,6 +54,12 @@ function App() {
               <Route path="create" element={<ResolutionCreate />} />
               <Route path=":id/edit" element={<ResolutionEdit />} />
               <Route path=":id" element={<ResolutionShow />} />
+            </Route>
+            <Route path="international-partner">
+              <Route index element={<InternationalPartner />} />
+
+              <Route path=":id/edit" element={<InternationalPartnerEdit />} />
+              <Route path=":id" element={<InternationalPartnerShow />} />
             </Route>
           </Route>
           <Route path="/user" element={<UserRoute />}>

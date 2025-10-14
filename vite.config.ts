@@ -13,6 +13,6 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0', // Accept connections from any network
-    port: 8000,       // Ensure you're using the correct port
+    port: 8080,       // Ensure you're using the correct port
   },
 })

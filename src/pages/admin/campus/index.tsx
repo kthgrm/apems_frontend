@@ -5,7 +5,7 @@ import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import type { BreadcrumbItem, Campus } from '@/types'
 import { Plus, School } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { columns } from './columns'
 

@@ -12,7 +12,7 @@ import type { BreadcrumbItem, Campus } from '@/types';
 import { Building, Calendar, } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const CampusEdit = () => {
     const { id } = useParams();

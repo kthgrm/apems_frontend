@@ -1,13 +1,12 @@
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InputError from "@/components/input-error";
-import type { College, Campus } from "@/types";
-import { GraduationCap, Edit, MoreHorizontal, Trash, Eye, LoaderCircle, Building } from "lucide-react";
+import type { Campus } from "@/types";
+import { Edit, MoreHorizontal, Trash, LoaderCircle, Building } from "lucide-react";
 import { useState } from "react";
 import { asset } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";

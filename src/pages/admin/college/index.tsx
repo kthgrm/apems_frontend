@@ -7,7 +7,7 @@ import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, Campus, College } from '@/types'
 import { Plus } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { columns } from './columns'
 

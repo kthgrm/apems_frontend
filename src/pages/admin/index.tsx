@@ -1,6 +1,5 @@
 import AppLayout from '@/layout/app-layout'
 import type { BreadcrumbItem } from '@/types'
-import React from 'react'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

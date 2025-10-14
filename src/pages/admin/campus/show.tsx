@@ -11,7 +11,7 @@ import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { BreadcrumbItem, Campus } from '@/types';
 import { Building, Calendar, Edit, LoaderCircle } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 

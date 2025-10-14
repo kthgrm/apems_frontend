@@ -2,15 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AppLayout from "@/layout/app-layout";
-import type { BreadcrumbItem, Campus } from "@/types";
+import type { BreadcrumbItem } from "@/types";
 import InputError from "@/components/input-error";
-import { Building, GraduationCap, LoaderCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Building, LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CampusCreate = () => {
     const navigate = useNavigate();

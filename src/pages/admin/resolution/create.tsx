@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Download, FileText, Image, X } from 'lucide-react';
+import { Download, FileText, Image } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

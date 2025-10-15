@@ -65,7 +65,8 @@ import NotFound from "./pages/NotFound"
 import CreateUser from "./pages/admin/user/create"
 import ShowUser from "./pages/admin/user/show"
 import EditUser from "./pages/admin/user/edit"
-// import AuditTrailReport from "./pages/admin/reports/audit-trail"
+import UsersReport from "./pages/admin/reports/users"
+import AuditTrailIndex from "./pages/admin/reports/audit-trail"
 
 function App() {
   return (
@@ -134,7 +135,8 @@ function App() {
               <Route path="modalities" element={<ModalityReport />} />
               <Route path="impact-assessments" element={<ImpactAssessmentReport />} />
               <Route path="international-partners" element={<InternationalPartnerReport />} />
-              {/* <Route path="audit-trail" element={<AuditTrailReport />} /> */}
+              <Route path="users" element={<UsersReport />} />
+              <Route path="audit-trail" element={<AuditTrailIndex />} />
             </Route>
           </Route>
           <Route path="/user" element={<UserRoute />}>

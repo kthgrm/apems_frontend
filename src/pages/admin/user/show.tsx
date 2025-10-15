@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AppLayout from "@/layout/app-layout";
 import type { BreadcrumbItem, User } from "@/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Edit, Mail, MapPin, Shield, ShieldCheck, Trash2, User as UserIcon } from "lucide-react";
+import { Edit, Mail, MapPin, Shield, ShieldCheck, Trash2, User as UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";

@@ -64,6 +64,7 @@ import InternationalPartnerReport from "./pages/admin/reports/intl-partner"
 import NotFound from "./pages/NotFound"
 import CreateUser from "./pages/admin/user/create"
 import ShowUser from "./pages/admin/user/show"
+import EditUser from "./pages/admin/user/edit"
 // import AuditTrailReport from "./pages/admin/reports/audit-trail"
 
 function App() {
@@ -123,7 +124,7 @@ function App() {
             <Route path="users">
               <Route index element={<UserManagement />} />
               <Route path="create" element={<CreateUser />} />
-              {/* <Route path=":id/edit" element={<UserEdit />} /> */}
+              <Route path=":id/edit" element={<EditUser />} />
               <Route path=":id" element={<ShowUser />} />
             </Route>
             <Route path="report">

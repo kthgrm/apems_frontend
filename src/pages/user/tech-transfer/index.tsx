@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios';
-import type { Resolution, TechnologyTransfer } from '@/types';
-import { Activity, Calendar, FileText, Folder, Plus } from 'lucide-react';
+import type { TechnologyTransfer } from '@/types';
+import { Folder, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { columns } from './columns';

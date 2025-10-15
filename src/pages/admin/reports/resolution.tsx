@@ -237,16 +237,6 @@ export default function ResolutionsReport() {
         );
     };
 
-    // Generate year options for the filter
-    const generateYearOptions = () => {
-        const currentYear = new Date().getFullYear();
-        const years = [];
-        for (let year = currentYear + 5; year >= currentYear - 10; year--) {
-            years.push(year);
-        }
-        return years;
-    };
-
     const handlePageChange = (url: string) => {
         const urlObj = new URL(url);
         const params = new URLSearchParams(urlObj.search);

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface AuthLayoutProps {
     title: string;
@@ -7,7 +7,7 @@ interface AuthLayoutProps {
     children: ReactNode;
 }
 
-export default function AuthLayout({ title, description, children }: AuthLayoutProps) {
+export default function AuthLayout({ title, children }: AuthLayoutProps) {
     return (
         <div className="flex min-h-screen items-center justify-center bg-[#212529]">
             <div className="w-full max-w-md p-6">

@@ -8,7 +8,7 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { InternationalPartner } from '@/types';
-import { Building, Download, Eye, FileText, Image, School, Target, Users } from 'lucide-react';
+import { Building, Download, Eye, FileText, Image, Target, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';

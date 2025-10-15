@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import {
     Table,
     TableBody,
@@ -388,7 +387,7 @@ export default function InternationalPartnersReport() {
                                             <TableCell>
                                                 <div className="text-sm">
                                                     <p>{formatDate(partner.created_at)}</p>
-                                                    <p className="text-muted-foreground">by {partner.user?.name || 'N/A'}</p>
+                                                    <p className="text-muted-foreground">by {partner.user?.first_name + ' ' + partner.user?.last_name || 'N/A'}</p>
                                                 </div>
                                             </TableCell>
                                         </TableRow>

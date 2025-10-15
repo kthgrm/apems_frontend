@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import {
     Table,
     TableBody,
@@ -16,30 +15,15 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import api from '@/lib/axios';
-import type { BreadcrumbItem, Campus, College } from '@/types';
+import type { BreadcrumbItem, Campus, College, ImpactAssessment } from '@/types';
 
-interface ImpactAssessment {
-    id: number;
-    beneficiary: string;
-    geographic_coverage: string | null;
-    total_number_of_beneficiaries: number | null;
-    total_number_of_male_beneficiaries: number | null;
-    total_number_of_female_beneficiaries: number | null;
-    created_at: string | null;
-    user?: {
-        id: number;
-        first_name: string;
-        last_name: string;
-    };
-    college?: {
-        id: number;
-        name: string;
-        campus?: {
-            id: number;
-            name: string;
-        };
-    };
-}
+type LocalFilters = {
+    campus_id: string;
+    college_id: string;
+    search: string;
+    date_from: string;
+    date_to: string;
+};
 
 interface PaginationData {
     current_page: number;
@@ -68,10 +52,12 @@ export default function ImpactAssessmentsReport() {
     const [loading, setLoading] = useState(true);
     const [reportData, setReportData] = useState<ReportData | null>(null);
 
-    const [localFilters, setLocalFilters] = useState({
+    const [localFilters, setLocalFilters] = useState<LocalFilters>({
         campus_id: searchParams.get('campus_id') || 'all',
         college_id: searchParams.get('college_id') || 'all',
         search: searchParams.get('search') || '',
+        date_from: searchParams.get('date_from') || '',
+        date_to: searchParams.get('date_to') || '',
     });
 
     useEffect(() => {
@@ -101,7 +87,7 @@ export default function ImpactAssessmentsReport() {
         }
     };
 
-    const handleFilterChange = (key: string, value: string) => {
+    const handleFilterChange = (key: keyof LocalFilters, value: string) => {
         setLocalFilters(prev => ({ ...prev, [key]: value }));
     };
 
@@ -120,6 +106,8 @@ export default function ImpactAssessmentsReport() {
             campus_id: 'all',
             college_id: 'all',
             search: '',
+            date_from: '',
+            date_to: '',
         });
         setSearchParams(new URLSearchParams());
     };
@@ -351,11 +339,11 @@ export default function ImpactAssessmentsReport() {
                                                     <div>
                                                         <div className="flex items-center gap-1">
                                                             <Building2 className="h-3 w-3" />
-                                                            <span className="text-xs">{assessment.tech_transfer?.campus_college?.campus?.name || 'N/A'}</span>
+                                                            <span className="text-xs">{assessment.tech_transfer?.college?.campus?.name || 'N/A'}</span>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             <GraduationCap className="h-3 w-3" />
-                                                            <span className="text-xs">{assessment.tech_transfer?.campus_college?.college?.name || 'N/A'}</span>
+                                                            <span className="text-xs">{assessment.tech_transfer?.college?.name || 'N/A'}</span>
                                                         </div>
                                                     </div>
                                                 </div>

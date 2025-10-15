@@ -26,6 +26,7 @@ interface Award {
     date_received: string | null;
     location: string | null;
     created_at: string | null;
+    people_involved: string | null;
     user?: {
         id: number;
         first_name: string;

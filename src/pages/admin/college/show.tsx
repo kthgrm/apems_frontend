@@ -10,7 +10,7 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { BreadcrumbItem, College } from '@/types';
-import { Calendar, Edit, GraduationCap, LoaderCircle } from 'lucide-react';
+import { Building, Calendar, Edit, GraduationCap, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -261,7 +261,7 @@ const CollegeShow = () => {
                                                         alt={`${college.name} logo`}
                                                     />
                                                     <AvatarFallback>
-                                                        <GraduationCap className="h-8 w-8" />
+                                                        <Building className='p-0.5' />
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div className="overflow-ellipsis">

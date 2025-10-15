@@ -10,7 +10,7 @@ import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, InternationalPartner } from '@/types'
-import { Building, Download, Edit3, ExternalLink, File, MapPin, School, Target, Users } from 'lucide-react'
+import { Building, Download, Edit3, ExternalLink, File, MapPin, Target, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -257,7 +257,7 @@ export default function InternationalPartnerShow() {
                                                 {partner?.college.campus.logo && (
                                                     <Avatar className="size-8">
                                                         <AvatarImage src={asset(partner.college.campus.logo)} alt="Campus logo" />
-                                                        <AvatarFallback><School size={16} /></AvatarFallback>
+                                                        <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                     </Avatar>
                                                 )}
                                                 <span className="text-sm font-medium">{partner?.college.campus.name}</span>
@@ -270,7 +270,7 @@ export default function InternationalPartnerShow() {
                                                 {partner?.college.logo && (
                                                     <Avatar className="size-8">
                                                         <AvatarImage src={asset(partner.college.logo)} alt="College logo" />
-                                                        <AvatarFallback><Building size={16} /></AvatarFallback>
+                                                        <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                     </Avatar>
                                                 )}
                                                 <div className="flex flex-col">

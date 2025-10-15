@@ -271,12 +271,12 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<I
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                            <Link to={`/admin/international-partners/partnerships/${partnership.id}`} className="font-light">
+                            <Link to={`/admin/international-partner/${partnership.id}`} className="font-light">
                                 View details
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link to={`/admin/international-partners/partnerships/${partnership.id}/edit`} className="font-light">
+                            <Link to={`/admin/international-partner/${partnership.id}/edit`} className="font-light">
                                 Edit partnership
                             </Link>
                         </DropdownMenuItem>

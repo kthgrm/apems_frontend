@@ -82,18 +82,18 @@ const userNavItems: NavItem[] = [
   {
     title: 'Research Extension', href: '#', icon: Folder, isDropdown: true,
     subItems: [
-      { title: 'Impact Assessment', href: '/user/impact-assessments' },
+      { title: 'Impact Assessment', href: '/user/impact-assessment' },
       { title: 'Modalities', href: '/user/modalities' },
     ],
   },
   {
     title: 'International Partners',
-    href: '/user/international-partners',
+    href: '/user/international-partner',
     icon: Handshake,
   },
   {
     title: 'Awards & Recognition',
-    href: '/user/awards',
+    href: '/user/awards-recognition',
     icon: Award,
   },
 ];

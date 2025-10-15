@@ -6,7 +6,7 @@ import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, Campus, College } from '@/types'
-import { Plus } from 'lucide-react'
+import { Building, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { columns } from './columns'
@@ -126,7 +126,7 @@ export default function College() {
                                             <div className="flex flex-col items-center gap-3">
                                                 <Avatar className="size-24">
                                                     <AvatarImage src={asset(campus.logo)} alt="College logo" />
-                                                    <AvatarFallback>{campus?.name.charAt(0)}</AvatarFallback>
+                                                    <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                 </Avatar>
                                                 <span className='text-lg font-medium'>{campus.name}</span>
                                             </div>

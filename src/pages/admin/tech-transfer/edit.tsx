@@ -8,7 +8,7 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { TechnologyTransfer } from '@/types';
-import { Building, CalendarDays, Download, Eye, FileText, Image, Mail, MapPin, Phone, School, Target, Users } from 'lucide-react';
+import { Building, CalendarDays, Download, Eye, FileText, Image, Mail, MapPin, Phone, Target, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -416,7 +416,7 @@ const TechnologyTransferEdit = () => {
                                                     {techTransfer?.college.campus.logo && (
                                                         <Avatar className="size-8">
                                                             <AvatarImage src={asset(techTransfer.college.campus.logo)} alt="Campus logo" />
-                                                            <AvatarFallback><School size={16} /></AvatarFallback>
+                                                            <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                         </Avatar>
                                                     )}
                                                     <span className="text-sm font-medium">{techTransfer?.college.campus.name}</span>
@@ -429,7 +429,7 @@ const TechnologyTransferEdit = () => {
                                                     {techTransfer?.college.logo && (
                                                         <Avatar className="size-8">
                                                             <AvatarImage src={asset(techTransfer.college.logo)} alt="College logo" />
-                                                            <AvatarFallback><Building size={16} /></AvatarFallback>
+                                                            <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                         </Avatar>
                                                     )}
                                                     <div className="flex flex-col">

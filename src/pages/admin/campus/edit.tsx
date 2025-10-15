@@ -244,7 +244,7 @@ const CampusEdit = () => {
                                                     alt={`${campus?.name || 'College'} logo`}
                                                 />
                                                 <AvatarFallback>
-                                                    <Building className="h-10 w-10" />
+                                                    <Building className='p-0.5' />
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1">

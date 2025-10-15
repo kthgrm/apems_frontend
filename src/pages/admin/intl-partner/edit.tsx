@@ -380,7 +380,7 @@ export default function InternationalPartnerEdit() {
                                                     {partner?.college.campus.logo && (
                                                         <Avatar className="size-8">
                                                             <AvatarImage src={asset(partner.college.campus.logo)} alt="Campus logo" />
-                                                            <AvatarFallback><School size={16} /></AvatarFallback>
+                                                            <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                         </Avatar>
                                                     )}
                                                     <span className="text-sm font-medium">{partner?.college.campus.name}</span>
@@ -393,7 +393,7 @@ export default function InternationalPartnerEdit() {
                                                     {partner?.college.logo && (
                                                         <Avatar className="size-8">
                                                             <AvatarImage src={asset(partner.college.logo)} alt="College logo" />
-                                                            <AvatarFallback><Building size={16} /></AvatarFallback>
+                                                            <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                         </Avatar>
                                                     )}
                                                     <div className="flex flex-col">

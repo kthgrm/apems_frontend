@@ -152,7 +152,7 @@ export default function TechnologyTransfer() {
                                             {selectedCampus?.logo && (
                                                 <Avatar className="size-12">
                                                     <AvatarImage src={asset(selectedCampus.logo)} alt="Campus logo" />
-                                                    <AvatarFallback>{selectedCampus?.name.charAt(0)}</AvatarFallback>
+                                                    <AvatarFallback><Building className='p-1' /></AvatarFallback>
                                                 </Avatar>
                                             )}
                                             <div>
@@ -164,7 +164,7 @@ export default function TechnologyTransfer() {
                                             {selectedCollege?.logo && (
                                                 <Avatar className="size-12">
                                                     <AvatarImage src={asset(selectedCollege.logo)} alt="College logo" />
-                                                    <AvatarFallback>{selectedCollege?.name.charAt(0)}</AvatarFallback>
+                                                    <AvatarFallback><Building className='p-1' /></AvatarFallback>
                                                 </Avatar>
                                             )}
                                             <div>
@@ -241,7 +241,7 @@ export default function TechnologyTransfer() {
                                                 <div className="flex flex-col items-center gap-2 justify-between text-center">
                                                     <Avatar className="size-24">
                                                         <AvatarImage src={asset(college.logo)} alt="College logo" />
-                                                        <AvatarFallback>{college?.name.charAt(0)}</AvatarFallback>
+                                                        <AvatarFallback><Building className='p-1' /></AvatarFallback>
                                                     </Avatar>
                                                     <p className='text-md font-medium'>{college.code}</p>
                                                     <p className='text-sm'>{college.name}</p>
@@ -292,7 +292,7 @@ export default function TechnologyTransfer() {
                                             <div className="flex flex-col items-center gap-3">
                                                 <Avatar className="size-24">
                                                     <AvatarImage src={asset(campus.logo)} alt="College logo" />
-                                                    <AvatarFallback>{campus?.name.charAt(0)}</AvatarFallback>
+                                                    <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                 </Avatar>
                                                 <span className='text-lg font-medium'>{campus.name}</span>
                                                 <Badge

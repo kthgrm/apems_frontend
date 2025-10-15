@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import InputError from "@/components/input-error";
 import type { College } from "@/types";
-import { GraduationCap, Edit, MoreHorizontal, Trash, Eye, LoaderCircle } from "lucide-react";
+import { Edit, MoreHorizontal, Trash, Eye, LoaderCircle, Building } from "lucide-react";
 import { useState } from "react";
 import { asset } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -164,7 +164,7 @@ export const columns = (onDelete: (id: number | string) => void): ColumnDef<Coll
                     <Avatar className="h-10 w-10">
                         <AvatarImage src={asset(colleges.logo)} alt={colleges.name} />
                         <AvatarFallback className="bg-blue-100 text-blue-600">
-                            <GraduationCap className="h-5 w-5" />
+                            <Building className='p-0.5' />
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">

@@ -245,7 +245,7 @@ const CampusShow = () => {
                                                         alt={`${campus.name} logo`}
                                                     />
                                                     <AvatarFallback>
-                                                        <Building className="h-8 w-8" />
+                                                        <Building className='p-0.5' />
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div className="overflow-ellipsis">

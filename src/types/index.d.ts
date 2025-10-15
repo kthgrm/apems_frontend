@@ -124,3 +124,69 @@ export interface InternationalPartner {
     created_at: string;
     updated_at: string;
 }
+
+export interface Award {
+    id: number;
+    user_id: number;
+    user: User;
+    college_id: number;
+    college: College;
+
+    award_name: string;
+    description: string;
+    date_received: string;
+    
+    event_details: string;
+    location: string;
+    awarding_body: string;
+    people_involved: string;
+
+    attachment_paths?: string[] | null;
+    attachment_link?: string | null;
+    is_archived: boolean;
+
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ImpactAssessment {
+    id: number;
+
+    user_id: string;
+    user: User;
+
+    tech_transfer_id: string;
+    tech_transfer: TechnologyTransfer;
+
+    beneficiary: string;
+    num_direct_beneficiary: number;
+    num_indirect_beneficiary: number;
+    geographic_coverage: string;
+    is_archived: boolean;
+
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Modalities {
+    id: number;
+
+    user_id: string;
+    user: User;
+
+    tech_transfer_id: string;
+    tech_transfer: TechnologyTransfer;
+    
+    modality: string;
+    tv_channel?: string | null;
+    radio?: string | null;
+    online_link?: string | null;
+    time_air: string;
+    period: string;
+    partner_agency: string;
+    hosted_by: string;
+    is_archived: boolean;
+
+    created_at: string;
+    updated_at: string;
+}

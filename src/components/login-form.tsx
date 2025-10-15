@@ -43,6 +43,8 @@ export function LoginForm({
     } catch (err: any) {
       if (err.response?.status === 401) {
         setError("Invalid credentials");
+      } else if (err.response?.status === 403) {
+        setError("Your account is inactive. Please contact the administrator.");
       } else {
         setError("Login failed. Please try again.");
         console.error(err);
@@ -93,7 +95,7 @@ export function LoginForm({
               <Field>
                 <Button type="submit" className="bg-red-800" disabled={isLoading}>Log in</Button>
                 <FieldDescription className="text-center">
-                  Forgot Password? <a href="#" className="text-red-800">Reset it</a>
+                  Forgot Password? <a href="/forgot-password" className="text-red-800">Reset it</a>
                 </FieldDescription>
               </Field>
             </FieldGroup>

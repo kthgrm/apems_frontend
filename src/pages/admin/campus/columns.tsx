@@ -166,7 +166,7 @@ export const columns = (onDelete: (id: number | string) => void): ColumnDef<Camp
                             alt={`${campus.name} logo`}
                         />
                         <AvatarFallback className="bg-slate-100">
-                            <Building className="h-4 w-4 text-slate-600" />
+                            <Building className='p-0.5' />
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">

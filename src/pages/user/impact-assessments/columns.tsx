@@ -137,6 +137,21 @@ const ArchiveAssessmentButton = ({ assessment, onArchived }: { assessment: Impac
 
 export const columns = (onArchived?: (id: number | string) => void): ColumnDef<ImpactAssessment>[] => [
     {
+        accessorKey: "id",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="RREID" />
+        },
+        cell: ({ row }) => {
+            const assessment = row.original;
+            return (
+                <div className="flex items-center gap-2">
+                    <BarChart className="h-4 w-4 text-purple-500" />
+                    <span className="text-sm">{assessment.id}</span>
+                </div>
+            );
+        },
+    },
+    {
         accessorFn: (row) => row.tech_transfer?.name,
         id: "project_name",
         header: ({ column }) => {
@@ -146,70 +161,38 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<I
             const assessment = row.original;
             return (
                 <div className="flex items-center gap-2">
-                    <BarChart className="h-4 w-4 text-purple-500" />
-                    <div className="flex flex-col">
-                        <span className="font-medium">{assessment.tech_transfer.name}</span>
-                        <span className="text-xs text-muted-foreground">ID: {assessment.id}</span>
-                    </div>
+                    <span className="font-medium">{assessment.tech_transfer.name}</span>
                 </div>
             );
         },
     },
     {
-        accessorKey: "beneficiary",
+        accessorKey: "title",
         header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Beneficiary" />
+            return <DataTableColumnHeader column={column} title="Title" />
         },
-        cell: ({ row }: any) => {
-            const beneficiary = row.getValue("beneficiary") as string;
-            return beneficiary ? (
-                <span className="line-clamp-2">{beneficiary}</span>
-            ) : (
-                <span className="text-muted-foreground text-sm">Not specified</span>
+        cell: ({ row }) => {
+            const assessment = row.original;
+            return (
+                <div className="flex items-center gap-2">
+                    <span className="font-medium">{assessment.title}</span>
+                </div>
             );
-        },
+        }
     },
     {
-        accessorKey: "geographic_coverage",
+        accessorKey: "description",
         header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Geographic Coverage" />
+            return <DataTableColumnHeader column={column} title="Description" />
         },
-        cell: ({ row }: any) => {
-            const geographicCoverage = row.getValue("geographic_coverage") as string;
-            return geographicCoverage ? (
-                <span className="line-clamp-2">{geographicCoverage}</span>
-            ) : (
-                <span className="text-muted-foreground text-sm">Not specified</span>
+        cell: ({ row }) => {
+            const assessment = row.original;
+            return (
+                <div className="flex items-center gap-2">
+                    <span className="font-medium">{assessment.description}</span>
+                </div>
             );
-        },
-    },
-    {
-        accessorKey: "num_direct_beneficiary",
-        header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Direct Beneficiaries" />
-        },
-        cell: ({ row }: any) => {
-            const numDirectBeneficiaries = row.getValue("num_direct_beneficiary") as number;
-            return numDirectBeneficiaries ? (
-                <span className="line-clamp-2">{numDirectBeneficiaries}</span>
-            ) : (
-                <span className="text-muted-foreground text-sm">Not specified</span>
-            );
-        },
-    },
-    {
-        accessorKey: "num_indirect_beneficiary",
-        header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Indirect Beneficiaries" />
-        },
-        cell: ({ row }: any) => {
-            const numIndirectBeneficiaries = row.getValue("num_indirect_beneficiary") as number;
-            return numIndirectBeneficiaries ? (
-                <span className="line-clamp-2">{numIndirectBeneficiaries}</span>
-            ) : (
-                <span className="text-muted-foreground text-sm">Not specified</span>
-            );
-        },
+        }
     },
     {
         id: "actions",

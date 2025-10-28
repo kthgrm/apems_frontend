@@ -6,15 +6,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Textarea } from '@/components/ui/textarea'
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, ImpactAssessment } from '@/types'
-import { Building, Edit3, FileText, Paperclip, Target, TrendingUp, Users } from 'lucide-react'
+import { Building, Edit3, ExternalLink, File, Target } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 export default function ImpactAssessmentShow() {
     const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
@@ -114,14 +114,14 @@ export default function ImpactAssessmentShow() {
                                     onClick={handleEdit}
                                 >
                                     <Edit3 className="h-4 w-4 mr-2" />
-                                    Edit Assessment
+                                    Edit
                                 </Button>
                                 <Button
                                     variant="destructive"
                                     className="justify-start bg-red-800 hover:bg-red-900"
                                     onClick={() => setIsArchiveDialogOpen(true)}
                                 >
-                                    Delete Assessment
+                                    Delete
                                 </Button>
                             </div>
                         </div>
@@ -133,73 +133,84 @@ export default function ImpactAssessmentShow() {
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
-                                            <Target className="h-5 w-5" />
-                                            Basic Information
+                                            <Target className="h-5 w-5 text-purple-600" />
+                                            Assessment Information
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <Label className="text-sm font-medium">Assessment ID</Label>
-                                                <Input value={assessment.id} readOnly className="mt-1" />
+                                                <Label className="text-sm font-light">RREID</Label>
+                                                <Input
+                                                    value={assessment.id}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
                                             </div>
                                             <div>
-                                                <Label className="text-sm font-medium">Primary Beneficiary</Label>
-                                                <Input value={assessment.beneficiary} readOnly className="mt-1" />
+                                                <Label className="text-sm font-light">Title</Label>
+                                                <Input
+                                                    value={assessment.title || 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
                                             </div>
-                                            <div className="cols-span-1 md:col-span-2">
-                                                <Label className="text-sm font-medium">Geographic Coverage</Label>
-                                                <Input value={assessment.geographic_coverage} readOnly className="mt-1" />
+                                            <div className='col-span-2'>
+                                                <Label className="text-sm font-light">Description</Label>
+                                                <Textarea
+                                                    value={assessment.description || 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
                                             </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                            <div className='col-span-2'>
+                                                <Label className="text-sm font-light">Associated Project</Label>
+                                                <Card className="mt-1">
+                                                    <CardContent>
+                                                        {assessment.tech_transfer_id ? (
+                                                            <div className="flex items-center justify-between">
+                                                                <h2 className="text-lg font-semibold">{assessment.tech_transfer.name}</h2>
+                                                                <Link to={`/user/technology-transfer/${assessment.tech_transfer.id}`} className="text-blue-600 hover:underline flex space-x-1 items-center">
+                                                                    <span className='text-sm'>View Project Details</span>
+                                                                    <ExternalLink className="w-4" />
+                                                                </Link>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-sm text-muted-foreground">No associated project.</p>
+                                                        )}
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+                                            <div className="col-span-2">
+                                                <Label className="text-sm font-light">Terminal Report</Label>
+                                                {assessment.attachment_paths && assessment.attachment_paths.length > 0 ? (
+                                                    assessment.attachment_paths.map((path, index) => {
+                                                        const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
 
-                                {/* Impact Metrics */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <TrendingUp className="h-5 w-5" />
-                                            Impact Metrics
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-medium">Direct Beneficiaries</Label>
-                                                <div className="mt-1 p-3 bg-green-50 border border-green-200 rounded-md">
-                                                    <div className="flex items-center gap-2">
-                                                        <Users className="h-5 w-5 text-green-600" />
-                                                        <span className="text-lg font-semibold text-green-800">
-                                                            {Number(assessment.num_direct_beneficiary).toLocaleString()}
-                                                        </span>
-                                                        <span className="text-sm text-green-600">people</span>
+                                                        return (
+                                                            <div key={index} className="flex items-center p-3 border rounded-lg mt-1">
+
+                                                                <a
+                                                                    href={asset(path)}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="flex items-center gap-2 text-blue-500 hover:underline w-full"
+                                                                >
+                                                                    <File className="h-4 w-4 flex-shrink-0" />
+                                                                    <span className="text-sm flex-1 truncate">{fileName}</span>
+                                                                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                                                </a>
+                                                            </div>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <div className="flex items-center p-3 border rounded-lg mt-1">
+                                                        <div className="text-sm gap-2 flex items-center">
+                                                            <File className="h-4 w-4" />
+                                                            No Attachment
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-medium">Indirect Beneficiaries</Label>
-                                                <div className="mt-1 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                                                    <div className="flex items-center gap-2">
-                                                        <Users className="h-5 w-5 text-blue-600" />
-                                                        <span className="text-lg font-semibold text-blue-800">
-                                                            {Number(assessment.num_indirect_beneficiary).toLocaleString()}
-                                                        </span>
-                                                        <span className="text-sm text-blue-600">people</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-medium">Total Impact</Label>
-                                            <div className="mt-1 p-4 bg-purple-50 border border-purple-200 rounded-md">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <Users className="h-6 w-6 text-purple-600" />
-                                                    <span className="text-2xl font-bold text-purple-800">
-                                                        {(Number(assessment.num_direct_beneficiary) + Number(assessment.num_indirect_beneficiary)).toLocaleString()}
-                                                    </span>
-                                                    <span className="text-lg text-purple-600">total beneficiaries</span>
-                                                </div>
+                                                )}
                                             </div>
                                         </div>
                                     </CardContent>
@@ -248,44 +259,6 @@ export default function ImpactAssessmentShow() {
                                         </CardContent>
                                     </Card>
                                 )}
-
-                                {/* Related Project Information */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <FileText className="h-5 w-5" />
-                                            Related Project
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className={`w-full flex items-center justify-start gap-2 ${assessment.tech_transfer.is_archived
-                                                        ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-500'
-                                                        : ''
-                                                        }`}
-                                                    onClick={assessment.tech_transfer.is_archived
-                                                        ? undefined
-                                                        : () => window.location.href = `/admin/technology-transfer/${assessment.tech_transfer.id}`
-                                                    }
-                                                >
-                                                    <Paperclip className="h-5 w-5" />
-                                                    {assessment.tech_transfer.name}
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>
-                                                    {assessment.tech_transfer.is_archived
-                                                        ? 'This project has been deleted'
-                                                        : 'Go to project details'
-                                                    }
-                                                </p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </CardContent>
-                                </Card>
 
                                 {/* Record Details */}
                                 <Card>

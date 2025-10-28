@@ -6,13 +6,14 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { TechnologyTransfer } from '@/types';
-import { CalendarDays, Download, Eye, FileText, Image, Mail, MapPin, Phone, Target, Users } from 'lucide-react';
+import { Download, Eye, FileText, Handshake, Image, Phone, Target } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 
 export default function UserTechnTransferEdit() {
     const { id } = useParams();
@@ -32,10 +33,10 @@ export default function UserTechnTransferEdit() {
         end_date: '',
         tags: '',
         leader: '',
+        members: '',
         deliverables: '',
         agency_partner: '',
         contact_person: '',
-        contact_email: '',
         contact_phone: '',
         contact_address: '',
         copyright: 'no',
@@ -50,15 +51,21 @@ export default function UserTechnTransferEdit() {
         const fileArray = Array.from(newFiles);
         const validFiles = fileArray.filter(file => {
             // Check file type
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!validTypes.includes(file.type)) {
                 toast.error(`File ${file.name} is not a valid file type`);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
                 return false;
             }
 
             // Check file size (max 10MB)
             if (file.size > 10 * 1024 * 1024) {
                 toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
                 return false;
             }
 
@@ -113,10 +120,10 @@ export default function UserTechnTransferEdit() {
                     end_date: formatDate(project.end_date),
                     tags: project.tags || '',
                     leader: project.leader || '',
+                    members: project.members || '',
                     deliverables: project.deliverables || '',
                     agency_partner: project.agency_partner || '',
                     contact_person: project.contact_person || '',
-                    contact_email: project.contact_email || '',
                     contact_phone: project.contact_phone || '',
                     contact_address: project.contact_address || '',
                     copyright: project.copyright || 'no',
@@ -273,6 +280,11 @@ export default function UserTechnTransferEdit() {
                                                 </div>
                                             </div>
                                             <div>
+                                                <Label className="text-sm font-light">Members</Label>
+                                                <Input id="members" value={data.members} onChange={handleChange} />
+                                                <InputError message={errors.members} />
+                                            </div>
+                                            <div>
                                                 <Label className="text-sm font-light">Description</Label>
                                                 <Textarea id="description" className="mt-1" rows={4} value={data.description} onChange={handleChange} />
                                                 <InputError message={errors.description} />
@@ -287,74 +299,6 @@ export default function UserTechnTransferEdit() {
                                                 <Textarea id="deliverables" className="mt-1" rows={4} value={data.deliverables} onChange={handleChange} />
                                                 <InputError message={errors.deliverables} />
                                             </div>
-                                            <div>
-                                                <Label className="text-sm font-light">Tags</Label>
-                                                <Input className="mt-1" id="tags" value={data.tags} onChange={handleChange} />
-                                                <InputError message={errors.tags} />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Partner Information */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Users className="h-5 w-5" />
-                                                Partner Information
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <Label className="text-sm font-light">Agency Partner</Label>
-                                                    <Input className="mt-1" id="agency_partner" value={data.agency_partner} onChange={handleChange} />
-                                                    <InputError message={errors.agency_partner} />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-light">Contact Person</Label>
-                                                    <Input className="mt-1" id="contact_person" value={data.contact_person} onChange={handleChange} />
-                                                    <InputError message={errors.contact_person?.message} />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-light flex items-center gap-1">
-                                                        <Mail className="h-4 w-4" />
-                                                        Email
-                                                    </Label>
-                                                    <Input className="mt-1" id="contact_email" value={data.contact_email} onChange={handleChange} />
-                                                    <InputError message={errors.contact_email} />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-light flex items-center gap-1">
-                                                        <Phone className="h-4 w-4" />
-                                                        Phone
-                                                    </Label>
-                                                    <Input className="mt-1" id="contact_phone" value={data.contact_phone} onChange={handleChange} />
-                                                    <InputError message={errors.contact_phone} />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light flex items-center gap-1">
-                                                    <MapPin className="h-4 w-4" />
-                                                    Address
-                                                </Label>
-                                                <Input className="mt-1" id="contact_address" value={data.contact_address} onChange={handleChange} />
-                                                <InputError message={errors.contact_address} />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Sidebar */}
-                                <div className="space-y-6">
-                                    {/* Timeline */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <CalendarDays className="h-5 w-5" />
-                                                Timeline
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <Label className="text-sm font-light">Start Date</Label>
@@ -367,20 +311,51 @@ export default function UserTechnTransferEdit() {
                                                     <InputError message={errors.end_date} />
                                                 </div>
                                             </div>
+                                            <div>
+                                                <Label className="text-sm font-light">Tags</Label>
+                                                <Input className="mt-1" id="tags" value={data.tags} onChange={handleChange} />
+                                                <InputError message={errors.tags} />
+                                            </div>
                                         </CardContent>
                                     </Card>
+                                </div>
 
+                                {/* Sidebar */}
+                                <div className="space-y-6">
                                     {/* Intellectual Property */}
                                     <Card>
-                                        <CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Handshake className="h-5 w-5" />
+                                                Intellectual Property
+                                            </CardTitle>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className='col-span-2'>
+                                                    <Label className="text-sm font-light">Agency Partner</Label>
+                                                    <Input className="mt-1" id="agency_partner" value={data.agency_partner} onChange={handleChange} />
+                                                    <InputError message={errors.agency_partner} />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-light">Contact Person</Label>
+                                                    <Input className="mt-1" id="contact_person" value={data.contact_person} onChange={handleChange} />
+                                                    <InputError message={errors.contact_person?.message} />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-light flex items-center gap-1">
+                                                        <Phone className="h-4 w-4" />
+                                                        Phone
+                                                    </Label>
+                                                    <Input className="mt-1" id="contact_phone" value={data.contact_phone} onChange={handleChange} />
+                                                    <InputError message={errors.contact_phone} />
+                                                </div>
+                                            </div>
+                                            <Separator />
                                             <CardTitle className="flex items-center gap-2">
                                                 <FileText className="h-5 w-5" />
                                                 Intellectual Property
                                             </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
+                                                <div className='col-span-2'>
                                                     <Label className="text-sm font-light">Copyright</Label>
                                                     <Select value={data.copyright} onValueChange={(value) => setData(prev => ({ ...prev, copyright: value }))}>
                                                         <SelectTrigger className="mt-1 w-full">
@@ -469,7 +444,7 @@ export default function UserTechnTransferEdit() {
                                                         ref={fileInputRef}
                                                         id="attachments"
                                                         type="file"
-                                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                        accept=".pdf,.doc,.docx"
                                                         multiple={true}
                                                         onChange={(e) => addFiles(e.target.files)}
                                                         disabled={processing}
@@ -477,7 +452,7 @@ export default function UserTechnTransferEdit() {
                                                     />
                                                 </div>
                                                 <p className="text-sm text-muted-foreground">
-                                                    Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
+                                                    Supported formats: PDF, DOC, DOCX (Max 10MB each)
                                                 </p>
                                                 <InputError message={errors.attachments} />
                                             </div>

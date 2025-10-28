@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { ImpactAssessment } from '@/types';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Button } from '@/components/ui/button';
-import { Trash, MapPin, Users, FilePenLine, SquarePen, Eye } from 'lucide-react';
+import { Trash, SquarePen, Eye, BarChart } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InputError from "@/components/input-error";
@@ -122,81 +122,62 @@ const ArchiveAssessmentButton = ({ assessment, onArchived }: { assessment: Impac
 
 export const columns = (onArchived?: (id: number | string) => void): ColumnDef<ImpactAssessment>[] => [
     {
-        id: 'tech_transfer.name',
-        accessorFn: (row) => row.tech_transfer?.name || 'N/A',
-        header: ({ column }) => (
-            <DataTableColumnHeader
-                column={column}
-                title="Project Assessment"
-            />
-        ),
+        accessorKey: "id",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="RREID" />
+        },
         cell: ({ row }) => {
             const assessment = row.original;
             return (
-                <div className="flex items-center gap-2" >
-                    <FilePenLine className="h-4 w-4 text-blue-500" />
-                    <div className="flex flex-col">
-                        <span className="font-medium">{assessment.tech_transfer?.name || 'N/A'}</span>
-                        <span className="text-xs text-muted-foreground">ID: {assessment.id}</span>
-                    </div>
-                </div >
-            )
+                <div className="flex items-center gap-2">
+                    <BarChart className="h-4 w-4 text-purple-500" />
+                    <span className="text-sm">{assessment.id}</span>
+                </div>
+            );
         },
     },
     {
-        accessorKey: 'beneficiary',
-        header: ({ column }) => (
-            <DataTableColumnHeader
-                column={column}
-                title="Beneficiary"
-            />
-        ),
+        accessorFn: (row) => row.tech_transfer?.name,
+        id: "project_name",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Project Assessment" />
+        },
+        cell: ({ row }: any) => {
+            const assessment = row.original;
+            return (
+                <div className="flex items-center gap-2">
+                    <span className="font-medium">{assessment.tech_transfer.name}</span>
+                </div>
+            );
+        },
     },
     {
-        accessorKey: 'num_direct_beneficiary',
-        header: ({ column }) => (
-            <DataTableColumnHeader
-                column={column}
-                title="Direct Beneficiaries"
-            />
-        ),
-        cell: ({ row }) => (
-            <div className="flex items-center gap-1">
-                <Users className="h-3 w-3 text-green-600" />
-                <span className="font-medium text-green-700">
-                    {Number(row.original.num_direct_beneficiary).toLocaleString()}
-                </span>
-            </div>
-        ),
+        accessorKey: "title",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Title" />
+        },
+        cell: ({ row }) => {
+            const assessment = row.original;
+            return (
+                <div className="flex items-center gap-2">
+                    <span className="font-medium">{assessment.title}</span>
+                </div>
+            );
+        }
     },
     {
-        accessorKey: 'num_indirect_beneficiary',
-        header: ({ column }) => (
-            <DataTableColumnHeader
-                column={column}
-                title="Indirect Beneficiaries"
-            />
-        ),
-        cell: ({ row }) => (
-            <div className="flex items-center gap-1">
-                <Users className="h-3 w-3 text-blue-600" />
-                <span className="font-medium text-blue-700">
-                    {Number(row.original.num_indirect_beneficiary).toLocaleString()}
-                </span>
-            </div>
-        ),
-    },
-    {
-        accessorKey: 'geographic_coverage',
-        header: 'Geographic Coverage',
-        cell: ({ row }) => (
-            <div className="flex items-center gap-1 max-w-[120px]">
-                <MapPin className="h-3 w-3 text-muted-foreground" />
-                <span className="truncate text-sm">
-                    {row.original.geographic_coverage}
-                </span>
-            </div>
-        ),
+        accessorKey: "description",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Description" />
+        },
+        cell: ({ row }) => {
+            const assessment = row.original;
+            return (
+                <div className="flex items-center gap-2">
+                    <span className="font-medium">{assessment.description}</span>
+                </div>
+            );
+        }
     },
     {
         id: 'user.full_name',

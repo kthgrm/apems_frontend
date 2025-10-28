@@ -104,7 +104,7 @@ export default function UserImpactAssessments() {
                         <div>
                             No impact assessments found.
                         </div>
-                        <Link to="/user/impact-assessments/create" className="font-semibold text-purple-500 hover:underline">
+                        <Link to="/user/impact-assessment/create" className="font-semibold text-purple-500 hover:underline">
                             Create a new Assessment.
                         </Link>
                     </div>

@@ -5,7 +5,7 @@ import { asset } from "@/lib/utils";
 import type { College as BaseCollege, Campus as BaseCampus, BreadcrumbItem } from "@/types";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Building, TrendingUp, Users } from "lucide-react";
+import { Building, TrendingUp } from "lucide-react";
 import AppLayout from "@/layout/app-layout";
 import { DataTable } from "@/components/data-table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -123,13 +123,6 @@ export default function ImpactAssessment() {
         setTotalAssessments(prev => Math.max(0, prev - 1));
     };
 
-    const totalDirect = assessments.reduce((sum, assessment) =>
-        sum + Number(assessment.num_direct_beneficiary), 0
-    );
-    const totalIndirect = assessments.reduce((sum, assessment) =>
-        sum + Number(assessment.num_indirect_beneficiary), 0
-    );
-
     if (campusId && collegeId) {
         return (
             <AppLayout breadcrumbs={breadcrumbs} >
@@ -194,58 +187,7 @@ export default function ImpactAssessment() {
                                     <CardContent>
                                         <div className="text-2xl font-bold">{totalAssessments}</div>
                                         <p className="text-xs text-muted-foreground">
-                                            Active impact assessments
-                                        </p>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">
-                                            Direct Beneficiaries
-                                        </CardTitle>
-                                        <Users className="h-4 w-4 text-green-600" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-green-700">
-                                            {totalDirect.toLocaleString()}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            People directly impacted
-                                        </p>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">
-                                            Indirect Beneficiaries
-                                        </CardTitle>
-                                        <Users className="h-4 w-4 text-blue-600" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-blue-700">
-                                            {totalIndirect.toLocaleString()}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            People indirectly impacted
-                                        </p>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">
-                                            Total Impact
-                                        </CardTitle>
-                                        <Users className="h-4 w-4 text-purple-600" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-purple-700">
-                                            {(totalDirect + totalIndirect).toLocaleString()}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Combined reach
+                                            Recorded impact assessments
                                         </p>
                                     </CardContent>
                                 </Card>

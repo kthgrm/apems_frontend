@@ -8,7 +8,7 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { TechnologyTransfer } from '@/types';
-import { Building, CalendarDays, Download, Eye, FileText, Image, Mail, MapPin, Phone, Target, Users } from 'lucide-react';
+import { Building, Download, Eye, FileText, Handshake, Image, Phone, Target } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -39,7 +39,6 @@ const TechnologyTransferEdit = () => {
         contact_person: '',
         contact_email: '',
         contact_phone: '',
-        contact_address: '',
         copyright: 'no',
         ip_details: '',
         attachments: [] as File[],
@@ -120,7 +119,6 @@ const TechnologyTransferEdit = () => {
                     contact_person: project.contact_person || '',
                     contact_email: project.contact_email || '',
                     contact_phone: project.contact_phone || '',
-                    contact_address: project.contact_address || '',
                     copyright: project.copyright || 'no',
                     ip_details: project.ip_details || '',
                     attachments: [],
@@ -294,6 +292,18 @@ const TechnologyTransferEdit = () => {
                                                 <Textarea id="deliverables" className="mt-1" rows={4} value={data.deliverables} onChange={handleChange} />
                                                 <InputError message={errors.deliverables} />
                                             </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <Label className="text-sm font-light">Start Date</Label>
+                                                    <Input id="start_date" type="date" className="mt-1" value={data.start_date} onChange={handleChange} />
+                                                    <InputError message={errors.start_date} />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-light">End Date</Label>
+                                                    <Input id="end_date" type="date" className="mt-1" value={data.end_date} onChange={handleChange} />
+                                                    <InputError message={errors.end_date} />
+                                                </div>
+                                            </div>
                                             <div>
                                                 <Label className="text-sm font-light">Tags</Label>
                                                 <Input className="mt-1" id="tags" value={data.tags} onChange={handleChange} />
@@ -304,15 +314,13 @@ const TechnologyTransferEdit = () => {
 
                                     {/* Partner Information */}
                                     <Card>
-                                        <CardHeader>
+                                        <CardContent className="space-y-4">
                                             <CardTitle className="flex items-center gap-2">
-                                                <Users className="h-5 w-5" />
+                                                <Handshake className="h-5 w-5" />
                                                 Partner Information
                                             </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
+                                                <div className='col-span-2'>
                                                     <Label className="text-sm font-light">Agency Partner</Label>
                                                     <Input className="mt-1" id="agency_partner" value={data.agency_partner} onChange={handleChange} />
                                                     <InputError message={errors.agency_partner} />
@@ -324,14 +332,6 @@ const TechnologyTransferEdit = () => {
                                                 </div>
                                                 <div>
                                                     <Label className="text-sm font-light flex items-center gap-1">
-                                                        <Mail className="h-4 w-4" />
-                                                        Email
-                                                    </Label>
-                                                    <Input className="mt-1" id="contact_email" value={data.contact_email} onChange={handleChange} />
-                                                    <InputError message={errors.contact_email} />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-light flex items-center gap-1">
                                                         <Phone className="h-4 w-4" />
                                                         Phone
                                                     </Label>
@@ -339,13 +339,30 @@ const TechnologyTransferEdit = () => {
                                                     <InputError message={errors.contact_phone} />
                                                 </div>
                                             </div>
+                                            <Separator />
+                                            <CardTitle className="flex items-center gap-2">
+                                                <FileText className="h-5 w-5" />
+                                                IP Information
+                                            </CardTitle>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <Label className="text-sm font-light">Copyright</Label>
+                                                    <Select value={data.copyright} onValueChange={(value) => setData(prev => ({ ...prev, copyright: value }))}>
+                                                        <SelectTrigger className="mt-1 w-full">
+                                                            <SelectValue placeholder="Select copyright status" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="yes">Yes</SelectItem>
+                                                            <SelectItem value="no">No</SelectItem>
+                                                            <SelectItem value="pending">Pending</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            </div>
                                             <div>
-                                                <Label className="text-sm font-light flex items-center gap-1">
-                                                    <MapPin className="h-4 w-4" />
-                                                    Address
-                                                </Label>
-                                                <Input className="mt-1" id="contact_address" value={data.contact_address} onChange={handleChange} />
-                                                <InputError message={errors.contact_address} />
+                                                <Label className="text-sm font-light">IP Details</Label>
+                                                <Textarea id="ip_details" className="mt-1" rows={4} value={data.ip_details} onChange={handleChange} />
+                                                <InputError message={errors.ip_details} />
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -389,62 +406,6 @@ const TechnologyTransferEdit = () => {
                                                         <span className="text-xs text-muted-foreground">{techTransfer?.college.code}</span>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Timeline */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <CalendarDays className="h-5 w-5" />
-                                                Timeline
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <Label className="text-sm font-light">Start Date</Label>
-                                                    <Input id="start_date" type="date" className="mt-1" value={data.start_date} onChange={handleChange} />
-                                                    <InputError message={errors.start_date} />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-light">End Date</Label>
-                                                    <Input id="end_date" type="date" className="mt-1" value={data.end_date} onChange={handleChange} />
-                                                    <InputError message={errors.end_date} />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Intellectual Property */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <FileText className="h-5 w-5" />
-                                                Intellectual Property
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <Label className="text-sm font-light">Copyright</Label>
-                                                    <Select value={data.copyright} onValueChange={(value) => setData(prev => ({ ...prev, copyright: value }))}>
-                                                        <SelectTrigger className="mt-1 w-full">
-                                                            <SelectValue placeholder="Select copyright status" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="yes">Yes</SelectItem>
-                                                            <SelectItem value="no">No</SelectItem>
-                                                            <SelectItem value="pending">Pending</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">IP Details</Label>
-                                                <Textarea id="ip_details" className="mt-1" rows={4} value={data.ip_details} onChange={handleChange} />
-                                                <InputError message={errors.ip_details} />
                                             </div>
                                         </CardContent>
                                     </Card>

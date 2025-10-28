@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, TechnologyTransfer } from '@/types'
-import { CalendarDays, CheckCircle, CircleDot, CircleX, Download, Edit3, ExternalLink, File, FileText, Mail, MapPin, Phone, Target, Users } from 'lucide-react'
+import { CheckCircle, CircleDot, CircleX, Download, Edit3, ExternalLink, File, FileText, Handshake, Phone, Target } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -155,6 +156,10 @@ export default function UserTechnTransferShow() {
                                             </div>
                                         </div>
                                         <div>
+                                            <Label className="text-sm font-light">Members</Label>
+                                            <Input value={techTransfer?.members || 'Not specified'} readOnly className="mt-1" />
+                                        </div>
+                                        <div>
                                             <Label className="text-sm font-light">Description</Label>
                                             <div className="mt-1 p-3 bg-muted rounded-md text-sm">
                                                 {techTransfer?.description || 'No description provided'}
@@ -170,6 +175,24 @@ export default function UserTechnTransferShow() {
                                             <Label className="text-sm font-light">Deliverables</Label>
                                             <div className="mt-1 p-3 bg-muted rounded-md text-sm">
                                                 {techTransfer?.deliverables || 'No deliverables provided'}
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-sm font-light">Start Date</Label>
+                                                <Input
+                                                    value={techTransfer?.start_date ? new Date(techTransfer.start_date).toLocaleDateString() : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-sm font-light">End Date</Label>
+                                                <Input
+                                                    value={techTransfer?.end_date ? new Date(techTransfer.end_date).toLocaleDateString() : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
                                             </div>
                                         </div>
                                         <div>
@@ -189,18 +212,19 @@ export default function UserTechnTransferShow() {
                                         </div>
                                     </CardContent>
                                 </Card>
+                            </div>
 
-                                {/* Partner Information */}
+                            {/* Sidebar */}
+                            <div className="space-y-6">
+                                {/* Intellectual Property */}
                                 <Card>
-                                    <CardHeader>
+                                    <CardContent className="space-y-4">
                                         <CardTitle className="flex items-center gap-2">
-                                            <Users className="h-5 w-5" />
+                                            <Handshake className="h-5 w-5" />
                                             Partner Information
                                         </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
+                                            <div className='col-span-2'>
                                                 <Label className="text-sm font-light">Agency Partner</Label>
                                                 <Input value={techTransfer?.agency_partner || 'Not specified'} readOnly className="mt-1" />
                                             </div>
@@ -210,73 +234,17 @@ export default function UserTechnTransferShow() {
                                             </div>
                                             <div>
                                                 <Label className="text-sm font-light flex items-center gap-1">
-                                                    <Mail className="h-4 w-4" />
-                                                    Email
-                                                </Label>
-                                                <Input value={techTransfer?.contact_email || 'Not specified'} readOnly className="mt-1" />
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light flex items-center gap-1">
                                                     <Phone className="h-4 w-4" />
                                                     Phone
                                                 </Label>
                                                 <Input value={techTransfer?.contact_phone || 'Not specified'} readOnly className="mt-1" />
                                             </div>
                                         </div>
-                                        <div>
-                                            <Label className="text-sm font-light flex items-center gap-1">
-                                                <MapPin className="h-4 w-4" />
-                                                Address
-                                            </Label>
-                                            <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                                                {techTransfer?.contact_address || 'No address provided'}
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-
-                            {/* Sidebar */}
-                            <div className="space-y-6">
-                                {/* Timeline */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <CalendarDays className="h-5 w-5" />
-                                            Timeline
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-light">Start Date</Label>
-                                                <Input
-                                                    value={techTransfer?.start_date ? new Date(techTransfer.start_date).toLocaleDateString() : 'Not set'}
-                                                    readOnly
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">End Date</Label>
-                                                <Input
-                                                    value={techTransfer?.end_date ? new Date(techTransfer.end_date).toLocaleDateString() : 'Not set'}
-                                                    readOnly
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Intellectual Property */}
-                                <Card>
-                                    <CardHeader>
+                                        <Separator />
                                         <CardTitle className="flex items-center gap-2">
                                             <FileText className="h-5 w-5" />
                                             Intellectual Property
                                         </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <Label className="text-sm font-light">Copyright</Label>
@@ -371,7 +339,6 @@ export default function UserTechnTransferShow() {
                                                     No External Link
                                                 </div>
                                             )}
-
                                         </div>
                                     </CardContent>
                                 </Card>

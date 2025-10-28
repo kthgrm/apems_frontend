@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 export default function UserTechTransferCreate() {
     const navigate = useNavigate();
@@ -37,11 +38,11 @@ export default function UserTechTransferCreate() {
         end_date: '',
         tags: '',
         leader: '',
+        members: '',
         deliverables: '',
         agency_partner: '',
         contact_person: '',
         contact_phone: '',
-        contact_address: '',
         copyright: 'no',
         ip_details: '',
         attachments: [] as File[],
@@ -50,8 +51,7 @@ export default function UserTechTransferCreate() {
 
     const steps = [
         { title: "Project Details", icon: Folder },
-        { title: "Partner Information", icon: Handshake },
-        { title: "IP Information", icon: FileText },
+        { title: "Partner & IP Information", icon: Handshake },
         { title: "Upload File", icon: FileText },
     ];
 
@@ -68,7 +68,7 @@ export default function UserTechTransferCreate() {
             if (!data.purpose) newErrors.purpose = 'Purpose is required.';
             if (!data.tags) newErrors.tags = 'Tags are required.';
             if (!data.leader) newErrors.leader = 'Project leader is required.';
-            if (!data.deliverables) newErrors.deliverables = 'Deliverables are required.';
+            if (!data.members) newErrors.members = 'Project members are required.';
             if (!data.start_date) newErrors.start_date = 'Start date is required.';
             if (!data.end_date) newErrors.end_date = 'End date is required.';
             if (data.start_date && data.end_date && data.start_date >= data.end_date) {
@@ -77,8 +77,6 @@ export default function UserTechTransferCreate() {
         } else if (step === 2) {
             if (!data.agency_partner) newErrors.agency_partner = 'Agency partner is required.';
             if (!data.contact_person) newErrors.contact_person = 'Contact person is required.';
-            if (!data.contact_address) newErrors.contact_address = 'Contact address is required.';
-        } else if (step === 3) {
             if (!data.copyright) newErrors.copyright = 'Copyright information is required.';
         }
 
@@ -93,9 +91,6 @@ export default function UserTechTransferCreate() {
 
         const fileArray = Array.from(newFiles);
         const validTypes = [
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -104,6 +99,7 @@ export default function UserTechTransferCreate() {
         const validFiles = fileArray.filter((file) => {
             if (!validTypes.includes(file.type)) {
                 toast.error(`Invalid file type: ${file.name}`);
+                if (fileInputRef.current) fileInputRef.current.value = '';
                 return false;
             }
             if (file.size > 10 * 1024 * 1024) {
@@ -186,7 +182,7 @@ export default function UserTechTransferCreate() {
                 <div className="flex items-center justify-center">
                     <h1 className="text-2xl font-medium">New Technology Transfer</h1>
                 </div>
-                <div className="flex justify-between max-w-3xl mx-auto w-full">
+                <div className="flex justify-center max-w-3xl mx-auto w-full">
                     {steps.map((s, index) => {
                         const Icon = s.icon;
                         const isActive = step === index + 1;
@@ -217,7 +213,7 @@ export default function UserTechTransferCreate() {
                     <CardContent>
                         <div className={cn("grid gap-6 md:grid-cols-2", step !== 1 && "hidden")}>
                             <div className="md:col-span-2 space-y-2">
-                                <Label htmlFor="name">Project Name</Label>
+                                <Label htmlFor="name">Project Name<span className="text-red-600">*</span></Label>
                                 <Input
                                     id="name"
                                     value={data.name}
@@ -229,7 +225,7 @@ export default function UserTechTransferCreate() {
                             </div>
 
                             <div className="md:col-span-2 space-y-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">Description<span className="text-red-600">*</span></Label>
                                 <Textarea
                                     id="description"
                                     value={data.description}
@@ -242,7 +238,7 @@ export default function UserTechTransferCreate() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="category">Category</Label>
+                                <Label htmlFor="category">Category<span className="text-red-600">*</span></Label>
                                 <Select
                                     value={data.category}
                                     onValueChange={(val) => setData((prev) => ({ ...prev, category: val }))}
@@ -257,9 +253,8 @@ export default function UserTechTransferCreate() {
                                 </Select>
                                 <InputError message={errors.category} />
                             </div>
-
                             <div className="space-y-2">
-                                <Label htmlFor="leader">Project Leader</Label>
+                                <Label htmlFor="leader">Project Leader<span className="text-red-600">*</span></Label>
                                 <Input
                                     id="leader"
                                     value={data.leader}
@@ -270,7 +265,18 @@ export default function UserTechTransferCreate() {
                                 <InputError message={errors.leader} />
                             </div>
                             <div className="space-y-2 col-span-2">
-                                <Label htmlFor="purpose">Purpose</Label>
+                                <Label htmlFor="members">Project Members<span className="text-red-600">*</span></Label>
+                                <Input
+                                    id="members"
+                                    value={data.members}
+                                    onChange={handleChange}
+                                    placeholder="Enter project members"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.members} />
+                            </div>
+                            <div className="space-y-2 col-span-2">
+                                <Label htmlFor="purpose">Purpose<span className="text-red-600">*</span></Label>
                                 <Textarea
                                     id="purpose"
                                     value={data.purpose}
@@ -281,7 +287,7 @@ export default function UserTechTransferCreate() {
                                 <InputError message={errors.purpose} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="tags">Keywords/Tags</Label>
+                                <Label htmlFor="tags">Keywords/Tags<span className="text-red-600">*</span></Label>
                                 <Input
                                     id="tags"
                                     type="text"
@@ -305,7 +311,7 @@ export default function UserTechTransferCreate() {
                                 <InputError message={errors.deliverables} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="start_date">Start Date</Label>
+                                <Label htmlFor="start_date">Start Date<span className="text-red-600">*</span></Label>
                                 <Input
                                     id="start_date"
                                     type="date"
@@ -316,7 +322,7 @@ export default function UserTechTransferCreate() {
                                 <InputError message={errors.start_date} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="end_date">End Date</Label>
+                                <Label htmlFor="end_date">End Date<span className="text-red-600">*</span></Label>
                                 <Input
                                     id="end_date"
                                     type="date"
@@ -329,7 +335,7 @@ export default function UserTechTransferCreate() {
                         </div>
                         <div className={cn("grid gap-6 md:grid-cols-2", step !== 2 && "hidden")}>
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="agency_partner">Agency Partner</Label>
+                                <Label htmlFor="agency_partner">Agency Partner<span className="text-red-600">*</span></Label>
                                 <Input
                                     id="agency_partner"
                                     value={data.agency_partner}
@@ -340,7 +346,7 @@ export default function UserTechTransferCreate() {
                                 <InputError message={errors.agency_partner} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="contact_person">Contact Person</Label>
+                                <Label htmlFor="contact_person">Contact Person<span className="text-red-600">*</span></Label>
                                 <Input
                                     id="contact_person"
                                     value={data.contact_person}
@@ -361,21 +367,9 @@ export default function UserTechTransferCreate() {
                                 />
                                 <InputError message={errors.contact_phone} />
                             </div>
+                            <Separator className="md:col-span-2" />
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="contact_address">Address</Label>
-                                <Input
-                                    id="contact_address"
-                                    value={data.contact_address}
-                                    onChange={handleChange}
-                                    placeholder="Enter contact address"
-                                    disabled={processing}
-                                />
-                                <InputError message={errors.contact_address} />
-                            </div>
-                        </div>
-                        <div className={cn("grid gap-6 md:grid-cols-2", step !== 3 && "hidden")}>
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="copyright">Copyright</Label>
+                                <Label htmlFor="copyright">Copyright<span className="text-red-600">*</span></Label>
                                 <Select
                                     value={data.copyright}
                                     onValueChange={(val) =>
@@ -393,7 +387,6 @@ export default function UserTechTransferCreate() {
                                 </Select>
                                 <InputError message={errors.copyright} />
                             </div>
-
                             <div className="md:col-span-2 space-y-2">
                                 <Label htmlFor="ip_details">IP Details</Label>
                                 <Textarea
@@ -406,7 +399,7 @@ export default function UserTechTransferCreate() {
                                 <InputError message={errors.ip_details} />
                             </div>
                         </div>
-                        <div className={cn("grid gap-6", step !== 4 && "hidden")}>
+                        <div className={cn("grid gap-6", step !== 3 && "hidden")}>
                             <div className="grid gap-6 md:grid-cols-2">
                                 <div className="space-y-2 md:col-span-2">
                                     <Label htmlFor="attachments">Terminal Report</Label>
@@ -414,7 +407,7 @@ export default function UserTechTransferCreate() {
                                         ref={fileInputRef}
                                         id="attachments"
                                         type="file"
-                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                        accept=".pdf,.doc,.docx"
                                         multiple={true}
                                         onChange={(e) => addFiles(e.target.files)}
                                         disabled={processing}

@@ -56,12 +56,12 @@ export interface TechnologyTransfer {
     end_date: string;
     tags: string;
     leader: string;
+    members: string;
     deliverables?: string | null;
     agency_partner: string;
     contact_person: string;
     contact_email: string;
     contact_phone: string;
-    contact_address: string;
     copyright: 'yes' | 'no' | 'pending';
     ip_details?: string | null;
     is_assessment_based: boolean;
@@ -152,10 +152,10 @@ export interface ImpactAssessment {
     tech_transfer_id: string;
     tech_transfer: TechnologyTransfer;
 
-    beneficiary: string;
-    num_direct_beneficiary: number;
-    num_indirect_beneficiary: number;
-    geographic_coverage: string;
+    title: string;
+    description: string;
+    
+    attachment_paths?: string[] | null;
     is_archived: boolean;
 
     created_at: string;

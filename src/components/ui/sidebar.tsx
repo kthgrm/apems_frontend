@@ -517,7 +517,7 @@ function SidebarMenuButton({
       data-size={size}
       data-active={isActive}
       className={cn(sidebarMenuButtonVariants({ variant, size }),
-        "data-[active=true]:bg-neutral-200/80 data-[active=true]:text-red-800 data-[active=true]:border-l-2 data-[active=true]:border-red-800 data-[active=true]:font-medium",
+        "data-[active=true]:bg-red-50 data-[active=true]:text-red-800 data-[active=true]:border-l-2 data-[active=true]:border-red-800 data-[active=true]:font-medium",
         className
       )}
       {...props}
@@ -689,7 +689,7 @@ function SidebarMenuSubButton({
       data-active={isActive}
       className={cn(
         "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-gray-200 active:text-gray-900 [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-        "data-[active=true]:bg-neutral-200/50 data-[active=true]:text-red-800 data-[active=true]:border-l-2 data-[active=true]:border-red-800 data-[active=true]:font-medium",
+        "data-[active=true]:bg-red-50 data-[active=true]:text-red-800 data-[active=true]:border-l-2 data-[active=true]:border-red-800 data-[active=true]:font-medium",
         size === "sm" && "text-xs",
         size === "md" && "text-sm",
         "group-data-[collapsible=icon]:hidden",

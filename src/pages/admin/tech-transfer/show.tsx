@@ -11,7 +11,7 @@ import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, TechnologyTransfer } from '@/types'
-import { Building, CalendarDays, CheckCircle, CircleDot, CircleX, Download, Edit3, ExternalLink, File, FileText, Mail, MapPin, Phone, Target, Users } from 'lucide-react'
+import { Building, CheckCircle, CircleDot, CircleX, Download, Edit3, ExternalLink, File, FileText, Handshake, Target } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -174,6 +174,24 @@ const TechnologyTransferShow = () => {
                                                 {techTransfer?.deliverables || 'No deliverables provided'}
                                             </div>
                                         </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-sm font-light">Start Date</Label>
+                                                <Input
+                                                    value={techTransfer?.start_date ? new Date(techTransfer.start_date).toLocaleDateString() : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-sm font-light">End Date</Label>
+                                                <Input
+                                                    value={techTransfer?.end_date ? new Date(techTransfer.end_date).toLocaleDateString() : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </div>
                                         <div>
                                             <Label className="text-sm font-light">Tags</Label>
                                             {techTransfer?.tags && (
@@ -194,15 +212,13 @@ const TechnologyTransferShow = () => {
 
                                 {/* Partner Information */}
                                 <Card>
-                                    <CardHeader>
+                                    <CardContent className="space-y-4">
                                         <CardTitle className="flex items-center gap-2">
-                                            <Users className="h-5 w-5" />
+                                            <Handshake className="h-5 w-5" />
                                             Partner Information
                                         </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
+                                            <div className='col-span-2'>
                                                 <Label className="text-sm font-light">Agency Partner</Label>
                                                 <Input value={techTransfer?.agency_partner || 'Not specified'} readOnly className="mt-1" />
                                             </div>
@@ -211,27 +227,42 @@ const TechnologyTransferShow = () => {
                                                 <Input value={techTransfer?.contact_person || 'Not specified'} readOnly className="mt-1" />
                                             </div>
                                             <div>
-                                                <Label className="text-sm font-light flex items-center gap-1">
-                                                    <Mail className="h-4 w-4" />
-                                                    Email
-                                                </Label>
-                                                <Input value={techTransfer?.contact_email || 'Not specified'} readOnly className="mt-1" />
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light flex items-center gap-1">
-                                                    <Phone className="h-4 w-4" />
-                                                    Phone
-                                                </Label>
+                                                <Label className="text-sm font-light">Phone</Label>
                                                 <Input value={techTransfer?.contact_phone || 'Not specified'} readOnly className="mt-1" />
                                             </div>
                                         </div>
+                                        <Separator />
+                                        <CardTitle className="flex items-center gap-2">
+                                            <FileText className="h-5 w-5" />
+                                            Intellectual Property
+                                        </CardTitle>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-sm font-light">Copyright</Label>
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    {techTransfer?.copyright === 'yes' ? (
+                                                        <Badge variant="outline" className="flex items-center gap-1">
+                                                            <CheckCircle className="w-4 text-green-500" />
+                                                            Yes
+                                                        </Badge>
+                                                    ) : techTransfer?.copyright === 'pending' ? (
+                                                        <Badge variant="outline" className="flex items-center gap-1">
+                                                            <CircleDot className="w-4 text-yellow-500" />
+                                                            Pending
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="outline" className="flex items-center gap-1">
+                                                            <CircleX className="w-4 text-red-500" />
+                                                            No
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div>
-                                            <Label className="text-sm font-light flex items-center gap-1">
-                                                <MapPin className="h-4 w-4" />
-                                                Address
-                                            </Label>
+                                            <Label className="text-sm font-light">IP Details</Label>
                                             <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                                                {techTransfer?.contact_address || 'No address provided'}
+                                                {techTransfer?.ip_details ? techTransfer.ip_details : 'No details provided'}
                                             </div>
                                         </div>
                                     </CardContent>
@@ -275,77 +306,6 @@ const TechnologyTransferShow = () => {
                                                     <span className="text-sm font-medium">{techTransfer?.college.name}</span>
                                                     <span className="text-xs text-muted-foreground">{techTransfer?.college.code}</span>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Timeline */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <CalendarDays className="h-5 w-5" />
-                                            Timeline
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-light">Start Date</Label>
-                                                <Input
-                                                    value={techTransfer?.start_date ? new Date(techTransfer.start_date).toLocaleDateString() : 'Not set'}
-                                                    readOnly
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">End Date</Label>
-                                                <Input
-                                                    value={techTransfer?.end_date ? new Date(techTransfer.end_date).toLocaleDateString() : 'Not set'}
-                                                    readOnly
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Intellectual Property */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <FileText className="h-5 w-5" />
-                                            Intellectual Property
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-light">Copyright</Label>
-                                                <div className="mt-1 flex items-center gap-2">
-                                                    {techTransfer?.copyright === 'yes' ? (
-                                                        <Badge variant="outline" className="flex items-center gap-1">
-                                                            <CheckCircle className="w-4 text-green-500" />
-                                                            Yes
-                                                        </Badge>
-                                                    ) : techTransfer?.copyright === 'pending' ? (
-                                                        <Badge variant="outline" className="flex items-center gap-1">
-                                                            <CircleDot className="w-4 text-yellow-500" />
-                                                            Pending
-                                                        </Badge>
-                                                    ) : (
-                                                        <Badge variant="outline" className="flex items-center gap-1">
-                                                            <CircleX className="w-4 text-red-500" />
-                                                            No
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light">IP Details</Label>
-                                            <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                                                {techTransfer?.ip_details ? techTransfer.ip_details : 'No details provided'}
                                             </div>
                                         </div>
                                     </CardContent>

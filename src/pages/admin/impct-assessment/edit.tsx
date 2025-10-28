@@ -8,16 +8,18 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { ImpactAssessment } from '@/types';
-import { Building, Users } from 'lucide-react';
-import { useEffect, useState } from 'react'
+import { Building, Eye, FileText, Image, Target } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import InputError from '@/components/input-error';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function ImpactAssessmentEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [assessment, setAssessment] = useState<ImpactAssessment | null>(null);
     const [techTransfers, setTechTransfers] = useState<Array<{ value: number; label: string }>>([]);
@@ -26,11 +28,56 @@ export default function ImpactAssessmentEdit() {
     const [errors, setErrors] = useState<any>({});
     const [data, setData] = useState({
         tech_transfer_id: '',
-        beneficiary: '',
-        geographic_coverage: '',
-        num_direct_beneficiary: 0,
-        num_indirect_beneficiary: 0,
+        title: '',
+        description: '',
+        attachments: [] as File[],
     });
+
+    const addFiles = (newFiles: FileList | null) => {
+        if (!newFiles) return;
+
+        const fileArray = Array.from(newFiles);
+        const validFiles = fileArray.filter(file => {
+            // Check file type
+            const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                toast.error(`File ${file.name} is not a valid file type`);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                return false;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                return false;
+            }
+
+            return true;
+        });
+
+        // Replace existing files instead of appending to avoid accumulation
+        setData(prev => ({ ...prev, attachments: validFiles }));
+    };
+
+    const clearAllFiles = () => {
+        setData(prev => ({ ...prev, attachments: [] }));
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,10 +99,9 @@ export default function ImpactAssessmentEdit() {
                 // Populate form with fetched data
                 setData({
                     tech_transfer_id: assessmentData?.tech_transfer_id?.toString() || '',
-                    beneficiary: assessmentData?.beneficiary || '',
-                    geographic_coverage: assessmentData?.geographic_coverage || '',
-                    num_direct_beneficiary: assessmentData?.num_direct_beneficiary || 0,
-                    num_indirect_beneficiary: assessmentData?.num_indirect_beneficiary || 0,
+                    title: assessmentData?.title || '',
+                    description: assessmentData?.description || '',
+                    attachments: [],
                 });
             } catch (error) {
                 console.error('Failed to fetch assessment data', error);
@@ -76,10 +122,31 @@ export default function ImpactAssessmentEdit() {
         setErrors({});
 
         try {
-            await api.put(`/impact-assessments/${id}`, data);
+            const hasFiles = data.attachments && data.attachments.length > 0;
+
+            if (hasFiles) {
+                const formData = new FormData();
+                Object.entries(data).forEach(([key, value]) => {
+                    if (key === 'attachments') {
+                        data.attachments.forEach((file) => {
+                            formData.append('attachments[]', file);
+                        });
+                    } else if (value !== null && value !== undefined) {
+                        formData.append(key, String(value));
+                    }
+                });
+                formData.append('_method', 'PUT');
+
+                await api.post(`/impact-assessments/${id}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            } else {
+                const { attachments, ...restData } = data;
+                await api.put(`/impact-assessments/${id}`, restData);
+            }
 
             toast.success('Assessment updated successfully!');
-            navigate(-1);
+            navigate(`/admin/impact-assessment/${id}`);
         } catch (err: any) {
             console.error('Submission error:', err.response?.data || err);
 
@@ -93,10 +160,6 @@ export default function ImpactAssessmentEdit() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target;
         setData(prev => ({ ...prev, [id]: value }));
-    };
-
-    const handleSelectChange = (field: string, value: string) => {
-        setData(prev => ({ ...prev, [field]: value }));
     };
 
     const breadcrumbs = [
@@ -151,95 +214,162 @@ export default function ImpactAssessmentEdit() {
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2">
-                                                <Users className="h-5 w-5" />
+                                                <Target className="h-5 w-5 text-purple-600" />
                                                 Assessment Information
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <Label className="text-sm font-medium">Assessment ID</Label>
+                                                <Label className="text-sm font-light">Assessment ID</Label>
                                                 <Input value={assessment.id} readOnly className="mt-1 bg-muted" />
                                             </div>
                                             <div>
-                                                <Label className="text-sm" htmlFor="tech_transfer_id">Related Project</Label>
+                                                <Label className="text-sm font-light" htmlFor="title">Title<span className="text-red-500">*</span></Label>
+                                                <Input
+                                                    id="title"
+                                                    value={data.title}
+                                                    onChange={handleChange}
+                                                    className="mt-1"
+                                                    placeholder="Enter title information"
+                                                />
+                                                <InputError message={errors.title} className="mt-1" />
+                                            </div>
+                                            <div className='col-span-2'>
+                                                <Label className="text-sm font-light">Description</Label>
+                                                <Textarea
+                                                    id='description'
+                                                    value={data.description}
+                                                    onChange={handleChange}
+                                                    className="mt-1"
+                                                />
+                                                <InputError message={errors.description} />
+                                            </div>
+                                            <div className='col-span-2'>
+                                                <Label className="text-sm font-light mb-1">Associated Project</Label>
                                                 <Select
                                                     value={data.tech_transfer_id.toString()}
-                                                    onValueChange={(value) => handleSelectChange('tech_transfer_id', value)}
+                                                    onValueChange={(value) => setData(prev => ({ ...prev, tech_transfer_id: value }))}
                                                 >
-                                                    <SelectTrigger className="mt-1 w-full">
-                                                        <SelectValue placeholder="Select Project" />
+                                                    <SelectTrigger className='w-full'>
+                                                        <SelectValue placeholder="Select project" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {techTransfers.map((tech_transfer) => (
-                                                            <SelectItem key={tech_transfer.value} value={tech_transfer.value.toString()}>
-                                                                {tech_transfer.label}
-                                                            </SelectItem>
-                                                        ))}
+                                                        <SelectGroup>
+                                                            {techTransfers.map((techTransfer) => (
+                                                                <SelectItem
+                                                                    key={techTransfer.value}
+                                                                    value={techTransfer.value.toString()}
+                                                                >
+                                                                    {techTransfer.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
                                                     </SelectContent>
                                                 </Select>
-                                                {errors.tech_transfer_id && <InputError message={errors.tech_transfer_id} className="mt-1" />}
                                             </div>
-                                            <div>
-                                                <Label className="text-sm font-medium" htmlFor="beneficiary">Primary Beneficiary *</Label>
-                                                <Input
-                                                    id="beneficiary"
-                                                    value={data.beneficiary}
-                                                    onChange={handleChange}
-                                                    className="mt-1"
-                                                    placeholder="Enter beneficiary information"
-                                                />
-                                                {errors.beneficiary && <InputError message={errors.beneficiary} className="mt-1" />}
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-medium" htmlFor="geographic_coverage">Geographic Coverage *</Label>
-                                                <Input
-                                                    id="geographic_coverage"
-                                                    value={data.geographic_coverage}
-                                                    onChange={handleChange}
-                                                    className="mt-1"
-                                                    placeholder="Enter geographic coverage area"
-                                                />
-                                                {errors.geographic_coverage && <InputError message={errors.geographic_coverage} className="mt-1" />}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
 
-                                    {/* Impact Metrics */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Users className="h-5 w-5" />
-                                                Impact Metrics
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <Label className="text-sm font-medium" htmlFor="num_direct_beneficiary">Direct Beneficiaries *</Label>
-                                                    <Input
-                                                        id="num_direct_beneficiary"
-                                                        type="number"
-                                                        min="0"
-                                                        value={data.num_direct_beneficiary}
-                                                        onChange={handleChange}
-                                                        className="mt-1"
-                                                        placeholder="0"
-                                                    />
-                                                    {errors.num_direct_beneficiary && <InputError message={errors.num_direct_beneficiary} className="mt-1" />}
+                                            <div className='col-span-2 space-y-4'>
+                                                {/* Existing Attachments */}
+                                                {assessment.attachment_paths && assessment.attachment_paths.length > 0 && (
+                                                    <div className="space-y-2">
+                                                        <Label className="text-sm font-light">Current Attachment ({assessment.attachment_paths.length})</Label>
+                                                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                                                            {assessment.attachment_paths.map((path, index) => {
+                                                                const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+                                                                return (
+                                                                    <div
+                                                                        key={`existing-${index}`}
+                                                                        className="flex items-center justify-between p-3 border rounded-lg bg-muted/50"
+                                                                    >
+                                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                                            <div className="flex-shrink-0">
+                                                                                <FileText className="h-5 w-5 text-violet-500" />
+                                                                            </div>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <p className="text-sm font-medium truncate">{fileName}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <a
+                                                                            href={asset(path)}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            className="text-violet-600 hover:underline text-sm flex items-center gap-1"
+                                                                        >
+                                                                            <Eye className="h-4 w-4" />
+                                                                            View
+                                                                        </a>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* New File Upload */}
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <Label htmlFor="attachments" className='font-light'>Upload New File</Label>
+                                                        {data.attachments.length > 0 && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={clearAllFiles}
+                                                                disabled={processing}
+                                                                className="text-xs"
+                                                            >
+                                                                Clear
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Input
+                                                            ref={fileInputRef}
+                                                            id="attachments"
+                                                            type="file"
+                                                            accept=".pdf,.doc,.docx"
+                                                            multiple={true}
+                                                            onChange={(e) => addFiles(e.target.files)}
+                                                            disabled={processing}
+                                                            className="file:mr-4 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                                                        />
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        Supported formats: PDF, DOC, DOCX (Max 10MB each)
+                                                    </p>
+                                                    <InputError message={errors.attachments} />
                                                 </div>
-                                                <div>
-                                                    <Label className="text-sm font-medium" htmlFor="num_indirect_beneficiary">Indirect Beneficiaries *</Label>
-                                                    <Input
-                                                        id="num_indirect_beneficiary"
-                                                        type="number"
-                                                        min="0"
-                                                        value={data.num_indirect_beneficiary}
-                                                        onChange={handleChange}
-                                                        className="mt-1"
-                                                        placeholder="0"
-                                                    />
-                                                    {errors.num_indirect_beneficiary && <InputError message={errors.num_indirect_beneficiary} className="mt-1" />}
-                                                </div>
+
+                                                {/* New File List */}
+                                                {data.attachments.length > 0 && (
+                                                    <div className="space-y-2">
+                                                        <Label className="text-base font-medium">New Files to Upload ({data.attachments.length})</Label>
+                                                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                                                            {data.attachments.map((file, index) => (
+                                                                <div
+                                                                    key={`new-${file.name}-${index}`}
+                                                                    className="flex items-center justify-between p-3 border rounded-lg bg-violet-50"
+                                                                >
+                                                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                                        <div className="flex-shrink-0">
+                                                                            {file.type.startsWith('image/') ? (
+                                                                                <Image className="h-5 w-5 text-violet-500" />
+                                                                            ) : (
+                                                                                <FileText className="h-5 w-5 text-violet-500" />
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                            <p className="text-xs text-muted-foreground">
+                                                                                {formatFileSize(file.size)}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </CardContent>
                                     </Card>

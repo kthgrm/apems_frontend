@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
+import { asset } from '@/lib/utils';
 import type { BreadcrumbItem, ImpactAssessment } from '@/types';
-import { Edit3, Target, Folder, LoaderCircle, ExternalLink, TrendingUp } from 'lucide-react';
+import { Edit3, Target, LoaderCircle, ExternalLink, File } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -39,7 +41,7 @@ export default function UserImpactAssessmentShow() {
             setPassword('');
             setErrorMessage('');
             setIsArchiveDialogOpen(false);
-            navigate(`/user/impact-assessments`);
+            navigate(`/user/impact-assessment`);
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.password) {
                 setErrorMessage(error.response.data.password);
@@ -111,14 +113,14 @@ export default function UserImpactAssessmentShow() {
                             onClick={handleEdit}
                         >
                             <Edit3 className="h-4 w-4 mr-2" />
-                            Edit Partnership
+                            Edit
                         </Button>
                         <Button
                             variant="destructive"
                             className="justify-start bg-red-800 hover:bg-red-900"
                             onClick={() => setIsArchiveDialogOpen(true)}
                         >
-                            Delete Partnership
+                            Delete
                         </Button>
                     </div>
                 </div>
@@ -131,13 +133,13 @@ export default function UserImpactAssessmentShow() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Target className="h-5 w-5 text-purple-600" />
-                                    Basic Information
+                                    Assessment Information
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <Label className="text-sm font-light">Assessment ID</Label>
+                                        <Label className="text-sm font-light">RREID</Label>
                                         <Input
                                             value={assessment.id}
                                             readOnly
@@ -145,49 +147,38 @@ export default function UserImpactAssessmentShow() {
                                         />
                                     </div>
                                     <div>
-                                        <Label className="text-sm font-light">Beneficiary</Label>
+                                        <Label className="text-sm font-light">Title</Label>
                                         <Input
-                                            value={assessment.beneficiary || 'Not set'}
+                                            value={assessment.title || 'Not set'}
                                             readOnly
                                             className="mt-1"
                                         />
                                     </div>
                                     <div className='col-span-2'>
-                                        <Label className="text-sm font-light">Geographic Coverage</Label>
-                                        <Input
-                                            value={assessment.geographic_coverage || 'Not set'}
+                                        <Label className="text-sm font-light">Description</Label>
+                                        <Textarea
+                                            value={assessment.description || 'Not set'}
                                             readOnly
                                             className="mt-1"
                                         />
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <TrendingUp className="h-5 w-5" />
-                                    Impact Metrics
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label className="text-sm font-light">Direct Beneficiary</Label>
-                                        <Input
-                                            value={assessment.num_direct_beneficiary || 'Not set'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-light">Indirect Beneficiary</Label>
-                                        <Input
-                                            value={assessment.num_indirect_beneficiary || 'Not set'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
+                                    <div className='col-span-2'>
+                                        <Label className="text-sm font-light">Associated Project</Label>
+                                        <Card className="mt-1">
+                                            <CardContent>
+                                                {assessment.tech_transfer_id ? (
+                                                    <div className="flex items-center justify-between">
+                                                        <h2 className="text-lg font-semibold">{assessment.tech_transfer.name}</h2>
+                                                        <Link to={`/user/technology-transfer/${assessment.tech_transfer.id}`} className="text-blue-600 hover:underline flex space-x-1 items-center">
+                                                            <span className='text-sm'>View Project Details</span>
+                                                            <ExternalLink className="w-4" />
+                                                        </Link>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-muted-foreground">No associated project.</p>
+                                                )}
+                                            </CardContent>
+                                        </Card>
                                     </div>
                                 </div>
                             </CardContent>
@@ -196,30 +187,46 @@ export default function UserImpactAssessmentShow() {
 
                     {/* Sidebar */}
                     <div className="space-y-6">
-                        {/* Associated Project */}
-                        {assessment.tech_transfer && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Folder className="h-5 w-5" />
-                                        Associated Project
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <Card>
-                                        <CardContent>
-                                            <div className="flex items-center justify-between">
-                                                <h2 className="text-lg font-semibold">{assessment.tech_transfer.name}</h2>
-                                                <Link to={`/user/technology-transfer/${assessment.tech_transfer.id}`} className="text-blue-600 hover:underline flex space-x-1 items-center">
-                                                    <span className='text-sm'>View Project Details</span>
-                                                    <ExternalLink className="w-4" />
-                                                </Link>
+                        {/* Attachments */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    Terminal Report
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="space-y-2">
+                                    {assessment.attachment_paths && assessment.attachment_paths.length > 0 ? (
+                                        assessment.attachment_paths.map((path, index) => {
+                                            const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
+
+                                            return (
+                                                <div key={index} className="flex items-center p-3 border rounded-lg">
+
+                                                    <a
+                                                        href={asset(path)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-blue-500 hover:underline w-full"
+                                                    >
+                                                        <File className="h-4 w-4 flex-shrink-0" />
+                                                        <span className="text-sm flex-1 truncate">{fileName}</span>
+                                                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                                    </a>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="flex items-center p-3 border rounded-lg">
+                                            <div className="text-sm gap-2 flex items-center">
+                                                <File className="h-4 w-4" />
+                                                No Attachment
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                </CardContent>
-                            </Card>
-                        )}
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>

@@ -75,10 +75,12 @@ export default function UserAwardsCreate() {
         const validFiles = fileArray.filter((file) => {
             if (!validTypes.includes(file.type)) {
                 toast.error(`Invalid file type: ${file.name}`);
+                if (fileInputRef.current) fileInputRef.current.value = '';
                 return false;
             }
             if (file.size > 10 * 1024 * 1024) {
                 toast.error(`${file.name} exceeds 10MB limit`);
+                if (fileInputRef.current) fileInputRef.current.value = '';
                 return false;
             }
             return true;

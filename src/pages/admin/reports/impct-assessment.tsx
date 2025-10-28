@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, Download, Building2, GraduationCap, BarChart3, TrendingUp, Users, Target } from 'lucide-react';
+import { Search, Filter, Download, Building2, GraduationCap, BarChart3 } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -161,11 +161,6 @@ export default function ImpactAssessmentsReport() {
         });
     };
 
-    const formatBeneficiaries = (count: number | null | undefined) => {
-        if (!count) return '0';
-        return count.toLocaleString();
-    };
-
     const handlePageChange = (page: number) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', page.toString());
@@ -306,91 +301,64 @@ export default function ImpactAssessmentsReport() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Project & Beneficiary</TableHead>
-                                        <TableHead>Geographic Coverage</TableHead>
+                                        <TableHead>RREID</TableHead>
+                                        <TableHead>Project</TableHead>
                                         <TableHead>College</TableHead>
-                                        <TableHead>Direct Impact</TableHead>
-                                        <TableHead>Indirect Impact</TableHead>
-                                        <TableHead>Total Impact</TableHead>
+                                        <TableHead>Title</TableHead>
+                                        <TableHead>Description</TableHead>
                                         <TableHead>Created</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {assessments.data.map((assessment) => (
-                                        <TableRow key={assessment.id}>
-                                            <TableCell className="font-medium">
-                                                <div>
+                                    {assessments?.data && assessments.data.length > 0 ? (
+                                        assessments.data.map((assessment) => (
+                                            <TableRow key={assessment.id}>
+                                                <TableCell className="font-medium">
+                                                    <p className="font-semibold">{assessment.id || 'N/A'}</p>
+                                                </TableCell>
+
+                                                <TableCell className="font-medium">
                                                     <p className="font-semibold">{assessment.tech_transfer?.name || 'N/A'}</p>
-                                                    {assessment.beneficiary && (
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {assessment.beneficiary.substring(0, 60)}{assessment.beneficiary.length > 60 ? '...' : ''}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Target className="h-3 w-3 text-muted-foreground" />
-                                                    <span className="text-sm">{assessment.geographic_coverage || 'Not specified'}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <div>
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <div className="flex flex-col text-xs">
                                                         <div className="flex items-center gap-1">
                                                             <Building2 className="h-3 w-3" />
-                                                            <span className="text-xs">{assessment.tech_transfer?.college?.campus?.name || 'N/A'}</span>
+                                                            <span>{assessment.tech_transfer?.college?.campus?.name || 'N/A'}</span>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             <GraduationCap className="h-3 w-3" />
-                                                            <span className="text-xs">{assessment.tech_transfer?.college?.name || 'N/A'}</span>
+                                                            <span>{assessment.tech_transfer?.college?.name || 'N/A'}</span>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    <div className="flex items-center gap-1">
-                                                        <Users className="h-3 w-3" />
-                                                        <span className="font-medium">{formatBeneficiaries(assessment.num_direct_beneficiary)}</span>
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <p className="text-sm">{assessment.title || 'No title'}</p>
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <p className="text-sm">{assessment.description || 'No description'}</p>
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <div className="text-sm">
+                                                        <p>{formatDate(assessment.created_at)}</p>
+                                                        <p className="text-muted-foreground">
+                                                            by {assessment.user ? `${assessment.user.first_name} ${assessment.user.last_name}` : 'N/A'}
+                                                        </p>
                                                     </div>
-                                                    <div className="text-muted-foreground text-xs mt-1">
-                                                        Direct beneficiaries
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    <div className="flex items-center gap-1">
-                                                        <TrendingUp className="h-3 w-3" />
-                                                        <span className="font-medium">{formatBeneficiaries(assessment.num_indirect_beneficiary)}</span>
-                                                    </div>
-                                                    <div className="text-muted-foreground text-xs mt-1">
-                                                        Indirect beneficiaries
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    <div className="flex items-center gap-1">
-                                                        <BarChart3 className="h-3 w-3" />
-                                                        <span className="font-bold text-primary">
-                                                            {formatBeneficiaries((assessment.num_direct_beneficiary || 0) + (assessment.num_indirect_beneficiary || 0))}
-                                                        </span>
-                                                    </div>
-                                                    <div className="text-muted-foreground text-xs mt-1">
-                                                        Total impact
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    <p>{formatDate(assessment.created_at)}</p>
-                                                    <p className="text-muted-foreground">by {assessment.user?.first_name + ' ' + assessment.user?.last_name || 'N/A'} </p>
-                                                </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                                                No assessments found.
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>

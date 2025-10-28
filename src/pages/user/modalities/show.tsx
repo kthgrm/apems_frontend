@@ -4,11 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import type { BreadcrumbItem, Modalities } from '@/types';
-import { Edit3, Radio, Tv, Globe, Folder, LoaderCircle, ExternalLink, Building } from 'lucide-react';
+import { Edit3, Radio, Tv, Globe, Folder, LoaderCircle, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -89,21 +88,6 @@ export default function UserModalityShow() {
                 return <Globe className="h-5 w-5" />;
             default:
                 return <Radio className="h-5 w-5" />;
-        }
-    };
-
-    const getModalityColor = () => {
-        switch (modality?.modality?.toLowerCase()) {
-            case 'tv':
-            case 'television':
-                return 'bg-purple-100 text-purple-800';
-            case 'radio':
-                return 'bg-blue-100 text-blue-800';
-            case 'online':
-            case 'internet':
-                return 'bg-green-100 text-green-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
         }
     };
 

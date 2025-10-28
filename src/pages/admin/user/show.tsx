@@ -2,11 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AppLayout from "@/layout/app-layout";
 import type { BreadcrumbItem, User } from "@/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Edit, Mail, MapPin, Shield, ShieldCheck, Trash2, User as UserIcon } from "lucide-react";
+import { Edit, Shield, ShieldCheck, Trash2, User as UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -99,23 +98,6 @@ export default function ShowUser() {
         }
     };
 
-    const handleToggleAdmin = async () => {
-        if (!user) return;
-
-        const action = user.role === 'admin' ? 'remove admin privileges from' : 'grant admin privileges to';
-        if (confirm(`Are you sure you want to ${action} ${user.first_name} ${user.last_name}?`)) {
-            try {
-                const response = await api.patch(`/users/${user.id}/toggle-admin`);
-                toast.success(response.data.message || 'Admin status updated successfully');
-                // Refresh user data
-                const updatedUser = await api.get(`/users/${id}`);
-                setUser(updatedUser.data.data || updatedUser.data);
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || 'Failed to update admin status');
-            }
-        }
-    };
-
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -123,14 +105,6 @@ export default function ShowUser() {
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-        });
-    };
-
-    const formatDateShort = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
         });
     };
 

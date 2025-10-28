@@ -15,7 +15,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 
 const TechnologyTransferEdit = () => {
     const { id } = useParams();

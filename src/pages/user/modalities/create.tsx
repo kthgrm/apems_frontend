@@ -16,7 +16,6 @@ export default function UserModalitiesCreate() {
     const navigate = useNavigate();
     const [errors, setErrors] = useState<any>({});
     const [processing, setProcessing] = useState(false);
-    const [step, setStep] = useState(1);
     const [techTransfers, setTechTransfers] = useState<any[]>([]);
 
     const [data, setData] = useState({
@@ -87,8 +86,7 @@ export default function UserModalitiesCreate() {
                 <div className="flex justify-center max-w-3xl mx-auto w-full">
                     {steps.map((s, index) => {
                         const Icon = s.icon;
-                        const isActive = step === index + 1;
-                        const isCompleted = step > index + 1;
+                        const isActive = true;
                         return (
                             <div key={index} className="flex flex-col items-center w-1/3 text-center">
                                 <div
@@ -97,8 +95,6 @@ export default function UserModalitiesCreate() {
                                         isActive
                                             ? "border-orange-600 bg-orange-50 text-orange-600"
                                             : "border-gray-300 text-gray-400",
-
-                                        isCompleted ? "bg-orange-600 border-orange-600 text-white" : ""
                                     )}
                                 >
                                     <Icon size={24} />
@@ -113,7 +109,7 @@ export default function UserModalitiesCreate() {
 
                 <Card className="max-w-3xl mx-auto w-full border-1 border-orange-500/50">
                     <CardContent>
-                        <div className={cn("grid gap-6 md:grid-cols-2", step !== 1 && "hidden")}>
+                        <div className={cn("grid gap-6 md:grid-cols-2")}>
                             <div className="space-y-2 col-span-2">
                                 <Label>Technology Transfer Project<span className="text-red-500">*</span></Label>
                                 <Select

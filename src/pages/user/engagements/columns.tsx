@@ -1,19 +1,19 @@
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InputError from "@/components/input-error";
-import type { InternationalPartner } from "@/types";
+import type { Engagement } from "@/types";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Globe, MapPin, MoreHorizontal, Trash, Users } from "lucide-react";
+import { Eye, Globe, MapPin, SquarePen, Trash, Users } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-const ArchivePartnerButton = ({ partner, onArchived }: { partner: InternationalPartner, onArchived?: (id: number | string) => void }) => {
+const ArchiveEngagementButton = ({ engagement, onArchived }: { engagement: Engagement, onArchived?: (id: number | string) => void }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -29,15 +29,15 @@ const ArchivePartnerButton = ({ partner, onArchived }: { partner: InternationalP
         setErrorMessage('');
 
         try {
-            await api.patch(`/international-partners/${partner.id}/archive`, {
+            await api.patch(`/engagements/${engagement.id}/archive`, {
                 password: password
             });
-            toast.success('Partnership archived successfully.');
+            toast.success('Engagement archived successfully.');
             setIsDialogOpen(false);
             setPassword('');
             setErrorMessage('');
             if (onArchived) {
-                onArchived(partner.id);
+                onArchived(engagement.id);
             }
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.password) {
@@ -60,18 +60,25 @@ const ArchivePartnerButton = ({ partner, onArchived }: { partner: InternationalP
 
     return (
         <>
-            <DropdownMenuItem
-                variant="destructive"
-                className="flex items-center gap-2"
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setTimeout(() => setIsDialogOpen(true), 100);
-                }}
-            >
-                <Trash className="h-4 w-4" />
-                Delete partnership
-            </DropdownMenuItem>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-red-800 hover:bg-red-800 hover:text-white"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Small delay to let dropdown close first
+                            setTimeout(() => setIsDialogOpen(true), 100);
+                        }}
+                    >
+                        <Trash className="h-4 w-4" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Delete</p>
+                </TooltipContent>
+            </Tooltip>
 
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 if (!open) {
@@ -82,7 +89,7 @@ const ArchivePartnerButton = ({ partner, onArchived }: { partner: InternationalP
                     <DialogHeader>
                         <DialogTitle>Confirm Delete</DialogTitle>
                         <DialogDescription>
-                            You are about to delete the partnership with "{partner.agency_partner}". This action requires password confirmation.
+                            You are about to delete the engagement with "{engagement.agency_partner}". This action requires password confirmation.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-2">
@@ -129,7 +136,7 @@ const ArchivePartnerButton = ({ partner, onArchived }: { partner: InternationalP
     );
 };
 
-export const columns = (onArchived?: (id: number | string) => void): ColumnDef<InternationalPartner>[] => [
+export const columns = (onArchived?: (id: number | string) => void): ColumnDef<Engagement>[] => [
     {
         accessorKey: "agency_partner",
         header: ({ column }) => {
@@ -140,12 +147,10 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<I
             return (
                 <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-emerald-600" />
-                    <Link to={`/user/international-partner/${partner.id}`} className="font-medium hover:underline">
-                        <div className="flex flex-col">
-                            <span className="font-medium">{partner.agency_partner}</span>
-                            <span className="text-xs text-muted-foreground">ID: {partner.id}</span>
-                        </div>
-                    </Link>
+                    <div className="flex flex-col">
+                        <span className="font-medium">{partner.agency_partner}</span>
+                        <span className="text-xs text-muted-foreground">ID: {partner.id}</span>
+                    </div>
                 </div>
             )
         },
@@ -205,25 +210,6 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<I
         },
     },
     {
-        id: "duration",
-        header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Duration" />
-        },
-        cell: ({ row }) => {
-            const start = row.getValue("start_date") as string;
-            const end = row.getValue("end_date") as string;
-            if (!start || !end) return 'N/A';
-            const startDate = new Date(start);
-            const endDate = new Date(end);
-            const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
-            return (
-                <span className="text-sm">
-                    {days} day{days !== 1 ? 's' : ''}
-                </span>
-            );
-        },
-    },
-    {
         accessorKey: "number_of_participants",
         header: ({ column }) => {
             return <DataTableColumnHeader column={column} title="Participants" />
@@ -239,34 +225,55 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<I
         },
     },
     {
+        accessorKey: "faculty_involved",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Faculty Involved" />
+        },
+        cell: ({ row }) => {
+            const faculty = row.getValue("faculty_involved") as string;
+            return (
+                <div className="flex items-center gap-1">
+                    <Users className="h-3 w-3 text-muted-foreground" />
+                    <span>{faculty}</span>
+                </div>
+            );
+        },
+    },
+    {
         id: "actions",
         cell: ({ row }) => {
-            const partner = row.original
+            const engagement = row.original
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                            <Link to={`/user/international-partner/${partner.id}`}>
-                                View details
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link to={`/user/international-partner/${partner.id}/edit`}>
-                                Edit partnership
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <ArchivePartnerButton partner={partner} onArchived={onArchived} />
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-1">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-blue-800 hover:bg-blue-800 hover:text-white">
+                                <Link to={`/user/engagements/${engagement.id}`}>
+                                    <Eye className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>View</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-green-800 hover:bg-green-800 hover:text-white">
+                                <Link to={`/user/engagements/${engagement.id}/edit`}>
+                                    <SquarePen className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Edit</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <ArchiveEngagementButton engagement={engagement} onArchived={onArchived} />
+                </div>
             )
         },
     },

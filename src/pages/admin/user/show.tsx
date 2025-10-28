@@ -10,6 +10,9 @@ import { Edit, Mail, MapPin, Shield, ShieldCheck, Trash2, User as UserIcon } fro
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { asset } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -36,12 +39,14 @@ type UserData = User & {
     college?: {
         id: number;
         name: string;
+        logo: string;
         campus?: {
             id: number;
             name: string;
         };
     };
-    name: string;
+    first_name: string;
+    last_name: string;
     email: string;
     role: string;
     created_at: string;
@@ -83,7 +88,7 @@ export default function ShowUser() {
     const handleDelete = async () => {
         if (!user) return;
 
-        if (confirm(`Are you sure you want to delete ${user.name}?`)) {
+        if (confirm(`Are you sure you want to delete ${user.first_name} ${user.last_name}?`)) {
             try {
                 await api.delete(`/users/${user.id}`);
                 toast.success('User deleted successfully');
@@ -98,7 +103,7 @@ export default function ShowUser() {
         if (!user) return;
 
         const action = user.role === 'admin' ? 'remove admin privileges from' : 'grant admin privileges to';
-        if (confirm(`Are you sure you want to ${action} ${user.name}?`)) {
+        if (confirm(`Are you sure you want to ${action} ${user.first_name} ${user.last_name}?`)) {
             try {
                 const response = await api.patch(`/users/${user.id}/toggle-admin`);
                 toast.success(response.data.message || 'Admin status updated successfully');
@@ -159,18 +164,13 @@ export default function ShowUser() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold">{user.name}</h1>
-                            <p className="text-muted-foreground">
-                                User Details and Activity
-                            </p>
+                            <h1 className="text-3xl font-bold">User Details</h1>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                         <Badge
                             variant={user.role === 'admin' ? "default" : "secondary"}
-                            className="cursor-pointer"
-                            onClick={handleToggleAdmin}
                         >
                             {user.role === 'admin' ? (
                                 <>
@@ -180,7 +180,7 @@ export default function ShowUser() {
                             ) : (
                                 <>
                                     <Shield className="mr-1 h-3 w-3" />
-                                    User
+                                    CESU
                                 </>
                             )}
                         </Badge>
@@ -200,120 +200,63 @@ export default function ShowUser() {
                         </Button>
                     </div>
                 </div>
+                <Card className="max-w-2xl">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <UserIcon className="h-5 w-5" />
+                            User Information
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <Label className="text-sm font-medium text-muted-foreground">First Name</Label>
+                                <Input value={user.first_name} readOnly className="text-lg font-medium" />
+                            </div>
+                            <div>
+                                <Label className="text-sm font-medium text-muted-foreground">Last Name</Label>
+                                <Input value={user.last_name} readOnly className="text-lg font-medium" />
+                            </div>
+                            <div className="col-span-2">
+                                <Label className="text-sm font-medium text-muted-foreground">Email Address</Label>
+                                <Input value={user.email} readOnly className="text-lg font-medium" />
+                            </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* User Information */}
-                    <Card className="lg:col-span-1">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <UserIcon className="h-5 w-5" />
-                                User Information
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                                    <p className="text-lg font-medium">{user.name}</p>
-                                </div>
-
-                                <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                            <div className="col-span-2">
+                                <Label className="text-sm font-medium text-muted-foreground">Campus & College</Label>
+                                {user.college ? (
                                     <div className="flex items-center gap-2">
-                                        <Mail className="h-4 w-4 text-muted-foreground" />
-                                        <p>{user.email}</p>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Campus & College</label>
-                                    {user.college ? (
-                                        <div className="flex items-center gap-2">
-                                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                                            <div>
-                                                <p className="font-medium">{user.college.campus?.name || 'N/A'}</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {user.college.name}
-                                                </p>
-                                            </div>
+                                        <img src={asset(user.college.logo)} alt={user.college.campus?.name} className="w-12" />
+                                        <div>
+                                            <p className="font-medium">{user.college.campus?.name || 'N/A'}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {user.college.name}
+                                            </p>
                                         </div>
-                                    ) : (
-                                        <p className="text-muted-foreground">Not assigned</p>
-                                    )}
-                                </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-muted-foreground">Not assigned</p>
+                                )}
+                            </div>
+                        </div>
 
-                                <div>
-                                    <label className="text-sm font-medium text-muted-foreground">User ID</label>
-                                    <p className="font-mono text-sm">#{user.id}</p>
-                                </div>
+                        <Separator />
+
+                        <div className="space-y-4">
+                            <h4 className="font-medium">Account Details</h4>
+
+                            <div>
+                                <label className="text-sm font-medium text-muted-foreground">Account Created</label>
+                                <p className="text-sm">{formatDate(user.created_at)}</p>
                             </div>
 
-                            <Separator />
-
-                            <div className="space-y-4">
-                                <h4 className="font-medium">Account Details</h4>
-
-                                <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Account Created</label>
-                                    <p className="text-sm">{formatDate(user.created_at)}</p>
-                                </div>
-
-                                <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
-                                    <p className="text-sm">{formatDate(user.updated_at)}</p>
-                                </div>
+                            <div>
+                                <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
+                                <p className="text-sm">{formatDate(user.updated_at)}</p>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* User Projects */}
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>User Projects</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {user.tech_transfers && user.tech_transfers.length > 0 ? (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Project Name</TableHead>
-                                            <TableHead>Category</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Start Date</TableHead>
-                                            <TableHead>End Date</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {user.tech_transfers.map((project: TechTransfer) => (
-                                            <TableRow key={project.id}>
-                                                <TableCell className="font-medium">{project.name}</TableCell>
-                                                <TableCell>{project.category || 'N/A'}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline">
-                                                        {project.end_date && new Date(project.end_date) < new Date()
-                                                            ? 'Completed'
-                                                            : 'Active'
-                                                        }
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {project.start_date ? formatDateShort(project.start_date) : 'N/A'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {project.end_date ? formatDateShort(project.end_date) : 'N/A'}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            ) : (
-                                <div className="text-center py-8">
-                                    <p className="text-muted-foreground">No projects found for this user.</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </AppLayout>
     );

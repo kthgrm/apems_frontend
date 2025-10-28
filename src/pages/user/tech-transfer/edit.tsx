@@ -13,7 +13,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 
 export default function UserTechnTransferEdit() {
     const { id } = useParams();
@@ -41,10 +40,6 @@ export default function UserTechnTransferEdit() {
         contact_address: '',
         copyright: 'no',
         ip_details: '',
-        is_assessment_based: false,
-        monitoring_evaluation_plan: '',
-        sustainability_plan: '',
-        reporting_frequency: '',
         attachments: [] as File[],
         attachment_link: '',
     });
@@ -126,10 +121,6 @@ export default function UserTechnTransferEdit() {
                     contact_address: project.contact_address || '',
                     copyright: project.copyright || 'no',
                     ip_details: project.ip_details || '',
-                    is_assessment_based: project.is_assessment_based || false,
-                    monitoring_evaluation_plan: project.monitoring_evaluation_plan || '',
-                    sustainability_plan: project.sustainability_plan || '',
-                    reporting_frequency: project.reporting_frequency?.toString() || '',
                     attachments: [],
                     attachment_link: project.attachment_link || '',
                 });
@@ -166,12 +157,7 @@ export default function UserTechnTransferEdit() {
                             formData.append('attachments[]', file);
                         });
                     } else if (value !== null && value !== undefined) {
-                        // Handle boolean values properly for Laravel
-                        if (key === 'is_assessment_based') {
-                            formData.append(key, value ? '1' : '0');
-                        } else {
-                            formData.append(key, String(value));
-                        }
+                        formData.append(key, String(value));
                     }
                 });
 
@@ -186,7 +172,6 @@ export default function UserTechnTransferEdit() {
                 const { attachments, ...restData } = data;
                 const payload = {
                     ...restData,
-                    is_assessment_based: Boolean(data.is_assessment_based)
                 };
 
                 await api.put(`/tech-transfers/${id}`, payload);
@@ -354,44 +339,6 @@ export default function UserTechnTransferEdit() {
                                                 </Label>
                                                 <Input className="mt-1" id="contact_address" value={data.contact_address} onChange={handleChange} />
                                                 <InputError message={errors.contact_address} />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Assessment & Reporting */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <FileText className="h-5 w-5" />
-                                                Assessment & Reporting
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <Label className="text-sm font-light">Assessment Based</Label>
-                                                    <Switch
-                                                        className="mt-1"
-                                                        checked={data.is_assessment_based}
-                                                        onCheckedChange={(checked) => setData(prev => ({ ...prev, is_assessment_based: checked }))}
-                                                    />
-                                                    <InputError message={errors.is_assessment_based} />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-light">Reporting Frequency</Label>
-                                                    <Input id="reporting_frequency" type='number' className="mt-1" value={data.reporting_frequency} onChange={handleChange} />
-                                                    <InputError message={errors.reporting_frequency} />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">Monitoring & Evaluation Plan</Label>
-                                                <Textarea id="monitoring_evaluation_plan" className="mt-1" rows={4} value={data.monitoring_evaluation_plan} onChange={handleChange} />
-                                                <InputError message={errors.monitoring_evaluation_plan} />
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">Sustainability Plan</Label>
-                                                <Textarea id="sustainability_plan" className="mt-1" rows={4} value={data.sustainability_plan} onChange={handleChange} />
-                                                <InputError message={errors.sustainability_plan} />
                                             </div>
                                         </CardContent>
                                     </Card>

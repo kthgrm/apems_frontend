@@ -185,7 +185,7 @@ export default function UserImpactAssessmentsCreate() {
                     <div className="flex justify-end">
                         <Button type="submit" disabled={processing}>
                             {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                            Submit Form
+                            Submit
                         </Button>
                     </div>
                 </form>

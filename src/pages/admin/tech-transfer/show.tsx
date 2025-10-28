@@ -236,57 +236,6 @@ const TechnologyTransferShow = () => {
                                         </div>
                                     </CardContent>
                                 </Card>
-
-                                {/* Assessment & Reporting */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <FileText className="h-5 w-5" />
-                                            Assessment & Reporting
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-light">Assessment Based</Label>
-                                                <div className="mt-1 flex items-center gap-2">
-                                                    {techTransfer?.is_assessment_based === true ? (
-                                                        <Badge variant="outline" className="flex items-center gap-1">
-                                                            <CircleCheck className="w-4 text-green-500" />
-                                                            Yes
-                                                        </Badge>
-
-                                                    ) : (
-                                                        <Badge variant="outline" className="flex items-center gap-1">
-                                                            <CircleX className="w-4 text-red-500" />
-                                                            No
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">Reporting Frequency</Label>
-                                                <Input
-                                                    value={techTransfer?.reporting_frequency ? `${techTransfer?.reporting_frequency}` : 'Not specified'}
-                                                    readOnly
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light">Monitoring & Evaluation Plan</Label>
-                                            <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                                                {techTransfer?.monitoring_evaluation_plan || 'No plan provided'}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light">Sustainability Plan</Label>
-                                            <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                                                {techTransfer?.sustainability_plan || 'No plan provided'}
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
                             </div>
 
                             {/* Sidebar */}

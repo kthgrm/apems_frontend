@@ -38,7 +38,7 @@ interface OverallStats {
     total_users: number;
     total_projects: number;
     total_awards: number;
-    total_international_partners: number;
+    total_engagements: number;
     total_campuses: number;
     total_colleges: number;
 }
@@ -47,7 +47,7 @@ interface MonthlyStats {
     month: string;
     projects: number;
     awards: number;
-    partners: number;
+    engagements: number;
 }
 
 interface CampusStats {
@@ -56,7 +56,7 @@ interface CampusStats {
     total_colleges: number;
     total_projects: number;
     total_awards: number;
-    total_partners: number;
+    total_engagements: number;
 }
 
 // Chart colors
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
         total_users: 0,
         total_projects: 0,
         total_awards: 0,
-        total_international_partners: 0,
+        total_engagements: 0,
         total_campuses: 0,
         total_colleges: 0,
     });
@@ -193,11 +193,11 @@ export default function AdminDashboard() {
                             </Card>
                             <Card className='bg-linear-to-b from-emerald-700 to-green-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">International Partners</CardTitle>
+                                    <CardTitle className="text-sm font-medium">Engagements</CardTitle>
                                     <Globe className="w-4" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold">{overallStats.total_international_partners}</div>
+                                    <div className="text-2xl font-bold">{overallStats.total_engagements}</div>
                                 </CardContent>
                             </Card>
                         </div>
@@ -238,9 +238,9 @@ export default function AdminDashboard() {
                                                 radius={[2, 2, 0, 0]}
                                             />
                                             <Bar
-                                                dataKey="partners"
+                                                dataKey="engagements"
                                                 fill="#10b981"
-                                                name="Partnerships"
+                                                name="Engagements"
                                                 label={renderCustomBarLabel}
                                                 radius={[2, 2, 0, 0]}
                                             />
@@ -420,34 +420,34 @@ export default function AdminDashboard() {
                                             </ResponsiveContainer>
                                         </div>
 
-                                        {/* Partnerships Pie Chart */}
+                                        {/* Engagements Pie Chart */}
                                         <div>
-                                            <h3 className="text-sm font-medium text-center mb-4">International Partners</h3>
+                                            <h3 className="text-sm font-medium text-center mb-4">Engagements</h3>
                                             <ResponsiveContainer width="100%" height={300}>
                                                 <PieChart>
                                                     <Pie
-                                                        data={campusStats.filter(campus => campus.total_partners > 0) as any}
+                                                        data={campusStats.filter(campus => campus.total_engagements > 0) as any}
                                                         cx="50%"
                                                         cy="50%"
                                                         labelLine={false}
                                                         label={({ value }) => {
                                                             if (!value || value === 0) return '';
-                                                            const total = campusStats.filter(campus => campus.total_partners > 0).reduce((sum, campus) => sum + campus.total_partners, 0);
+                                                            const total = campusStats.filter(campus => campus.total_engagements > 0).reduce((sum, campus) => sum + campus.total_engagements, 0);
                                                             const percentage = ((Number(value) / total) * 100).toFixed(1);
                                                             return `${percentage}%`;
                                                         }}
                                                         outerRadius={80}
                                                         fill="#8884d8"
-                                                        dataKey="total_partners"
+                                                        dataKey="total_engagements"
                                                         nameKey="name"
                                                     >
-                                                        {campusStats.filter(campus => campus.total_partners > 0).map((_entry, index) => (
+                                                        {campusStats.filter(campus => campus.total_engagements > 0).map((_entry, index) => (
                                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                         ))}
                                                     </Pie>
                                                     <Tooltip
                                                         formatter={(value, name) => [
-                                                            `${value} International Partners`,
+                                                            `${value} Engagements`,
                                                             name
                                                         ]}
                                                         labelFormatter={() => ''}

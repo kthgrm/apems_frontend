@@ -74,17 +74,7 @@ export const columns = ({ onDelete, onToggleAdmin, selectedUsers, onSelectAll, o
     },
     {
         accessorKey: "email",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Email
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
+        header: "Email",
         cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
     },
     {
@@ -121,7 +111,7 @@ export const columns = ({ onDelete, onToggleAdmin, selectedUsers, onSelectAll, o
                     ) : (
                         <>
                             <Shield className="mr-1 h-3 w-3" />
-                            User
+                            CESU
                         </>
                     )}
                 </Badge>
@@ -134,7 +124,7 @@ export const columns = ({ onDelete, onToggleAdmin, selectedUsers, onSelectAll, o
         cell: ({ row }) => {
             const isActive = row.getValue("is_active") as boolean;
             return (
-                <Badge variant={isActive ? "default" : "destructive"} className={isActive ? "" : "bg-red-800"}>
+                <Badge variant={isActive ? "default" : "destructive"} className={isActive ? "bg-green-500" : "bg-red-800"}>
                     {isActive ? (
                         <>
                             <UserCheck className="mr-1 h-3 w-3" />

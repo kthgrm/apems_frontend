@@ -144,17 +144,10 @@ export default function ImpactAssessment() {
                         </div>
                     ) : (selectedCampus && selectedCollege ? (
                         <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h1 className='text-2xl font-bold'>Impact Assessments</h1>
-                                </div>
-                            </div>
-
-                            <Card>
+                            <Card className="bg-gradient-to-t from-amber-500/80 to-red-700/80 text-white">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Building className="h-5 w-5" />
-                                        Department
+                                        Department Information
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
@@ -168,7 +161,7 @@ export default function ImpactAssessment() {
                                             )}
                                             <div>
                                                 <h3 className="font-semibold text-lg">{selectedCampus?.name}</h3>
-                                                <p className="text-sm text-muted-foreground">Campus</p>
+                                                <p className="text-sm">Campus</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-3">
@@ -180,7 +173,7 @@ export default function ImpactAssessment() {
                                             )}
                                             <div>
                                                 <h3 className="font-semibold text-lg">{selectedCollege?.name}</h3>
-                                                <p className="text-sm text-muted-foreground">
+                                                <p className="text-sm">
                                                     College{selectedCollege?.code && ` • ${selectedCollege.code}`}
                                                 </p>
                                             </div>

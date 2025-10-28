@@ -67,16 +67,16 @@ export default function UserTechTransfer() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-100/50 to-blue-200/50" />
+                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200 text-white">
+                                <div className="absolute inset-0 bg-gradient-to-b from-sky-300 to-blue-600" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
                                         Total Projects
                                     </CardTitle>
-                                    <Folder className="h-4 w-4 text-blue-500" />
+                                    <Folder className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
-                                    <div className="text-2xl font-bold text-blue-500">{techTransfers.length}</div>
+                                    <div className="text-2xl font-bold">{techTransfers.length}</div>
                                     <p className="text-xs">
                                         Active projects
                                     </p>

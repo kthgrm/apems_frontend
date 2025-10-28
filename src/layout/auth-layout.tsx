@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 export default function AuthLayout({ title, children }: AuthLayoutProps) {
     return (
         <div className="flex min-h-screen items-center justify-center bg-[#212529]">
-            <div className="w-full max-w-md p-6">
+            <div className="w-full max-w-md">
                 <Card className="rounded-xl px-10 py-6">
                     <CardHeader className="text-center">
                         <CardTitle className="text-xl">{title}</CardTitle>

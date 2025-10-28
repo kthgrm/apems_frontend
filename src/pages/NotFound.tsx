@@ -13,7 +13,7 @@ export default function NotFound() {
                     {/* 404 Icon */}
                     <div className="mb-8">
                         <div className="text-9xl font-bold text-gray-200 mb-4">404</div>
-                        <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+                        <div className="w-32 h-1 bg-gradient-to-r from-red-500 to-orange-800 mx-auto rounded-full"></div>
                     </div>
 
                     {/* Message */}
@@ -37,7 +37,7 @@ export default function NotFound() {
                         </Button>
                         <Button
                             onClick={() => navigate('/')}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 bg-red-800"
                         >
                             <Home className="h-4 w-4" />
                             Go to Home

@@ -215,7 +215,7 @@ export default function AwardEdit() {
                                         disabled={processing}
                                         type='submit'
                                     >
-                                        {processing ? 'Updating...' : 'Update award'}
+                                        {processing ? 'Updating...' : 'Update'}
                                     </Button>
                                     <Button
                                         type="button"

@@ -132,7 +132,7 @@ export default function ImpactAssessmentEdit() {
                                         disabled={processing}
                                         type='submit'
                                     >
-                                        {processing ? 'Updating...' : 'Update Assessment'}
+                                        {processing ? 'Updating...' : 'Update'}
                                     </Button>
                                     <Button
                                         type="button"

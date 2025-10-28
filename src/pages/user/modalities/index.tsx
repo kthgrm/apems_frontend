@@ -65,16 +65,16 @@ export default function UserModalities() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
-                                <div className="absolute inset-0 bg-gradient-to-r from-orange-100/50 to-orange-200/50" />
+                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200 text-white">
+                                <div className="absolute inset-0 bg-gradient-to-b from-amber-400 to-orange-600" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
                                         Total Modalities
                                     </CardTitle>
-                                    <Radio className="h-4 w-4 text-orange-500" />
+                                    <Radio className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
-                                    <div className="text-2xl font-bold text-orange-500">{modalities.length}</div>
+                                    <div className="text-2xl font-bold">{modalities.length}</div>
                                     <p className="text-xs">
                                         Project delivery modalities
                                     </p>

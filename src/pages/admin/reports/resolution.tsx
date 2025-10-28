@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, Download, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Search, Filter, Download, FileText } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import {
     Table,
     TableBody,
@@ -29,12 +28,7 @@ interface User {
 
 interface Resolution {
     id: number;
-    resolution_number: string;
-    effectivity: string;
-    expiration: string;
-    contact_person: string | null;
-    contact_number_email: string | null;
-    partner_agency: string | null;
+    title: string;
     created_at: string;
     updated_at: string;
     user: User;
@@ -58,9 +52,6 @@ interface PaginationData {
 
 interface Statistics {
     total: number;
-    active: number;
-    expired: number;
-    pending: number;
 }
 
 interface ReportData {
@@ -81,8 +72,6 @@ export default function ResolutionsReport() {
     const [reportData, setReportData] = useState<ReportData | null>(null);
 
     const [localFilters, setLocalFilters] = useState({
-        status: searchParams.get('status') || 'all',
-        year: searchParams.get('year') || 'all',
         date_from: searchParams.get('date_from') || '',
         date_to: searchParams.get('date_to') || '',
         search: searchParams.get('search') || '',
@@ -138,8 +127,6 @@ export default function ResolutionsReport() {
 
     const clearFilters = () => {
         setLocalFilters({
-            status: 'all',
-            year: 'all',
             date_from: '',
             date_to: '',
             search: '',
@@ -160,23 +147,31 @@ export default function ResolutionsReport() {
                 }
             });
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/reports/resolutions/pdf?${params.toString()}`, {
+            const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+            const url = `${baseURL}/reports/resolutions/pdf?${params.toString()}`;
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+            if (!token) {
+                console.error('No authentication token found');
+                return;
+            }
+
+            const response = await fetch(url, {
                 method: 'GET',
-                credentials: 'include', // Include cookies for sanctum authentication
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/pdf',
+                },
+                credentials: 'include',
             });
 
             if (response.ok) {
                 const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `resolutions-report-${new Date().toISOString().split('T')[0]}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                const blobUrl = window.URL.createObjectURL(blob);
+                window.open(blobUrl, '_blank');
+                setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
             } else {
-                console.error('PDF generation failed:', response.status, response.statusText);
+                console.error('Failed to generate PDF:', response.statusText);
             }
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -190,51 +185,6 @@ export default function ResolutionsReport() {
             month: 'short',
             day: 'numeric',
         });
-    };
-
-    const getStatusBadge = (resolution: Resolution) => {
-        const currentDate = new Date();
-        const expirationDate = new Date(resolution.expiration);
-        const effectivityDate = new Date(resolution.effectivity);
-
-        // Check if expired
-        if (expirationDate < currentDate) {
-            return (
-                <Badge className="flex items-center gap-1 bg-red-100 text-red-800">
-                    <XCircle className="h-3 w-3" />
-                    Expired
-                </Badge>
-            );
-        }
-
-        // Check if expiring soon (within 30 days)
-        const daysToExpiration = Math.ceil((expirationDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (daysToExpiration <= 30 && daysToExpiration > 0) {
-            return (
-                <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800">
-                    <Clock className="h-3 w-3" />
-                    Expiring Soon
-                </Badge>
-            );
-        }
-
-        // Check if active
-        if (effectivityDate <= currentDate && expirationDate >= currentDate) {
-            return (
-                <Badge className="flex items-center gap-1 bg-green-100 text-green-800">
-                    <CheckCircle className="h-3 w-3" />
-                    Active
-                </Badge>
-            );
-        }
-
-        // Future effective date
-        return (
-            <Badge className="flex items-center gap-1 bg-blue-100 text-blue-800">
-                <Clock className="h-3 w-3" />
-                Pending
-            </Badge>
-        );
     };
 
     const handlePageChange = (url: string) => {
@@ -291,7 +241,7 @@ export default function ResolutionsReport() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* Search */}
                             <div>
                                 <label className="block text-sm font-medium mb-2">Search</label>
@@ -304,44 +254,6 @@ export default function ResolutionsReport() {
                                         className="pl-10"
                                     />
                                 </div>
-                            </div>
-
-                            {/* Status Filter */}
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Status</label>
-                                <Select
-                                    value={localFilters.status}
-                                    onValueChange={(value) => handleFilterChange('status', value)}
-                                >
-                                    <SelectTrigger className='w-full'>
-                                        <SelectValue placeholder="All Statuses" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Statuses</SelectItem>
-                                        <SelectItem value="active">Active</SelectItem>
-                                        <SelectItem value="expired">Expired</SelectItem>
-                                        <SelectItem value="pending">Pending</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            {/* Sort By */}
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Sort By</label>
-                                <Select
-                                    value={localFilters.sort_by}
-                                    onValueChange={(value) => handleFilterChange('sort_by', value)}
-                                >
-                                    <SelectTrigger className='w-full'>
-                                        <SelectValue placeholder="Sort By" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="created_at">Created Date</SelectItem>
-                                        <SelectItem value="resolution_number">Resolution Number</SelectItem>
-                                        <SelectItem value="effectivity">Effectivity Year</SelectItem>
-                                        <SelectItem value="expiration">Expiration Date</SelectItem>
-                                    </SelectContent>
-                                </Select>
                             </div>
 
                             {/* Date From */}
@@ -395,13 +307,8 @@ export default function ResolutionsReport() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Resolution Number</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Effectivity Year</TableHead>
-                                        <TableHead>Expiration Date</TableHead>
-                                        <TableHead>Contact Person</TableHead>
-                                        <TableHead>Contact Info</TableHead>
-                                        <TableHead>Partner Agency</TableHead>
+                                        <TableHead>ID</TableHead>
+                                        <TableHead>Title</TableHead>
                                         <TableHead>Submitted By</TableHead>
                                         <TableHead>Created Date</TableHead>
                                     </TableRow>
@@ -417,27 +324,10 @@ export default function ResolutionsReport() {
                                         resolutions.data.map((resolution: Resolution) => (
                                             <TableRow key={resolution.id}>
                                                 <TableCell className="font-medium">
-                                                    {resolution.resolution_number}
+                                                    {resolution.id}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {getStatusBadge(resolution)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {new Date(resolution.effectivity).getFullYear()}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {formatDate(resolution.expiration)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {resolution.contact_person || 'Not specified'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="text-sm">
-                                                        {resolution.contact_number_email || 'Not specified'}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {resolution.partner_agency || 'Not specified'}
+                                                    {resolution.title || '-'}
                                                 </TableCell>
                                                 <TableCell>
                                                     <div>

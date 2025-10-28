@@ -12,6 +12,7 @@ import {
   Handshake,
   LayoutGrid,
   Printer,
+  Radio,
   School,
   User2,
 } from "lucide-react"
@@ -38,14 +39,14 @@ const adminNavItems: NavItem[] = [
     title: 'Modules', href: '#', icon: ComponentIcon, isGroup: true,
     items: [
       { title: 'Technology Transfer', href: '/admin/technology-transfer', icon: Cpu },
+      { title: 'Extension Modalities', href: '/admin/modalities', icon: Radio },
       {
-        title: 'Research Extension', href: '#', icon: Folder, isDropdown: true,
-        subItems: [
-          { title: 'Impact Assessment', href: '/admin/impact-assessment' },
-          { title: 'Modalities', href: '/admin/modalities' },
+        title: 'Research Related Extension', href: '#', icon: Folder, isGroup: true,
+        items: [
+          { title: 'Impact Assessment', href: '/admin/impact-assessment' }
         ]
       },
-      { title: 'International Partner', href: '/admin/international-partner', icon: Handshake },
+      { title: 'Engagements', href: '/admin/engagements', icon: Handshake },
       { title: 'Awards & Recognition', href: '/admin/awards-recognition', icon: Award },
       { title: 'Resolution', href: '/admin/resolution', icon: BookOpen }
     ]
@@ -59,7 +60,7 @@ const adminNavItems: NavItem[] = [
       { title: 'Audit Trail', href: '/admin/report/audit-trail' },
       { title: 'Awards', href: '/admin/report/awards' },
       { title: 'Impact Assessments', href: '/admin/report/impact-assessments' },
-      { title: 'International Partners', href: '/admin/report/international-partners' },
+      { title: 'Engagements', href: '/admin/report/engagements' },
       { title: 'Modalities', href: '/admin/report/modalities' },
       { title: 'Technology Transfer', href: '/admin/report/technology-transfers' },
       { title: 'Resolutions', href: '/admin/report/resolutions' },
@@ -80,15 +81,19 @@ const userNavItems: NavItem[] = [
     icon: Cpu,
   },
   {
-    title: 'Research Extension', href: '#', icon: Folder, isDropdown: true,
-    subItems: [
+    title: 'Extension Modalities',
+    href: '/user/modalities',
+    icon: Handshake,
+  },
+  {
+    title: 'Research Related Extension', href: '#', icon: Folder, isGroup: true,
+    items: [
       { title: 'Impact Assessment', href: '/user/impact-assessment' },
-      { title: 'Modalities', href: '/user/modalities' },
     ],
   },
   {
-    title: 'International Partners',
-    href: '/user/international-partner',
+    title: 'Engagements',
+    href: '/user/engagements',
     icon: Handshake,
   },
   {

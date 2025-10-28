@@ -187,7 +187,7 @@ export default function CreateUser() {
                                     value={formData.college_id}
                                     onValueChange={(value) => handleChange('college_id', value)}
                                 >
-                                    <SelectTrigger className={errors.college_id ? 'border-destructive' : ''}>
+                                    <SelectTrigger className={errors.college_id ? 'border-destructive' : '' + 'w-full'}>
                                         <SelectValue placeholder="Select college" />
                                     </SelectTrigger>
                                     <SelectContent>

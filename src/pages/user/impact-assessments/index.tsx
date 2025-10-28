@@ -65,16 +65,16 @@ export default function UserImpactAssessments() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-100/50 to-purple-200/50" />
+                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200 text-white">
+                                <div className="absolute inset-0 bg-gradient-to-b from-purple-300 to-violet-600" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
                                         Total Assessments
                                     </CardTitle>
-                                    <Target className="h-4 w-4 text-purple-500" />
+                                    <Target className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
-                                    <div className="text-2xl font-bold text-purple-500">{assessments.length}</div>
+                                    <div className="text-2xl font-bold">{assessments.length}</div>
                                     <p className="text-xs">
                                         Active assessments
                                     </p>

@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
-import type { InternationalPartner } from '@/types';
-import { Calendar, Download, Eye, FileText, Image, Users } from 'lucide-react';
+import type { Engagement } from '@/types';
+import { Download, Eye, FileText, Image, Save } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,12 +13,12 @@ import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 import { asset } from '@/lib/utils';
 
-export default function UserInternationalPartnersEdit() {
+export default function UserEngagementsEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [partner, setPartner] = useState<InternationalPartner | null>(null);
+    const [engagement, setEngagement] = useState<Engagement | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<any>({});
@@ -29,19 +29,19 @@ export default function UserInternationalPartnersEdit() {
         start_date: '',
         end_date: '',
         number_of_participants: '',
-        number_of_committee: '',
+        faculty_involved: '',
         narrative: '',
         attachments: [] as File[],
         attachment_link: '',
     });
 
     useEffect(() => {
-        const fetchPartner = async () => {
+        const fetchEngagement = async () => {
             setIsLoading(true);
             try {
-                const response = await api.get(`/international-partners/${id}`);
-                const partnerData = response.data.data;
-                setPartner(partnerData);
+                const response = await api.get(`/engagements/${id}`);
+                const engagementData = response.data.data;
+                setEngagement(engagementData);
 
                 const formatDate = (dateStr?: string) => {
                     if (!dateStr) return '';
@@ -51,16 +51,16 @@ export default function UserInternationalPartnersEdit() {
                 };
 
                 setData({
-                    agency_partner: partnerData.agency_partner || '',
-                    location: partnerData.location || '',
-                    activity_conducted: partnerData.activity_conducted || '',
-                    start_date: formatDate(partnerData.start_date),
-                    end_date: formatDate(partnerData.end_date),
-                    number_of_participants: partnerData.number_of_participants?.toString() || '',
-                    number_of_committee: partnerData.number_of_committee?.toString() || '',
-                    narrative: partnerData.narrative || '',
+                    agency_partner: engagementData.agency_partner || '',
+                    location: engagementData.location || '',
+                    activity_conducted: engagementData.activity_conducted || '',
+                    start_date: formatDate(engagementData.start_date),
+                    end_date: formatDate(engagementData.end_date),
+                    number_of_participants: engagementData.number_of_participants?.toString() || '',
+                    faculty_involved: engagementData.faculty_involved || '',
+                    narrative: engagementData.narrative || '',
                     attachments: [],
-                    attachment_link: partnerData.attachment_link || '',
+                    attachment_link: engagementData.attachment_link || '',
                 });
             } catch (error) {
                 console.error('Failed to fetch partnership', error);
@@ -70,7 +70,7 @@ export default function UserInternationalPartnersEdit() {
         }
 
         if (id) {
-            fetchPartner();
+            fetchEngagement();
         }
     }, [id]);
 
@@ -95,16 +95,16 @@ export default function UserInternationalPartnersEdit() {
                 });
                 formData.append('_method', 'PUT');
 
-                await api.post(`/international-partners/${id}`, formData, {
+                await api.post(`/engagements/${id}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
             } else {
                 const { attachments, ...restData } = data;
-                await api.put(`/international-partners/${id}`, restData);
+                await api.put(`/engagements/${id}`, restData);
             }
 
-            toast.success('Partnership updated successfully!');
-            navigate(`/user/international-partner/${id}`);
+            toast.success('Engagement updated successfully!');
+            navigate(`/user/engagements/${id}`);
         } catch (err: any) {
             console.error('Submission error:', err.response?.data || err);
             setErrors(err.response?.data?.errors || {});
@@ -160,30 +160,31 @@ export default function UserInternationalPartnersEdit() {
     };
 
     const breadcrumbs = [
-        { title: 'International Partners', href: '/user/international-partner' },
-        { title: isLoading ? 'Loading...' : partner ? partner.agency_partner : 'Partnership Not Found', href: `/user/international-partner/${id}` },
-        { title: 'Edit Partnership', href: `/user/international-partner/${id}/edit` },
+        { title: 'Engagements', href: '/user/engagements' },
+        { title: isLoading ? 'Loading...' : engagement ? engagement.agency_partner : 'Engagement Not Found', href: `/user/engagements/${id}` },
+        { title: 'Edit Engagement', href: `/user/engagements/${id}/edit` },
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             {isLoading ? (
                 <div className="text-center py-8 text-muted-foreground">
-                    Loading partnership details...
+                    Loading engagement details...
                 </div>
             ) : (
-                partner ? (
+                engagement ? (
                     <form onSubmit={handleSubmit}>
                         <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                             <div className="flex items-center justify-between">
-                                <h1 className='text-2xl font-bold'>Edit Partnership</h1>
+                                <h1 className='text-2xl font-bold'>Edit Engagement</h1>
                                 <div className="flex gap-2">
                                     <Button
                                         variant="outline"
                                         disabled={processing}
                                         type='submit'
                                     >
-                                        {processing ? 'Updating...' : 'Update Partnership'}
+                                        <Save className="h-4 w-4" />
+                                        {processing ? 'Updating...' : 'Update'}
                                     </Button>
                                     <Button
                                         type="button"
@@ -201,14 +202,14 @@ export default function UserInternationalPartnersEdit() {
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2">
-                                                Basic Information
+                                                Engagement Information
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="space-y-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <Label className="text-sm font-light">Partner ID</Label>
-                                                    <Input value={partner.id} readOnly className="mt-1 bg-muted" />
+                                                    <Label className="text-sm font-light">Engagement ID</Label>
+                                                    <Input value={engagement.id} readOnly className="mt-1 bg-muted" />
                                                 </div>
                                                 <div>
                                                     <Label className="text-sm font-light">Agency Partner</Label>
@@ -232,7 +233,7 @@ export default function UserInternationalPartnersEdit() {
                                                     />
                                                     <InputError message={errors.location} />
                                                 </div>
-                                                <div className='md:col-span-2'>
+                                                <div>
                                                     <Label className="text-sm font-light">Activity Type</Label>
                                                     <Input
                                                         id="activity_conducted"
@@ -243,31 +244,6 @@ export default function UserInternationalPartnersEdit() {
                                                     />
                                                     <InputError message={errors.activity_conducted} />
                                                 </div>
-                                                <div className="col-span-1 md:col-span-2">
-                                                    <Label className="text-sm font-light">Narrative</Label>
-                                                    <Textarea
-                                                        id="narrative"
-                                                        value={data.narrative}
-                                                        className="mt-1"
-                                                        onChange={handleChange}
-                                                        disabled={processing}
-                                                    />
-                                                    <InputError message={errors.narrative} />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Participation Metrics */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Users className="h-5 w-5" />
-                                                Participation Metrics
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <Label className="text-sm font-light">Number of Participants</Label>
                                                     <Input
@@ -280,34 +256,6 @@ export default function UserInternationalPartnersEdit() {
                                                     />
                                                     <InputError message={errors.number_of_participants} />
                                                 </div>
-                                                <div>
-                                                    <Label className="text-sm font-light">Committee Members</Label>
-                                                    <Input
-                                                        id="number_of_committee"
-                                                        value={data.number_of_committee}
-                                                        type="number"
-                                                        className="mt-1"
-                                                        onChange={handleChange}
-                                                        disabled={processing}
-                                                    />
-                                                    <InputError message={errors.number_of_committee} />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                                {/* Sidebar */}
-                                <div className="space-y-6">
-                                    {/* Timeline and Duration */}
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Calendar className="h-5 w-5" />
-                                                Timeline & Duration
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <Label className="text-sm font-light">Start Date</Label>
                                                     <Input
@@ -333,27 +281,33 @@ export default function UserInternationalPartnersEdit() {
                                                     <InputError message={errors.end_date} />
                                                 </div>
                                                 <div className="col-span-1 md:col-span-2">
-                                                    <Label className="text-sm font-light">Duration</Label>
+                                                    <Label className="text-sm font-light">Faculty Involved</Label>
                                                     <Input
-                                                        value={
-                                                            data.start_date && data.end_date
-                                                                ? (() => {
-                                                                    const start = new Date(data.start_date);
-                                                                    const end = new Date(data.end_date);
-                                                                    const diffTime = Math.abs(end.getTime() - start.getTime());
-                                                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                                                                    return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
-                                                                })()
-                                                                : 'Not specified'
-                                                        }
-                                                        readOnly
-                                                        className="mt-1 bg-muted"
+                                                        id="faculty_involved"
+                                                        value={data.faculty_involved}
+                                                        className="mt-1"
+                                                        onChange={handleChange}
+                                                        disabled={processing}
                                                     />
+                                                    <InputError message={errors.faculty_involved} />
+                                                </div>
+                                                <div className="col-span-1 md:col-span-2">
+                                                    <Label className="text-sm font-light">Narrative</Label>
+                                                    <Textarea
+                                                        id="narrative"
+                                                        value={data.narrative}
+                                                        className="mt-1"
+                                                        onChange={handleChange}
+                                                        disabled={processing}
+                                                    />
+                                                    <InputError message={errors.narrative} />
                                                 </div>
                                             </div>
                                         </CardContent>
                                     </Card>
-
+                                </div>
+                                {/* Sidebar */}
+                                <div className="space-y-6">
                                     {/* Attachments */}
                                     <Card>
                                         <CardHeader>
@@ -364,11 +318,11 @@ export default function UserInternationalPartnersEdit() {
                                         </CardHeader>
                                         <CardContent className="space-y-3">
                                             {/* Existing Attachments */}
-                                            {partner.attachment_paths && partner.attachment_paths.length > 0 && (
+                                            {engagement.attachment_paths && engagement.attachment_paths.length > 0 && (
                                                 <div className="space-y-2">
-                                                    <Label className="text-sm font-medium">Current Attachments ({partner.attachment_paths.length})</Label>
+                                                    <Label className="text-sm font-medium">Current Attachments ({engagement.attachment_paths.length})</Label>
                                                     <div className="space-y-2 max-h-40 overflow-y-auto">
-                                                        {partner.attachment_paths.map((path, index) => {
+                                                        {engagement.attachment_paths.map((path, index) => {
                                                             const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
                                                             return (
                                                                 <div

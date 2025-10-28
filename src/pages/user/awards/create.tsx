@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
     Calendar,
-    FileText, Trophy, Image, LoaderCircle
+    FileText, Trophy, Image
 } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
@@ -13,13 +13,12 @@ import toast from 'react-hot-toast';
 import api from '@/lib/axios';
 import InputError from '@/components/input-error';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 export default function UserAwardsCreate() {
     const navigate = useNavigate();
     const [processing, setProcessing] = useState(false);
-    const [activeTab, setActiveTab] = useState('award-details');
+    const [step, setStep] = useState(1);
     const [errors, setErrors] = useState<any>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,6 +33,32 @@ export default function UserAwardsCreate() {
         attachments: [] as File[],
         attachment_link: '',
     });
+
+    const steps = [
+        { title: "Award Details", icon: Trophy },
+        { title: "Upload Files", icon: FileText },
+    ];
+
+    const nextStep = () => setStep((prev) => Math.min(prev + 1, steps.length));
+    const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
+    // Validate current step before proceeding
+    const validateStep = () => {
+        const newErrors: any = {};
+        if (step === 1) {
+            if (!data.award_name) newErrors.award_name = 'Award name is required.';
+            if (!data.awarding_body) newErrors.awarding_body = 'Awarding body is required.';
+            if (!data.date_received) newErrors.date_received = 'Date received is required.';
+            if (!data.description) newErrors.description = 'Description is required.';
+            if (!data.location) newErrors.location = 'Location is required.';
+            if (!data.event_details) newErrors.event_details = 'Event details are required.';
+            if (!data.people_involved) newErrors.people_involved = 'People involved are required.';
+        }
+        setErrors(newErrors);
+        if (Object.keys(newErrors).length === 0) {
+            nextStep();
+        }
+    };
 
     const addFiles = (newFiles: FileList | null) => {
         if (!newFiles) return;
@@ -121,229 +146,218 @@ export default function UserAwardsCreate() {
 
     const breadcrumbs = [
         { title: 'Awards & Recognitions', href: '/user/awards-recognition' },
-        { title: 'Add New Award', href: '/user/awards-recognition/create' },
+        { title: 'New Award', href: '/user/awards-recognition/create' },
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-medium">Create New Award</h1>
+                <div className="flex items-center justify-center">
+                    <h1 className="text-2xl font-medium">New Award</h1>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <ScrollArea className="py-2">
-                            <TabsList className="grid w-full grid-cols-5">
-                                <TabsTrigger value="award-details">Award Details</TabsTrigger>
-                                <TabsTrigger value="event-info">Event Details</TabsTrigger>
-                                <TabsTrigger value="attachments">Attachments</TabsTrigger>
-                            </TabsList>
-                            <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
-
-                        {/* Award Details */}
-                        <TabsContent value="award-details">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Trophy className="h-5 w-5" /> Award Details
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="award_name">Award Name</Label>
+                <div className="flex justify-center max-w-3xl mx-auto w-full">
+                    {steps.map((s, index) => {
+                        const Icon = s.icon;
+                        const isActive = step === index + 1;
+                        const isCompleted = step > index + 1;
+                        return (
+                            <div key={index} className="flex flex-col items-center w-1/3 text-center">
+                                <div
+                                    className={cn(
+                                        "flex items-center justify-center w-12 h-12 rounded-full border-2",
+                                        isActive
+                                            ? "border-yellow-600 bg-yellow-50 text-yellow-600"
+                                            : "border-gray-300 text-gray-400",
+                                        isCompleted ? "bg-yellow-600 border-yellow-600 text-white" : ""
+                                    )}
+                                >
+                                    <Icon size={24} />
+                                </div>
+                                <p className={`mt-2 text-sm ${isActive ? "text-yellow-600" : "text-gray-500"}`}>
+                                    {s.title}
+                                </p>
+                                <p className="text-xs text-gray-400">Step {index + 1} of {steps.length}</p>
+                            </div>
+                        );
+                    })}
+                </div>
+                <Card className="max-w-3xl mx-auto w-full border-1 border-yellow-500/50">
+                    <CardContent>
+                        {step === 1 && (
+                            <div className="grid gap-6 md:grid-cols-2">
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="award_name">Award Name</Label>
+                                    <Input
+                                        id="award_name"
+                                        value={data.award_name}
+                                        onChange={handleChange}
+                                        placeholder="Enter award name"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.award_name} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="awarding_body">Awarding Body</Label>
+                                    <Input
+                                        id="awarding_body"
+                                        value={data.awarding_body}
+                                        onChange={handleChange}
+                                        placeholder="Enter awarding body"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.awarding_body} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="date_received">Date Received</Label>
+                                    <Input
+                                        id="date_received"
+                                        type="date"
+                                        value={data.date_received}
+                                        onChange={handleChange}
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.date_received} />
+                                </div>
+                                <div className="md:col-span-2 space-y-2">
+                                    <Label htmlFor="description">Description</Label>
+                                    <Textarea
+                                        id="description"
+                                        value={data.description}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        placeholder="Brief description"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.description} />
+                                </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="location">Location</Label>
+                                    <Input
+                                        id="location"
+                                        value={data.location}
+                                        onChange={handleChange}
+                                        placeholder="Enter event location"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.location} />
+                                </div>
+                                <div className="md:col-span-2 space-y-2">
+                                    <Label htmlFor="event_details">Event Details</Label>
+                                    <Textarea
+                                        id="event_details"
+                                        value={data.event_details}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        placeholder="Enter event details"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.event_details} />
+                                </div>
+                                <div className="md:col-span-2 space-y-2">
+                                    <Label htmlFor="people_involved">People Involved</Label>
+                                    <Textarea
+                                        id="people_involved"
+                                        value={data.people_involved}
+                                        onChange={handleChange}
+                                        placeholder="Enter people involved"
+                                        disabled={processing}
+                                    />
+                                    <InputError message={errors.people_involved} />
+                                </div>
+                            </div>
+                        )}
+                        {step === 2 && (
+                            <div className="max-w-4xl mx-auto w-full">
+                                <div className="grid gap-6 md:grid-cols-2">
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label htmlFor="attachments">Upload Files</Label>
                                         <Input
-                                            id="award_name"
-                                            value={data.award_name}
-                                            onChange={handleChange}
-                                            placeholder="Enter award name"
+                                            ref={fileInputRef}
+                                            id="attachments"
+                                            type="file"
+                                            accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                            multiple={true}
+                                            onChange={(e) => addFiles(e.target.files)}
                                             disabled={processing}
+                                            className="file:px-8 file:rounded-md file:border-0 file:text-sm file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
                                         />
-                                        <InputError message={errors.award_name} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="date_received">Date Received</Label>
-                                        <Input
-                                            id="date_received"
-                                            type="date"
-                                            value={data.date_received}
-                                            onChange={handleChange}
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.date_received} />
+                                        <p className="text-xs text-muted-foreground">
+                                            Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
+                                        </p>
+                                        <InputError message={errors.attachments} />
                                     </div>
 
-                                    <div className="md:col-span-2 space-y-2">
-                                        <Label htmlFor="description">Description</Label>
-                                        <Textarea
-                                            id="description"
-                                            value={data.description}
-                                            onChange={handleChange}
-                                            rows={3}
-                                            placeholder="Brief description"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.description} />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-
-                        {/* Event Information */}
-                        <TabsContent value="event-info">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Calendar className="h-5 w-5" /> Event Information
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="awarding_body">Awarding Body</Label>
-                                        <Input
-                                            id="awarding_body"
-                                            value={data.awarding_body}
-                                            onChange={handleChange}
-                                            placeholder="Enter awarding body"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.awarding_body} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="location">Location</Label>
-                                        <Input
-                                            id="location"
-                                            value={data.location}
-                                            onChange={handleChange}
-                                            placeholder="Enter event location"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.location} />
-                                    </div>
-                                    <div className="md:col-span-2 space-y-2">
-                                        <Label htmlFor="event_details">Event Details</Label>
-                                        <Textarea
-                                            id="event_details"
-                                            value={data.event_details}
-                                            onChange={handleChange}
-                                            rows={3}
-                                            placeholder="Enter event details"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.event_details} />
-                                    </div>
-                                    <div className="md:col-span-2 space-y-2">
-                                        <Label htmlFor="people_involved">People Involved</Label>
-                                        <Textarea
-                                            id="people_involved"
-                                            value={data.people_involved}
-                                            onChange={handleChange}
-                                            placeholder="Enter people involved"
-                                            disabled={processing}
-                                        />
-                                        <InputError message={errors.people_involved} />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-
-                        {/* Attachments */}
-                        <TabsContent value="attachments">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <FileText className="h-5 w-5" /> Attachments
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="attachments">Upload New Files</Label>
-                                            <div className="flex items-center gap-2">
-                                                <Input
-                                                    ref={fileInputRef}
-                                                    id="attachments"
-                                                    type="file"
-                                                    accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                                                    multiple={true}
-                                                    onChange={(e) => addFiles(e.target.files)}
+                                    {/* File List */}
+                                    {data.attachments.length > 0 && (
+                                        <div className="space-y-2 md:col-span-2">
+                                            <div className='flex items-center justify-between'>
+                                                <Label className="text-sm font-medium">Selected Files ({data.attachments.length})</Label>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={clearAllFiles}
                                                     disabled={processing}
-                                                    className="file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                                                />
+                                                    className="text-xs"
+                                                >
+                                                    Clear
+                                                </Button>
                                             </div>
-                                            <p className="text-sm text-muted-foreground">
-                                                Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
-                                            </p>
-                                            <InputError message={errors.attachments} />
-                                        </div>
-
-                                        <div className='space-y-2'>
-                                            <Label htmlFor='attachment_link'>External Link</Label>
-                                            <Input
-                                                id='attachment_link'
-                                                type='url'
-                                                value={data.attachment_link}
-                                                onChange={(e) => setData(prev => ({ ...prev, attachment_link: e.target.value }))}
-                                                placeholder="https://example.com/document"
-                                            />
-                                            <InputError message={errors.attachment_link} />
-                                        </div>
-
-                                        {/* File List */}
-                                        {data.attachments.length > 0 && (
-                                            <div className="space-y-2 md:col-span-2">
-                                                <div className='flex items-center justify-between'>
-                                                    <Label className="text-sm font-medium">Selected Files ({data.attachments.length})</Label>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={clearAllFiles}
-                                                        disabled={processing}
-                                                        className="text-xs"
+                                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                                {data.attachments.map((file, index) => (
+                                                    <div
+                                                        key={`new-${file.name}-${index}`}
+                                                        className="flex items-center justify-between p-3 border rounded-lg bg-yellow-50"
                                                     >
-                                                        Clear
-                                                    </Button>
-                                                </div>
-                                                <div className="space-y-2 max-h-60 overflow-y-auto">
-                                                    {data.attachments.map((file, index) => (
-                                                        <div
-                                                            key={`new-${file.name}-${index}`}
-                                                            className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
-                                                        >
-                                                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                                <div className="flex-shrink-0">
-                                                                    {file.type.startsWith('image/') ? (
-                                                                        <Image className="h-5 w-5 text-green-500" />
-                                                                    ) : (
-                                                                        <FileText className="h-5 w-5 text-green-500" />
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex-1 min-w-0">
-                                                                    <p className="text-sm font-medium truncate">{file.name}</p>
-                                                                    <p className="text-xs text-muted-foreground">
-                                                                        {formatFileSize(file.size)}
-                                                                    </p>
-                                                                </div>
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="flex-shrink-0">
+                                                                {file.type.startsWith('image/') ? (
+                                                                    <Image className="h-5 w-5 text-yellow-500" />
+                                                                ) : (
+                                                                    <FileText className="h-5 w-5 text-yellow-500" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {formatFileSize(file.size)}
+                                                                </p>
                                                             </div>
                                                         </div>
-                                                    ))}
-                                                </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-                    </Tabs>
+                                        </div>
+                                    )}
 
-                    <div className="flex justify-end">
-                        <Button type="submit" disabled={processing}>
-                            {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                            Submit Form
-                        </Button>
-                    </div>
-                </form>
+                                    <div className='space-y-2 md:col-span-2'>
+                                        <Label htmlFor='attachment_link'>External Link</Label>
+                                        <Input
+                                            id='attachment_link'
+                                            type='url'
+                                            value={data.attachment_link}
+                                            onChange={(e) => setData(prev => ({ ...prev, attachment_link: e.target.value }))}
+                                            placeholder="https://example.com/document"
+                                        />
+                                        <InputError message={errors.attachment_link} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Navigation buttons */}
+                <div className="flex justify-between max-w-3xl mx-auto w-full">
+                    <Button variant="outline" disabled={step === 1} onClick={prevStep}>
+                        Previous
+                    </Button>
+                    {step < steps.length ? (
+                        <Button onClick={validateStep} className='bg-yellow-600 hover:bg-yellow-700'>Next</Button>
+                    ) : (
+                        <Button onClick={handleSubmit} className='bg-yellow-600 hover:bg-yellow-700'>Submit</Button>
+                    )}
+                </div>
             </div>
         </AppLayout>
     );

@@ -6,22 +6,23 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
-import type { BreadcrumbItem, InternationalPartner } from '@/types'
+import type { BreadcrumbItem, Engagement } from '@/types'
 import { Building, Download, Edit3, ExternalLink, File, MapPin, Target, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 
-export default function InternationalPartnerShow() {
+export default function EngagementShow() {
     const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
     const [password, setPassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
-    const [partner, setPartner] = useState<InternationalPartner | null>(null);
+    const [engagement, setEngagement] = useState<Engagement | null>(null);
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -35,14 +36,14 @@ export default function InternationalPartnerShow() {
         setErrorMessage('');
 
         try {
-            await api.patch(`/international-partners/${partner?.id}/archive`, {
+            await api.patch(`/engagements/${engagement?.id}/archive`, {
                 password: password
             });
-            toast.success('Partner Deleted Successfully');
+            toast.success('Engagement Deleted Successfully');
             setPassword('');
             setErrorMessage('');
             setIsArchiveDialogOpen(false);
-            navigate(`/admin/international-partner?campus=${partner?.college.campus_id}&college=${partner?.college_id}`);
+            navigate(`/admin/engagements?campus=${engagement?.college.campus_id}&college=${engagement?.college_id}`);
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.password) {
                 setErrorMessage(error.response.data.password);
@@ -57,7 +58,7 @@ export default function InternationalPartnerShow() {
     };
 
     const handleEdit = () => {
-        navigate(`/admin/international-partner/${id}/edit`);
+        navigate(`/admin/engagements/${id}/edit`);
     };
 
     const resetArchiveDialog = () => {
@@ -67,32 +68,32 @@ export default function InternationalPartnerShow() {
     };
 
     useEffect(() => {
-        const fetchPartner = async () => {
+        const fetchEngagement = async () => {
             setIsLoading(true);
             try {
-                const response = await api.get(`international-partners/${id}`);
+                const response = await api.get(`engagements/${id}`);
                 console.log(response.data.data);
-                setPartner(response.data.data);
+                setEngagement(response.data.data);
             } catch (error) {
-                console.error("Failed to fetch partner:", error);
+                console.error("Failed to fetch engagement:", error);
             } finally {
                 setIsLoading(false);
             }
         }
 
         if (id) {
-            fetchPartner();
+            fetchEngagement();
         }
     }, [id]);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'International Partners',
-            href: '/admin/international-partner',
+            title: 'Engagements',
+            href: '/admin/engagements',
         },
         {
-            title: isLoading ? 'Loading...' : partner ? partner.agency_partner : 'Not Found',
-            href: `/admin/international-partner/${id}`,
+            title: isLoading ? 'Loading...' : engagement ? engagement.agency_partner : 'Not Found',
+            href: `/admin/engagements/${id}`,
         },
     ];
 
@@ -100,64 +101,78 @@ export default function InternationalPartnerShow() {
         <AppLayout breadcrumbs={breadcrumbs}>
             {isLoading ? (
                 <div className="text-center py-8 text-muted-foreground">
-                    Loading partner details...
+                    Loading engagement details...
                 </div>
             ) : (
-                partner ? (
+                engagement ? (
                     <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                         <div className="flex items-center justify-between">
-                            <h1 className='text-2xl font-bold'>Partner Details</h1>
+                            <h1 className='text-2xl font-bold'>Engagement Details</h1>
                             <div className="flex gap-2">
                                 <Button
                                     variant="outline"
                                     onClick={handleEdit}
                                 >
                                     <Edit3 className="h-4 w-4 mr-2" />
-                                    Edit Partner
+                                    Edit
                                 </Button>
                                 <Button
                                     variant="destructive"
                                     className="justify-start bg-red-800 hover:bg-red-900"
                                     onClick={() => setIsArchiveDialogOpen(true)}
                                 >
-                                    Delete Partner
+                                    Delete
                                 </Button>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Main Partnership Information */}
                             <div className="lg:col-span-2 space-y-6">
-                                {/* Basic Information */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <Target className="h-5 w-5" />
-                                            Basic Information
+                                            Engagement Information
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <Label className="text-sm font-light">Partnership ID</Label>
-                                                <Input value={partner.id} readOnly className="mt-1" />
+                                                <Label className="text-sm font-light">Engagement ID</Label>
+                                                <Input value={engagement.id} readOnly className="mt-1" />
                                             </div>
                                             <div>
                                                 <Label className="text-sm font-light">Agency Partner</Label>
-                                                <Input value={partner.agency_partner} readOnly className="mt-1" />
+                                                <Input value={engagement.agency_partner} readOnly className="mt-1" />
                                             </div>
                                             <div className='col-span-2'>
                                                 <Label className="text-sm font-light flex items-center gap-1">
                                                     <MapPin className="h-4 w-4" />
                                                     Location
                                                 </Label>
-                                                <Input value={partner.location} readOnly className="mt-1" />
+                                                <Input value={engagement.location} readOnly className="mt-1" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-sm font-light">Activity Conducted</Label>
+                                                <Input
+                                                    value={engagement.activity_conducted ? engagement.activity_conducted : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-sm font-light">Number of Participants</Label>
+                                                <Input
+                                                    value={engagement.number_of_participants ? engagement.number_of_participants : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
                                                 <div>
                                                     <Label className="text-sm font-light">Start Date</Label>
                                                     <Input
-                                                        value={partner.start_date ? new Date(partner.start_date).toLocaleDateString() : 'Not set'}
+                                                        value={engagement.start_date ? new Date(engagement.start_date).toLocaleDateString() : 'Not set'}
                                                         readOnly
                                                         className="mt-1"
                                                     />
@@ -165,75 +180,27 @@ export default function InternationalPartnerShow() {
                                                 <div>
                                                     <Label className="text-sm font-light">End Date</Label>
                                                     <Input
-                                                        value={partner.end_date ? new Date(partner.end_date).toLocaleDateString() : 'Not set'}
+                                                        value={engagement.end_date ? new Date(engagement.end_date).toLocaleDateString() : 'Not set'}
                                                         readOnly
                                                         className="mt-1"
                                                     />
                                                 </div>
                                             </div>
                                             <div className='col-span-2'>
-                                                <Label className="text-sm font-light">Activity Conducted</Label>
+                                                <Label className="text-sm font-light">Committee Members</Label>
                                                 <Input
-                                                    value={partner.activity_conducted ? partner.activity_conducted : 'Not set'}
+                                                    value={engagement.faculty_involved ? engagement.faculty_involved : 'Not set'}
                                                     readOnly
                                                     className="mt-1"
                                                 />
                                             </div>
                                             <div className='col-span-2'>
                                                 <Label className="text-sm font-light">Narrative</Label>
-                                                <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                                                    {partner.narrative || 'No narrative provided'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Participation Metrics */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Users className="h-5 w-5" />
-                                            Participation Metrics
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-light">Number of Participants</Label>
-                                                <div className="mt-1 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                                                    <div className="flex items-center gap-2">
-                                                        <Users className="h-5 w-5 text-blue-600" />
-                                                        <span className="text-lg font-semibold text-blue-800">
-                                                            {Number(partner.number_of_participants).toLocaleString()}
-                                                        </span>
-                                                        <span className="text-sm text-blue-600">participants</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">Committee Members</Label>
-                                                <div className="mt-1 p-3 bg-green-50 border border-green-200 rounded-md">
-                                                    <div className="flex items-center gap-2">
-                                                        <Users className="h-5 w-5 text-green-600" />
-                                                        <span className="text-lg font-semibold text-green-800">
-                                                            {Number(partner.number_of_committee).toLocaleString()}
-                                                        </span>
-                                                        <span className="text-sm text-green-600">committee</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-light">Total Involvement</Label>
-                                            <div className="mt-1 p-4 bg-purple-50 border border-purple-200 rounded-md">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <Users className="h-6 w-6 text-purple-600" />
-                                                    <span className="text-2xl font-bold text-purple-800">
-                                                        {(Number(partner.number_of_participants) + Number(partner.number_of_committee)).toLocaleString()}
-                                                    </span>
-                                                    <span className="text-lg text-purple-600">total people involved</span>
-                                                </div>
+                                                <Textarea
+                                                    value={engagement.narrative ? engagement.narrative : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
                                             </div>
                                         </div>
                                     </CardContent>
@@ -254,28 +221,28 @@ export default function InternationalPartnerShow() {
                                         <div>
                                             <Label className="text-sm font-medium">Campus</Label>
                                             <div className="mt-1 flex items-center gap-2">
-                                                {partner?.college.campus.logo && (
+                                                {engagement?.college.campus.logo && (
                                                     <Avatar className="size-8">
-                                                        <AvatarImage src={asset(partner.college.campus.logo)} alt="Campus logo" />
+                                                        <AvatarImage src={asset(engagement.college.campus.logo)} alt="Campus logo" />
                                                         <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                     </Avatar>
                                                 )}
-                                                <span className="text-sm font-medium">{partner?.college.campus.name}</span>
+                                                <span className="text-sm font-medium">{engagement?.college.campus.name}</span>
                                             </div>
                                         </div>
                                         <Separator />
                                         <div>
                                             <Label className="text-sm font-medium">College</Label>
                                             <div className="mt-1 flex items-center gap-2">
-                                                {partner?.college.logo && (
+                                                {engagement?.college.logo && (
                                                     <Avatar className="size-8">
-                                                        <AvatarImage src={asset(partner.college.logo)} alt="College logo" />
+                                                        <AvatarImage src={asset(engagement.college.logo)} alt="College logo" />
                                                         <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
                                                     </Avatar>
                                                 )}
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-medium">{partner?.college.name}</span>
-                                                    <span className="text-xs text-muted-foreground">{partner?.college.code}</span>
+                                                    <span className="text-sm font-medium">{engagement?.college.name}</span>
+                                                    <span className="text-xs text-muted-foreground">{engagement?.college.code}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -292,8 +259,8 @@ export default function InternationalPartnerShow() {
                                     </CardHeader>
                                     <CardContent className="space-y-3">
                                         <div className="space-y-2">
-                                            {partner.attachment_paths && partner.attachment_paths.length > 0 ? (
-                                                partner.attachment_paths.map((path, index) => {
+                                            {engagement.attachment_paths && engagement.attachment_paths.length > 0 ? (
+                                                engagement.attachment_paths.map((path, index) => {
                                                     const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
 
                                                     return (
@@ -322,7 +289,7 @@ export default function InternationalPartnerShow() {
                                             )}
                                         </div>
                                         <div className="flex items-center justify-between p-3 border rounded-lg">
-                                            {partner.attachment_link ? (
+                                            {engagement.attachment_link ? (
                                                 <div className="space-y-2">
                                                     <div className="flex items-center gap-2">
                                                         <ExternalLink className="h-4 w-4" />
@@ -330,12 +297,12 @@ export default function InternationalPartnerShow() {
                                                     </div>
 
                                                     <a
-                                                        href={partner.attachment_link}
+                                                        href={engagement.attachment_link}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-blue-500 hover:underline text-sm flex items-center gap-1"
                                                     >
-                                                        {partner.attachment_link}
+                                                        {engagement.attachment_link}
                                                     </a>
                                                 </div>
                                             ) : (
@@ -359,24 +326,24 @@ export default function InternationalPartnerShow() {
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">Created</span>
                                                 <div className='flex flex-col items-end'>
-                                                    <span>{new Date(partner.created_at).toLocaleDateString()}</span>
+                                                    <span>{new Date(engagement.created_at).toLocaleDateString()}</span>
                                                     <span className='text-xs text-stone-500'>
-                                                        {new Date(partner.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {new Date(engagement.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">Last Updated</span>
                                                 <div className='flex flex-col items-end'>
-                                                    <span>{new Date(partner.updated_at).toLocaleDateString()}</span>
+                                                    <span>{new Date(engagement.updated_at).toLocaleDateString()}</span>
                                                     <span className='text-xs text-stone-500'>
-                                                        {new Date(partner.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {new Date(engagement.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">Created By</span>
-                                                <span>{partner?.user.first_name + ' ' + partner?.user.last_name}</span>
+                                                <span>{engagement?.user.first_name + ' ' + engagement?.user.last_name}</span>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -390,7 +357,7 @@ export default function InternationalPartnerShow() {
                                 <DialogHeader>
                                     <DialogTitle>Confirm Delete</DialogTitle>
                                     <DialogDescription>
-                                        To delete this partner, please enter your password to confirm this action.
+                                        To delete this engagement, please enter your password to confirm this action.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-2">
@@ -410,7 +377,7 @@ export default function InternationalPartnerShow() {
                                         Cancel
                                     </Button>
                                     <Button variant="destructive" onClick={handleArchive} disabled={isDeleting} className="bg-red-800 hover:bg-red-900">
-                                        {isDeleting ? 'Deleting...' : 'Delete Partner'}
+                                        {isDeleting ? 'Deleting...' : 'Delete'}
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>
@@ -418,7 +385,7 @@ export default function InternationalPartnerShow() {
                     </div>
                 ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                        Partner not found.
+                        Engagement not found.
                     </div>
                 )
             )}

@@ -1,5 +1,4 @@
 import InputError from '@/components/input-error'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -9,19 +8,19 @@ import { Textarea } from '@/components/ui/textarea'
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
-import type { BreadcrumbItem, InternationalPartner } from '@/types'
-import { Calendar, Download, Edit3, ExternalLink, File, Globe, Users } from 'lucide-react'
+import type { BreadcrumbItem, Engagement } from '@/types'
+import { Download, Edit3, ExternalLink, File, Globe, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 
-export default function UserInternationalPartnerShow() {
+export default function UserEngagementsShow() {
     const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
     const [password, setPassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
-    const [partner, setPartner] = useState<InternationalPartner | null>(null);
+    const [engagement, setEngagement] = useState<Engagement | null>(null);
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -35,14 +34,14 @@ export default function UserInternationalPartnerShow() {
         setErrorMessage('');
 
         try {
-            await api.patch(`/international-partners/${partner?.id}/archive`, {
+            await api.patch(`/engagements/${engagement?.id}/archive`, {
                 password: password
             });
-            toast.success('Partnership Deleted Successfully');
+            toast.success('Engagement Deleted Successfully');
             setPassword('');
             setErrorMessage('');
             setIsArchiveDialogOpen(false);
-            navigate(`/user/international-partners`);
+            navigate(`/user/engagements`);
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.password) {
                 setErrorMessage(error.response.data.password);
@@ -57,7 +56,7 @@ export default function UserInternationalPartnerShow() {
     };
 
     const handleEdit = () => {
-        navigate(`/user/international-partner/${id}/edit`);
+        navigate(`/user/engagements/${id}/edit`);
     };
 
     const resetArchiveDialog = () => {
@@ -67,31 +66,31 @@ export default function UserInternationalPartnerShow() {
     };
 
     useEffect(() => {
-        const fetchPartner = async () => {
+        const fetchEngagement = async () => {
             setIsLoading(true);
             try {
-                const response = await api.get(`/international-partners/${id}`);
-                setPartner(response.data.data);
+                const response = await api.get(`/engagements/${id}`);
+                setEngagement(response.data.data);
             } catch (error) {
-                console.error("Failed to fetch partnership:", error);
+                console.error("Failed to fetch engagement:", error);
             } finally {
                 setIsLoading(false);
             }
         }
 
         if (id) {
-            fetchPartner();
+            fetchEngagement();
         }
     }, [id]);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'International Partners',
-            href: '/user/international-partner',
+            title: 'Engagements',
+            href: '/user/engagements',
         },
         {
-            title: isLoading ? 'Loading...' : partner ? partner.agency_partner : 'Partnership Not Found',
-            href: `/user/international-partner/${id}`,
+            title: isLoading ? 'Loading...' : engagement ? engagement.agency_partner : 'Engagement Not Found',
+            href: `/user/engagements/${id}`,
         },
     ];
 
@@ -99,98 +98,94 @@ export default function UserInternationalPartnerShow() {
         <AppLayout breadcrumbs={breadcrumbs}>
             {isLoading ? (
                 <div className="text-center py-8 text-muted-foreground">
-                    Loading partnership details...
+                    Loading engagement details...
                 </div>
             ) : (
-                partner ? (
+                engagement ? (
                     <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                         <div className="flex items-center justify-between">
-                            <h1 className='text-2xl font-bold'>Partnership Details</h1>
+                            <h1 className='text-2xl font-bold'>Engagement Details</h1>
                             <div className="flex gap-2">
                                 <Button
                                     variant="outline"
                                     onClick={handleEdit}
                                 >
-                                    <Edit3 className="h-4 w-4 mr-2" />
-                                    Edit Partnership
+                                    <Edit3 className="h-4 w-4" />
+                                    Edit
                                 </Button>
                                 <Button
                                     variant="destructive"
-                                    className="justify-start bg-red-800 hover:bg-red-900"
+                                    className="bg-red-800 hover:bg-red-900"
                                     onClick={() => setIsArchiveDialogOpen(true)}
                                 >
-                                    Delete Partnership
+                                    <Trash className="h-4 w-4" />
+                                    Delete
                                 </Button>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Main Partnership Information */}
                             <div className="lg:col-span-2 space-y-6">
-                                {/* Basic Information */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <Globe className="h-5 w-5" />
-                                            Partner Information
+                                            Engagement Information
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <Label className="text-sm font-light">Partner ID</Label>
-                                                <Input value={partner.id || 'Not specified'} readOnly className="mt-1" />
+                                                <Label className="text-sm font-light">Engagement ID</Label>
+                                                <Input value={engagement.id || 'Not specified'} readOnly className="mt-1" />
                                             </div>
                                             <div>
                                                 <Label className="text-sm font-light">Agency Partner</Label>
-                                                <Input value={partner.agency_partner || 'Not specified'} readOnly className="mt-1" />
+                                                <Input value={engagement.agency_partner || 'Not specified'} readOnly className="mt-1" />
                                             </div>
                                             <div className="col-span-1 md:col-span-2">
                                                 <Label className="text-sm font-light">Location</Label>
-                                                <Input value={partner.location || 'Not specified'} readOnly className="mt-1" />
+                                                <Input value={engagement.location || 'Not specified'} readOnly className="mt-1" />
                                             </div>
                                             <div>
                                                 <Label className="text-sm font-light">Activity Type</Label>
-                                                <div className="mt-1">
-                                                    <Badge
-                                                        variant="outline">
-                                                        {partner.activity_conducted.charAt(0).toUpperCase() + partner.activity_conducted.slice(1) || 'Not specified'}
-                                                    </Badge>
-                                                </div>
+                                                <Input value={engagement.activity_conducted || 'Not specified'} readOnly className="mt-1" />
                                             </div>
-                                            <div className="col-span-1 md:col-span-2">
-                                                <Label className="text-sm font-light">Narrative</Label>
-                                                <Textarea value={partner.narrative || 'No narrative provided'} readOnly className="mt-1" />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Participation Metrics */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Users className="h-5 w-5" />
-                                            Participation Metrics
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <Label className="text-sm font-light">Number of Participants</Label>
                                                 <Input
-                                                    value={partner.number_of_participants?.toLocaleString() || 'Not specified'}
+                                                    value={engagement.number_of_participants?.toLocaleString() || 'Not specified'}
                                                     readOnly
                                                     className="mt-1"
                                                 />
                                             </div>
                                             <div>
-                                                <Label className="text-sm font-light">Committee Members</Label>
+                                                <Label className="text-sm font-light">Start Date</Label>
                                                 <Input
-                                                    value={partner.number_of_committee.toLocaleString() || 'Not specified'}
+                                                    value={engagement.start_date ? new Date(engagement.start_date).toLocaleDateString() : 'Not set'}
                                                     readOnly
                                                     className="mt-1"
                                                 />
+                                            </div>
+                                            <div>
+                                                <Label className="text-sm font-light">End Date</Label>
+                                                <Input
+                                                    value={engagement.end_date ? new Date(engagement.end_date).toLocaleDateString() : 'Not set'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                            <div className="col-span-1 md:col-span-2">
+                                                <Label className="text-sm font-light">Faculty Involved</Label>
+                                                <Input
+                                                    value={engagement.faculty_involved || 'Not specified'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                            <div className="col-span-1 md:col-span-2">
+                                                <Label className="text-sm font-light">Narrative</Label>
+                                                <Textarea value={engagement.narrative || 'No narrative provided'} readOnly className="mt-1" />
                                             </div>
                                         </div>
                                     </CardContent>
@@ -199,54 +194,6 @@ export default function UserInternationalPartnerShow() {
 
                             {/* Sidebar */}
                             <div className="space-y-6">
-                                {/* Timeline and Duration */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Calendar className="h-5 w-5" />
-                                            Timeline & Duration
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-light">Start Date</Label>
-                                                <Input
-                                                    value={partner.start_date ? new Date(partner.start_date).toLocaleDateString() : 'Not set'}
-                                                    readOnly
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-light">End Date</Label>
-                                                <Input
-                                                    value={partner.end_date ? new Date(partner.end_date).toLocaleDateString() : 'Not set'}
-                                                    readOnly
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div className="col-span-1 md:col-span-2">
-                                                <Label className="text-sm font-light">Duration</Label>
-                                                <Input
-                                                    value={
-                                                        partner.start_date && partner.end_date
-                                                            ? (() => {
-                                                                const start = new Date(partner.start_date);
-                                                                const end = new Date(partner.end_date);
-                                                                const diffTime = Math.abs(end.getTime() - start.getTime());
-                                                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                                                                return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
-                                                            })()
-                                                            : 'Not specified'
-                                                    }
-                                                    readOnly
-                                                    className="mt-1 bg-muted"
-                                                />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
                                 {/* Attachments */}
                                 <Card>
                                     <CardHeader>
@@ -257,8 +204,8 @@ export default function UserInternationalPartnerShow() {
                                     </CardHeader>
                                     <CardContent className="space-y-3">
                                         <div className="space-y-2">
-                                            {partner.attachment_paths && partner.attachment_paths.length > 0 ? (
-                                                partner.attachment_paths.map((path, index) => {
+                                            {engagement.attachment_paths && engagement.attachment_paths.length > 0 ? (
+                                                engagement.attachment_paths.map((path, index) => {
                                                     const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
 
                                                     return (
@@ -287,7 +234,7 @@ export default function UserInternationalPartnerShow() {
                                             )}
                                         </div>
                                         <div className="flex items-center justify-between p-3 border rounded-lg">
-                                            {partner.attachment_link ? (
+                                            {engagement.attachment_link ? (
                                                 <div className="space-y-2">
                                                     <div className="flex items-center gap-2">
                                                         <ExternalLink className="h-4 w-4" />
@@ -295,12 +242,12 @@ export default function UserInternationalPartnerShow() {
                                                     </div>
 
                                                     <a
-                                                        href={partner.attachment_link}
+                                                        href={engagement.attachment_link}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-blue-500 hover:underline text-sm flex items-center gap-1"
                                                     >
-                                                        {partner.attachment_link}
+                                                        {engagement.attachment_link}
                                                     </a>
                                                 </div>
                                             ) : (
@@ -354,7 +301,7 @@ export default function UserInternationalPartnerShow() {
                     </div>
                 ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                        Partnership not found.
+                        Engagement not found.
                     </div>
                 )
             )}

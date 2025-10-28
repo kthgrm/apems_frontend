@@ -1,16 +1,16 @@
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InputError from "@/components/input-error";
 import type { Award } from "@/types";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Trash, AwardIcon } from "lucide-react";
+import { Trash, AwardIcon, SquarePen, Eye } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Archive Award Component with Password Confirmation
 const ArchiveAwardButton = ({ award, onArchived }: { award: Award, onArchived?: (id: number | string) => void }) => {
@@ -60,18 +60,25 @@ const ArchiveAwardButton = ({ award, onArchived }: { award: Award, onArchived?: 
 
     return (
         <>
-            <DropdownMenuItem
-                variant="destructive"
-                className="flex items-center gap-2"
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setTimeout(() => setIsDialogOpen(true), 100);
-                }}
-            >
-                <Trash className="h-4 w-4" />
-                Delete award
-            </DropdownMenuItem>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-red-800 hover:bg-red-800 hover:text-white"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Small delay to let dropdown close first
+                            setTimeout(() => setIsDialogOpen(true), 100);
+                        }}
+                    >
+                        <Trash className="h-4 w-4" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Delete</p>
+                </TooltipContent>
+            </Tooltip>
 
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 if (!open) {
@@ -207,29 +214,35 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<A
             const award = row.original
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                            <Link to={`/user/awards-recognition/${award.id}`}>
-                                View details
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link to={`/user/awards-recognition/${award.id}/edit`}>
-                                Edit award
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <ArchiveAwardButton award={award} onArchived={onArchived} />
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-1">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-blue-800 hover:bg-blue-800 hover:text-white">
+                                <Link to={`/user/awards-recognition/${award.id}`}>
+                                    <Eye className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>View</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-green-800 hover:bg-green-800 hover:text-white">
+                                <Link to={`/user/awards-recognition/${award.id}/edit`}>
+                                    <SquarePen className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Edit</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <ArchiveAwardButton award={award} onArchived={onArchived} />
+                </div>
             )
         },
     },

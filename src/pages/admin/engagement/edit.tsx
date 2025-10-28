@@ -1,33 +1,38 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
-import type { Resolution } from '@/types';
-import { Download, Eye, FileText, Image } from 'lucide-react';
+import type { Engagement } from '@/types';
+import { Building, Download, Eye, FileText, Image, Target, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 
-export default function ResolutionEdit() {
+export default function EngagementEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [resolution, setResolution] = useState<Resolution | null>(null);
+    const [engagement, setEngagement] = useState<Engagement | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<any>({});
     const [data, setData] = useState({
-        resolution_number: '',
-        effectivity: '',
-        expiration: '',
-        contact_person: '',
-        contact_number_email: '',
-        partner_agency: '',
+        agency_partner: '',
+        location: '',
+        activity_conducted: '',
+        start_date: '',
+        end_date: '',
+        number_of_participants: '',
+        faculty_involved: '',
+        narrative: '',
         attachments: [] as File[],
         attachment_link: '',
     });
@@ -73,12 +78,12 @@ export default function ResolutionEdit() {
     };
 
     useEffect(() => {
-        const fetchResolution = async () => {
+        const fetchEngagement = async () => {
             setIsLoading(true);
             try {
-                const response = await api.get(`/resolutions/${id}`);
-                const reso = response.data.data;
-                setResolution(reso);
+                const response = await api.get(`engagements/${id}`);
+                const engagement = response.data.data;
+                setEngagement(engagement);
 
                 // Format dates for HTML date inputs (yyyy-MM-dd)
                 const formatDate = (dateStr?: string) => {
@@ -93,24 +98,26 @@ export default function ResolutionEdit() {
 
                 // Populate form with fetched data
                 setData({
-                    resolution_number: reso.resolution_number || '',
-                    effectivity: formatDate(reso.effectivity) || '',
-                    expiration: formatDate(reso.expiration) || '',
-                    partner_agency: reso.partner_agency || '',
-                    contact_person: reso.contact_person || '',
-                    contact_number_email: reso.contact_number_email || '',
+                    agency_partner: engagement.agency_partner || '',
+                    location: engagement.location || '',
+                    activity_conducted: engagement.activity_conducted || '',
+                    start_date: formatDate(engagement.start_date),
+                    end_date: formatDate(engagement.end_date),
+                    number_of_participants: engagement.number_of_participants ? String(engagement.number_of_participants) : '',
+                    faculty_involved: engagement.faculty_involved || '',
+                    narrative: engagement.narrative || '',
                     attachments: [],
-                    attachment_link: reso.attachment_link || '',
+                    attachment_link: engagement.attachment_link || '',
                 });
             } catch (error) {
-                console.error('Failed to fetch resolution', error);
+                console.error('Failed to fetch engagement', error);
             } finally {
                 setIsLoading(false);
             }
         }
 
         if (id) {
-            fetchResolution();
+            fetchEngagement();
         }
     }, [id]);
 
@@ -147,7 +154,7 @@ export default function ResolutionEdit() {
                 // Laravel PUT workaround: use POST with _method
                 formData.append('_method', 'PUT');
 
-                await api.post(`/resolutions/${id}`, formData, {
+                await api.post(`/engagements/${id}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
             } else {
@@ -157,10 +164,10 @@ export default function ResolutionEdit() {
                     ...restData,
                 };
 
-                await api.put(`/resolutions/${id}`, payload);
+                await api.put(`/engagements/${id}`, payload);
             }
 
-            toast.success('Resolution updated successfully!');
+            toast.success('Engagement updated successfully!');
             navigate(-1);
         } catch (err: any) {
             console.error('Submission error:', err.response?.data || err);
@@ -179,16 +186,16 @@ export default function ResolutionEdit() {
 
     const breadcrumbs = [
         {
-            title: 'Resolution',
-            href: '/admin/resolution',
+            title: 'Engagement',
+            href: '/admin/engagements',
         },
         {
-            title: isLoading ? 'Loading...' : resolution ? resolution.resolution_number : 'Not Found',
-            href: `/admin/resolution/${id}`,
+            title: isLoading ? 'Loading...' : engagement ? engagement.agency_partner : 'Not Found',
+            href: `/admin/engagements/${id}`,
         },
         {
-            title: 'Edit Resolution',
-            href: `/admin/resolution/${id}/edit`,
+            title: 'Edit',
+            href: `/admin/engagements/${id}/edit`,
         },
     ];
 
@@ -196,21 +203,21 @@ export default function ResolutionEdit() {
         <AppLayout breadcrumbs={breadcrumbs}>
             {isLoading ? (
                 <div className="text-center py-8 text-muted-foreground">
-                    Loading resolution details...
+                    Loading engagement details...
                 </div>
             ) : (
-                resolution ? (
+                engagement ? (
                     <form onSubmit={handleSubmit}>
                         <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                             <div className="flex items-center justify-between">
-                                <h1 className='text-2xl font-bold'>Edit Resolution</h1>
+                                <h1 className='text-2xl font-bold'>Edit Engagement</h1>
                                 <div className="flex gap-2">
                                     <Button
                                         variant="outline"
                                         disabled={processing}
                                         type='submit'
                                     >
-                                        {processing ? 'Updating...' : 'Update Project'}
+                                        {processing ? 'Updating...' : 'Update'}
                                     </Button>
                                     <Button
                                         type="button"
@@ -223,110 +230,159 @@ export default function ResolutionEdit() {
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                {/* Main Project Information */}
                                 <div className="lg:col-span-2 space-y-6">
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2">
-                                                <FileText className="h-5 w-5" />
-                                                Resolution Information
+                                                <Users className="h-5 w-5" />
+                                                Engagement Information
                                             </CardTitle>
                                         </CardHeader>
-                                        <CardContent className="space-y-6">
+                                        <CardContent className="space-y-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="resolution_number">
-                                                        Resolution Number <span className="text-red-500">*</span>
-                                                    </Label>
-                                                    <Input
-                                                        id="resolution_number"
-                                                        value={data.resolution_number}
-                                                        onChange={handleChange}
-                                                        placeholder="Enter resolution number"
-                                                        className={errors.resolution_number ? 'border-red-500' : ''}
-                                                    />
-                                                    <InputError message={errors.resolution_number} />
+                                                <div>
+                                                    <Label className="text-sm font-light">Engagement ID</Label>
+                                                    <Input value={engagement.id} readOnly className="mt-1 bg-muted" />
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="partner_agency" className="flex items-center gap-2">
-                                                        Partner Agency <span className="text-red-500">*</span>
-                                                    </Label>
+                                                <div>
+                                                    <Label className="text-sm font-light" htmlFor="agency_partner">Agency Partner *</Label>
                                                     <Input
-                                                        id="partner_agency"
-                                                        value={data.partner_agency}
+                                                        id="agency_partner"
+                                                        value={data.agency_partner}
                                                         onChange={handleChange}
-                                                        placeholder="Enter partner agency"
-                                                        className={errors.partner_agency ? 'border-red-500' : ''}
+                                                        className="mt-1"
+                                                        placeholder="Enter agency partner name"
                                                     />
-                                                    <InputError message={errors.partner_agency} />
+                                                    <InputError message={errors.agency_partner} className="mt-1" />
                                                 </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="contact_person">
-                                                        Contact Person <span className="text-red-500">*</span>
-                                                    </Label>
+                                                <div className="md:col-span-2">
+                                                    <Label className="text-sm font-light" htmlFor="location">Location *</Label>
                                                     <Input
-                                                        id="contact_person"
-                                                        value={data.contact_person}
+                                                        id="location"
+                                                        value={data.location}
                                                         onChange={handleChange}
-                                                        placeholder="Enter full name"
-                                                        className={errors.contact_person ? 'border-red-500' : ''}
+                                                        className="mt-1"
+                                                        placeholder="Enter location"
                                                     />
-                                                    <InputError message={errors.contact_person} />
+                                                    <InputError message={errors.location} className="mt-1" />
                                                 </div>
-
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="contact_number_email" className="flex items-center gap-2">
-                                                        Contact Number/Email <span className="text-red-500">*</span>
-                                                    </Label>
+                                                <div>
+                                                    <Label className="text-sm font-light" htmlFor="activity_conducted">Activity Conducted *</Label>
                                                     <Input
-                                                        id="contact_number_email"
-                                                        value={data.contact_number_email}
+                                                        id="activity_conducted"
+                                                        value={data.activity_conducted}
+                                                        type='text'
                                                         onChange={handleChange}
-                                                        placeholder="Enter email or phone number"
-                                                        className={errors.contact_number_email ? 'border-red-500' : ''}
+                                                        className="mt-1"
+                                                        placeholder="Describe the activity conducted"
                                                     />
-                                                    <InputError message={errors.contact_number_email} />
+                                                    <InputError message={errors.activity_conducted} className="mt-1" />
                                                 </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="effectivity" className="flex items-center gap-2">
-                                                        Effectivity <span className="text-red-500">*</span>
-                                                    </Label>
+                                                <div>
+                                                    <Label className="text-sm font-light" htmlFor="number_of_participants">Number of Participants</Label>
                                                     <Input
-                                                        id="effectivity"
+                                                        id="number_of_participants"
+                                                        type="number"
+                                                        value={data.number_of_participants}
+                                                        onChange={handleChange}
+                                                        className="mt-1"
+                                                        placeholder="Enter number of participants"
+                                                        min="0"
+                                                    />
+                                                    <InputError message={errors.number_of_participants} className="mt-1" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-light" htmlFor="start_date">Start Date *</Label>
+                                                    <Input
+                                                        id="start_date"
                                                         type="date"
-                                                        value={data.effectivity}
+                                                        value={data.start_date}
                                                         onChange={handleChange}
-                                                        className={errors.effectivity ? 'border-red-500' : ''}
+                                                        className="mt-1"
                                                     />
-                                                    <InputError message={errors.effectivity} />
+                                                    <InputError message={errors.start_date} className="mt-1" />
                                                 </div>
-
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="expiration" className="flex items-center gap-2">
-                                                        Expiration <span className="text-red-500">*</span>
-                                                    </Label>
+                                                <div>
+                                                    <Label className="text-sm font-light" htmlFor="end_date">End Date *</Label>
                                                     <Input
-                                                        id="expiration"
+                                                        id="end_date"
                                                         type="date"
-                                                        value={data.expiration}
+                                                        value={data.end_date}
                                                         onChange={handleChange}
-                                                        className={errors.expiration ? 'border-red-500' : ''}
+                                                        className="mt-1"
                                                     />
-                                                    <InputError message={errors.expiration} />
+                                                    <InputError message={errors.end_date} className="mt-1" />
+                                                </div>
+                                                <div className="col-span-1 md:col-span-2">
+                                                    <Label className="text-sm font-light" htmlFor="faculty_involved">Faculty Involved</Label>
+                                                    <Input
+                                                        id="faculty_involved"
+                                                        value={data.faculty_involved}
+                                                        onChange={handleChange}
+                                                        className="mt-1"
+                                                        placeholder="Enter faculty involved"
+                                                    />
+                                                    <InputError message={errors.faculty_involved} className="mt-1" />
+                                                </div>
+                                                <div className="col-span-1 md:col-span-2">
+                                                    <Label className="text-sm font-light" htmlFor="narrative">Narrative *</Label>
+                                                    <Textarea
+                                                        id="narrative"
+                                                        value={data.narrative}
+                                                        onChange={handleChange}
+                                                        className="mt-1"
+                                                        placeholder="Provide a detailed narrative about the engagement"
+                                                    />
+                                                    <InputError message={errors.narrative} className="mt-1" />
                                                 </div>
                                             </div>
                                         </CardContent>
                                     </Card>
                                 </div>
 
-                                {/* Side */}
+                                {/* Sidebar */}
                                 <div className="space-y-6">
+                                    {/* Institution Information */}
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Building className="h-5 w-5" />
+                                                Department
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div>
+                                                <Label className="text-sm font-medium">Campus</Label>
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    {engagement?.college.campus.logo && (
+                                                        <Avatar className="size-8">
+                                                            <AvatarImage src={asset(engagement.college.campus.logo)} alt="Campus logo" />
+                                                            <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
+                                                        </Avatar>
+                                                    )}
+                                                    <span className="text-sm font-medium">{engagement?.college.campus.name}</span>
+                                                </div>
+                                            </div>
+                                            <Separator />
+                                            <div>
+                                                <Label className="text-sm font-medium">College</Label>
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    {engagement?.college.logo && (
+                                                        <Avatar className="size-8">
+                                                            <AvatarImage src={asset(engagement.college.logo)} alt="College logo" />
+                                                            <AvatarFallback><Building className='p-0.5' /></AvatarFallback>
+                                                        </Avatar>
+                                                    )}
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-medium">{engagement?.college.name}</span>
+                                                        <span className="text-xs text-muted-foreground">{engagement?.college.code}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Attachments */}
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2">
@@ -336,11 +392,11 @@ export default function ResolutionEdit() {
                                         </CardHeader>
                                         <CardContent className="space-y-3">
                                             {/* Existing Attachments */}
-                                            {resolution?.attachment_paths && resolution.attachment_paths.length > 0 && (
+                                            {engagement.attachment_paths && engagement.attachment_paths.length > 0 && (
                                                 <div className="space-y-2">
-                                                    <Label className="text-sm font-medium">Current Attachments ({resolution.attachment_paths.length})</Label>
+                                                    <Label className="text-sm font-medium">Current Attachments ({engagement.attachment_paths.length})</Label>
                                                     <div className="space-y-2 max-h-40 overflow-y-auto">
-                                                        {resolution.attachment_paths.map((path, index) => {
+                                                        {engagement.attachment_paths.map((path, index) => {
                                                             const fileName = path.split('/').pop() || `Attachment ${index + 1}`;
                                                             return (
                                                                 <div
@@ -439,7 +495,7 @@ export default function ResolutionEdit() {
 
                                             {/* External Link */}
                                             <div>
-                                                <Label className="text-sm" htmlFor='attachment_link'>External Link</Label>
+                                                <Label className="text-sm font-light" htmlFor='attachment_link'>External Link</Label>
                                                 <Input
                                                     id='attachment_link'
                                                     type='url'
@@ -451,13 +507,42 @@ export default function ResolutionEdit() {
                                             </div>
                                         </CardContent>
                                     </Card>
+
+                                    {/* Record Details */}
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Record Details</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-muted-foreground">Created</span>
+                                                    <div className='flex flex-col items-end'>
+                                                        <span>{new Date(engagement.created_at).toLocaleDateString()}</span>
+                                                        <span className='text-xs text-stone-500'>{new Date(engagement.created_at).toLocaleTimeString()}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-muted-foreground">Last Updated</span>
+                                                    <div className='flex flex-col items-end'>
+                                                        <span>{new Date(engagement.updated_at).toLocaleDateString()}</span>
+                                                        <span className='text-xs text-stone-500'>{new Date(engagement.updated_at).toLocaleTimeString()}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-muted-foreground">Created By</span>
+                                                    <span>{engagement?.user.first_name + ' ' + engagement?.user.last_name}</span>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </div>
                             </div>
                         </div>
                     </form>
                 ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                        Project not found.
+                        Engagement not found.
                     </div>
                 )
             )}

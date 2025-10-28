@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { ImpactAssessment } from '@/types';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash, MapPin, Users, FilePenLine } from 'lucide-react';
+import { MoreHorizontal, Trash, MapPin, Users, FilePenLine, SquarePen, Eye } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Archive Assessment Component with Password Confirmation
 const ArchiveAssessmentButton = ({ assessment, onArchived }: { assessment: ImpactAssessment, onArchived?: (id: number | string) => void }) => {
@@ -62,19 +63,25 @@ const ArchiveAssessmentButton = ({ assessment, onArchived }: { assessment: Impac
 
     return (
         <>
-            <DropdownMenuItem
-                variant="destructive"
-                className="flex items-center gap-2"
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Small delay to let dropdown close first
-                    setTimeout(() => setIsDialogOpen(true), 100);
-                }}
-            >
-                <Trash className="h-4 w-4" />
-                Delete assessment
-            </DropdownMenuItem>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-red-800 hover:bg-red-800 hover:text-white"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Small delay to let dropdown close first
+                            setTimeout(() => setIsDialogOpen(true), 100);
+                        }}
+                    >
+                        <Trash className="h-4 w-4" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Delete</p>
+                </TooltipContent>
+            </Tooltip>
 
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 if (!open) {
@@ -212,29 +219,35 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<I
             const assessment = row.original
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                            <Link to={`/admin/impact-assessment/${assessment.id}`} className="font-light">
-                                View details
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link to={`/admin/impact-assessment/${assessment.id}/edit`} className="font-light">
-                                Edit assessment
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <ArchiveAssessmentButton assessment={assessment} onArchived={onArchived} />
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-1">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-blue-800 hover:bg-blue-800 hover:text-white">
+                                <Link to={`/admin/impact-assessment/${assessment.id}`} className="font-light">
+                                    <Eye className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>View</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-green-800 hover:bg-green-800 hover:text-white">
+                                <Link to={`/admin/impact-assessment/${assessment.id}/edit`} className="font-light">
+                                    <SquarePen className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Edit</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <ArchiveAssessmentButton assessment={assessment} onArchived={onArchived} />
+                </div>
             )
         },
     },

@@ -1,18 +1,18 @@
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InputError from "@/components/input-error";
 import type { College } from "@/types";
-import { Edit, MoreHorizontal, Trash, Eye, LoaderCircle, Building } from "lucide-react";
+import { Trash, Eye, LoaderCircle, Building, SquarePen } from "lucide-react";
 import { useState } from "react";
 import { asset } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Delete College Component with Password Confirmation
 const DeleteCollegeButton = ({ college, onDelete }: { college: College, onDelete?: (id: number | string) => void }) => {
@@ -20,13 +20,6 @@ const DeleteCollegeButton = ({ college, onDelete }: { college: College, onDelete
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-
-    const openDialog = () => {
-        setIsDialogOpen(true);
-        setPassword('');
-        setErrorMessage('');
-        setIsLoading(false);
-    };
 
     const closeDialog = () => {
         if (isLoading) return; // Prevent closing during loading
@@ -72,16 +65,25 @@ const DeleteCollegeButton = ({ college, onDelete }: { college: College, onDelete
 
     return (
         <>
-            <DropdownMenuItem
-                onSelect={(e) => {
-                    e.preventDefault();
-                    openDialog();
-                }}
-                variant="destructive"
-            >
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-            </DropdownMenuItem>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-red-800 hover:bg-red-800 hover:text-white"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Small delay to let dropdown close first
+                            setTimeout(() => setIsDialogOpen(true), 100);
+                        }}
+                    >
+                        <Trash className="h-4 w-4" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    Delete
+                </TooltipContent>
+            </Tooltip>
 
             <Dialog open={isDialogOpen} onOpenChange={() => { }}>
                 <DialogContent
@@ -216,32 +218,35 @@ export const columns = (onDelete: (id: number | string) => void): ColumnDef<Coll
             const colleges = row.original;
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link to={`/admin/college/${colleges.id}`}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link to={`/admin/college/${colleges.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DeleteCollegeButton college={colleges} onDelete={onDelete} />
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-1">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-blue-800 hover:bg-blue-800 hover:text-white">
+                                <Link to={`/admin/college/${colleges.id}`}>
+                                    <Eye className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>View</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 text-green-800 hover:bg-green-800 hover:text-white">
+                                <Link to={`/admin/college/${colleges.id}/edit`}>
+                                    <SquarePen className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Edit</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <DeleteCollegeButton college={colleges} onDelete={onDelete} />
+                </div>
             );
         },
     },

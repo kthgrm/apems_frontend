@@ -88,20 +88,14 @@ export interface Resolution {
     id: number;
     user_id: number;
     user: User;
-    resolution_number: string;
-    effectivity: date;
-    expiration: date;
-    contact_person: string;
-    contact_number_email: string;
-    partner_agency: string;
-    attachment_paths?: string[] | null;
-    attachment_link?: string | null;
+    title: string;
+    attachment_paths?: string[];
     is_archived?: boolean;
     created_at: string;
     updated_at: string;
 }
 
-export interface InternationalPartner {
+export interface Engagement {
     id: number;
     user_id: number;
     user: User;
@@ -114,7 +108,7 @@ export interface InternationalPartner {
     start_date: string;
     end_date: string;
     number_of_participants: number;
-    number_of_committee: number;
+    faculty_involved: string;
     narrative: string;
 
     attachment_paths?: string[] | null;

@@ -16,15 +16,10 @@ import CampusCreate from "./pages/admin/campus/create"
 import CampusEdit from "./pages/admin/campus/edit"
 import CampusShow from "./pages/admin/campus/show"
 import Resolution from "./pages/admin/resolution"
-import ResolutionShow from "./pages/admin/resolution/show"
 import ResolutionCreate from "./pages/admin/resolution/create"
-import ResolutionEdit from "./pages/admin/resolution/edit"
 import { AdminRoute } from "./components/AdminRoutes"
 import { UserRoute } from "./components/PrivateRoutes"
 import UserDashboard from "./pages/user/dashboard"
-import InternationalPartner from "./pages/admin/intl-partner"
-import InternationalPartnerShow from "./pages/admin/intl-partner/show"
-import InternationalPartnerEdit from "./pages/admin/intl-partner/edit"
 import Award from "./pages/admin/award"
 import AwardShow from "./pages/admin/award/show"
 import AwardEdit from "./pages/admin/award/edit"
@@ -46,10 +41,6 @@ import UserAwardsEdit from "./pages/user/awards/edit"
 import UserAwardShow from "./pages/user/awards/show"
 import UserModalities from "./pages/user/modalities"
 import UserModalitiesCreate from "./pages/user/modalities/create"
-import UserInternationalPartners from "./pages/user/international-partners"
-import UserInternationalPartnersCreate from "./pages/user/international-partners/create"
-import UserInternationalPartnersEdit from "./pages/user/international-partners/edit"
-import UserInternationalPartnerShow from "./pages/user/international-partners/show"
 import UserImpactAssessments from "./pages/user/impact-assessments"
 import UserImpactAssessmentsCreate from "./pages/user/impact-assessments/create"
 import UserImpactAssessmentEdit from "./pages/user/impact-assessments/edit"
@@ -60,13 +51,20 @@ import AwardReport from "./pages/admin/reports/award"
 import ResolutionReport from "./pages/admin/reports/resolution"
 import ModalityReport from "./pages/admin/reports/modalities"
 import ImpactAssessmentReport from "./pages/admin/reports/impct-assessment"
-import InternationalPartnerReport from "./pages/admin/reports/intl-partner"
+import EngagementReport from "./pages/admin/reports/engagement"
 import NotFound from "./pages/NotFound"
 import CreateUser from "./pages/admin/user/create"
 import ShowUser from "./pages/admin/user/show"
 import EditUser from "./pages/admin/user/edit"
 import UsersReport from "./pages/admin/reports/users"
 import AuditTrailIndex from "./pages/admin/reports/audit-trail"
+import UserEngagements from "./pages/user/engagements"
+import UserEngagementsCreate from "./pages/user/engagements/create"
+import UserEngagementsEdit from "./pages/user/engagements/edit"
+import UserEngagementsShow from "./pages/user/engagements/show"
+import Engagement from "./pages/admin/engagement"
+import EngagementShow from "./pages/admin/engagement/show"
+import EngagementEdit from "./pages/admin/engagement/edit"
 
 function App() {
   return (
@@ -84,10 +82,10 @@ function App() {
               <Route path=":id/edit" element={<TechnologyTransferEdit />} />
               <Route path=":id" element={<TechnologyTransferShow />} />
             </Route>
-            <Route path="international-partner">
-              <Route index element={<InternationalPartner />} />
-              <Route path=":id/edit" element={<InternationalPartnerEdit />} />
-              <Route path=":id" element={<InternationalPartnerShow />} />
+            <Route path="engagements">
+              <Route index element={<Engagement />} />
+              <Route path=":id/edit" element={<EngagementEdit />} />
+              <Route path=":id" element={<EngagementShow />} />
             </Route>
             <Route path="awards-recognition">
               <Route index element={<Award />} />
@@ -119,8 +117,6 @@ function App() {
             <Route path="resolution">
               <Route index element={<Resolution />} />
               <Route path="create" element={<ResolutionCreate />} />
-              <Route path=":id/edit" element={<ResolutionEdit />} />
-              <Route path=":id" element={<ResolutionShow />} />
             </Route>
             <Route path="users">
               <Route index element={<UserManagement />} />
@@ -134,7 +130,7 @@ function App() {
               <Route path="resolutions" element={<ResolutionReport />} />
               <Route path="modalities" element={<ModalityReport />} />
               <Route path="impact-assessments" element={<ImpactAssessmentReport />} />
-              <Route path="international-partners" element={<InternationalPartnerReport />} />
+              <Route path="engagements" element={<EngagementReport />} />
               <Route path="users" element={<UsersReport />} />
               <Route path="audit-trail" element={<AuditTrailIndex />} />
             </Route>
@@ -153,11 +149,11 @@ function App() {
               <Route path=":id/edit" element={<UserAwardsEdit />} />
               <Route path=":id" element={<UserAwardShow />} />
             </Route>
-            <Route path="international-partner">
-              <Route index element={<UserInternationalPartners />} />
-              <Route path="create" element={<UserInternationalPartnersCreate />} />
-              <Route path=":id/edit" element={<UserInternationalPartnersEdit />} />
-              <Route path=":id" element={<UserInternationalPartnerShow />} />
+            <Route path="engagements">
+              <Route index element={<UserEngagements />} />
+              <Route path="create" element={<UserEngagementsCreate />} />
+              <Route path=":id/edit" element={<UserEngagementsEdit />} />
+              <Route path=":id" element={<UserEngagementsShow />} />
             </Route>
             <Route path="impact-assessment">
               <Route index element={<UserImpactAssessments />} />

@@ -1,59 +1,45 @@
-import React, { useRef, useState } from 'react';
-import { Download, FileText, Image } from 'lucide-react';
+import { useRef, useState, type DragEventHandler } from 'react';
+import { CheckCircle2, FileText, LoaderCircle, Upload, X } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import api from '@/lib/axios';
-import InputError from '@/components/input-error';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function ResolutionCreate() {
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [file, setFile] = useState<File | null>(null);
+    const [dragActive, setDragActive] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<any>({});
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [data, setData] = useState({
-        resolution_number: '',
-        effectivity: '',
-        expiration: '',
-        partner_agency: '',
-        contact_person: '',
-        contact_number_email: '',
-        attachments: [] as File[],
-        attachment_link: '',
-    });
+    const addFile = (newFiles: FileList | null) => {
+        if (!newFiles || newFiles.length === 0) return;
 
-    const addFiles = (newFiles: FileList | null) => {
-        if (!newFiles) return;
+        const selectedFile = newFiles[0];
+        const validTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
 
-        const fileArray = Array.from(newFiles);
-        const validFiles = fileArray.filter(file => {
-            // Check file type
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-            if (!validTypes.includes(file.type)) {
-                toast.error(`File ${file.name} is not a valid file type`);
-                return false;
-            }
+        if (!validTypes.includes(selectedFile.type)) {
+            alert(`File ${selectedFile.name} is not a valid file type`);
+            return;
+        }
 
-            // Check file size (max 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                toast.error(`File ${file.name} is too large. Maximum size is 10MB`);
-                return false;
-            }
+        if (selectedFile.size > 10 * 1024 * 1024) {
+            alert(`File ${selectedFile.name} is too large. Maximum size is 10MB`);
+            return;
+        }
 
-            return true;
-        });
-
-        // Replace existing files instead of appending to avoid accumulation
-        setData(prev => ({ ...prev, attachments: validFiles }));
+        // Replace previous file if any
+        setFile(selectedFile);
     };
 
-    const clearAllFiles = () => {
-        setData(prev => ({ ...prev, attachments: [] }));
+    const removeFile = () => {
+        setFile(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -67,287 +53,180 @@ export default function ResolutionCreate() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleDrag: DragEventHandler = (e) => {
         e.preventDefault();
-        setProcessing(true);
-        setErrors({});
-
-        try {
-            const hasFiles = data.attachments && data.attachments.length > 0;
-
-            if (hasFiles) {
-                const formData = new FormData();
-
-                Object.entries(data).forEach(([key, value]) => {
-                    if (key === 'attachments') {
-                        // Add files separately
-                        data.attachments.forEach((file) => {
-                            formData.append('attachments[]', file);
-                        });
-                    } else if (value !== null && value !== undefined) {
-                        formData.append(key, String(value));
-                    }
-                });
-
-                await api.post('/resolutions', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-            } else {
-                await api.post('/resolutions', data);
-            }
-
-            toast.success('Resolution created successfully');
-            navigate('/admin/resolution');
-        } catch (err: any) {
-            console.error('Submission error:', err.response?.data || err);
-
-            const validationErrors = err.response?.data?.errors || {};
-            setErrors(validationErrors);
-        } finally {
-            setProcessing(false);
+        e.stopPropagation();
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setDragActive(true);
+        } else if (e.type === 'dragleave') {
+            setDragActive(false);
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { id, value } = e.target;
-        setData(prev => ({ ...prev, [id]: value }));
+    const handleDrop: DragEventHandler = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            addFile(e.dataTransfer.files);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!file) {
+            alert('Please select a file before uploading.');
+            return;
+        }
+
+        const formData = new FormData();
+        // Backend expects attachments[] (array)
+        formData.append('attachments[]', file);
+
+        try {
+            setUploading(true);
+            setSuccess(false);
+
+            const response = await api.post('/resolutions', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.data.success) {
+                setSuccess(true);
+                toast.success('Resolution uploaded successfully!');
+                removeFile();
+                navigate('/admin/resolution');
+            } else {
+                toast.error(response.data.message || 'Upload failed.');
+            }
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            toast.error(
+                error.response?.data?.message || 'An error occurred while uploading.'
+            );
+        } finally {
+            setUploading(false);
+        }
     };
 
     const breadcrumbs = [
         { title: 'Resolution', href: '/admin/resolution' },
-        { title: 'Add New Resolution', href: '/admin/resolution/create' },
+        { title: 'New Resolution', href: '/admin/resolution/create' },
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
-                <form onSubmit={handleSubmit} className='space-y-6'>
+                <div className="max-w-3xl mx-auto w-full">
                     {/* Header */}
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                    <div className="mb-8">
+                        <h1 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Upload Resolution</h1>
+                    </div>
+
+                    {/* Upload Area */}
+                    <div
+                        className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all ${dragActive
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                    >
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => addFile(e.target.files)}
+                            className="hidden"
+                        />
+
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                                <Upload className="h-8 w-8 text-blue-600" />
+                            </div>
+
                             <div>
-                                <h1 className="text-2xl font-bold">Create New Resolution</h1>
-                                <p className="text-gray-600">
-                                    Add a new resolution
+                                <p className="text-lg font-semibold text-gray-700 mb-1">
+                                    Drag and drop your file here
                                 </p>
+                                <p className="text-sm text-gray-500 mb-4">or</p>
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                                >
+                                    Browse File
+                                </button>
+                            </div>
+
+                            <p className="text-xs text-gray-500 mt-2">
+                                Supported formats: PDF, DOC, DOCX (Max 10MB)
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* File Preview */}
+                    {file && (
+                        <div className="mt-8">
+                            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                                Selected File
+                            </h2>
+
+                            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                                <FileText className="h-8 w-8 text-blue-500" />
+
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                        {file.name}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-xs text-gray-500">
+                                            {formatFileSize(file.size)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={removeFile}
+                                    className="p-1 hover:bg-red-100 rounded-full transition-colors"
+                                >
+                                    <X className="h-5 w-5 text-red-500" />
+                                </button>
+                            </div>
+
+                            {/* Submit Buttons */}
+                            <div className="mt-6 flex justify-end gap-3">
+                                <Button variant="outline" onClick={removeFile}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleUpload}
+                                    disabled={uploading}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                                >
+                                    {uploading ? (
+                                        <>
+                                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                                            Uploading...
+                                        </>
+                                    ) : success ? (
+                                        <>
+                                            <CheckCircle2 className="h-4 w-4" />
+                                            Uploaded
+                                        </>
+                                    ) : (
+                                        'Upload File'
+                                    )}
+                                </Button>
                             </div>
                         </div>
-                        <div className="flex items-center justify-end gap-4">
-                            <Button
-                                type="submit"
-                                disabled={processing}
-                            >
-                                {processing ? 'Creating...' : 'Create Resolution'}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => navigate(-1)}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2 space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <FileText className="h-5 w-5" />
-                                        Resolution Information
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="resolution_number">
-                                                Resolution Number <span className="text-red-500">*</span>
-                                            </Label>
-                                            <Input
-                                                id="resolution_number"
-                                                value={data.resolution_number}
-                                                onChange={handleChange}
-                                                placeholder="Enter resolution number"
-                                                className={errors.resolution_number ? 'border-red-500' : ''}
-                                            />
-                                            <InputError message={errors.resolution_number} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="partner_agency" className="flex items-center gap-2">
-                                                Partner Agency <span className="text-red-500">*</span>
-                                            </Label>
-                                            <Input
-                                                id="partner_agency"
-                                                value={data.partner_agency}
-                                                onChange={handleChange}
-                                                placeholder="Enter partner agency"
-                                                className={errors.partner_agency ? 'border-red-500' : ''}
-                                            />
-                                            <InputError message={errors.partner_agency} />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="contact_person">
-                                                Contact Person <span className="text-red-500">*</span>
-                                            </Label>
-                                            <Input
-                                                id="contact_person"
-                                                value={data.contact_person}
-                                                onChange={handleChange}
-                                                placeholder="Enter full name"
-                                                className={errors.contact_person ? 'border-red-500' : ''}
-                                            />
-                                            <InputError message={errors.contact_person} />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="contact_number_email" className="flex items-center gap-2">
-                                                Contact Number/Email <span className="text-red-500">*</span>
-                                            </Label>
-                                            <Input
-                                                id="contact_number_email"
-                                                value={data.contact_number_email}
-                                                onChange={handleChange}
-                                                placeholder="Enter email or phone number"
-                                                className={errors.contact_number_email ? 'border-red-500' : ''}
-                                            />
-                                            <InputError message={errors.contact_number_email} />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="effectivity" className="flex items-center gap-2">
-                                                Effectivity <span className="text-red-500">*</span>
-                                            </Label>
-                                            <Input
-                                                id="effectivity"
-                                                type="date"
-                                                value={data.effectivity}
-                                                onChange={handleChange}
-                                                className={errors.effectivity ? 'border-red-500' : ''}
-                                            />
-                                            <InputError message={errors.effectivity} />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="expiration" className="flex items-center gap-2">
-                                                Expiration <span className="text-red-500">*</span>
-                                            </Label>
-                                            <Input
-                                                id="expiration"
-                                                type="date"
-                                                value={data.expiration}
-                                                onChange={handleChange}
-                                                className={errors.expiration ? 'border-red-500' : ''}
-                                            />
-                                            <InputError message={errors.expiration} />
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Side */}
-                        <div className="space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Download className="h-5 w-5" />
-                                        Attachments
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {/* New File Upload */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between">
-                                            <Label htmlFor="attachments">Upload New Files</Label>
-                                            {data.attachments.length > 0 && (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={clearAllFiles}
-                                                    disabled={processing}
-                                                    className="text-xs"
-                                                >
-                                                    Clear
-                                                </Button>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Input
-                                                ref={fileInputRef}
-                                                id="attachments"
-                                                type="file"
-                                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                                                multiple={true}
-                                                onChange={(e) => addFiles(e.target.files)}
-                                                disabled={processing}
-                                                className="file:mr-4 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                            />
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">
-                                            Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB each)
-                                        </p>
-                                        <InputError message={errors.attachments} />
-                                    </div>
-
-                                    {/* File List */}
-                                    {data.attachments.length > 0 && (
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium">Selected Files ({data.attachments.length})</Label>
-                                            <div className="space-y-2 max-h-60 overflow-y-auto">
-                                                {data.attachments.map((file, index) => (
-                                                    <div
-                                                        key={`new-${file.name}-${index}`}
-                                                        className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
-                                                    >
-                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                            <div className="flex-shrink-0">
-                                                                {file.type.startsWith('image/') ? (
-                                                                    <Image className="h-5 w-5 text-green-500" />
-                                                                ) : (
-                                                                    <FileText className="h-5 w-5 text-green-500" />
-                                                                )}
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="text-sm font-medium truncate">{file.name}</p>
-                                                                <p className="text-xs text-muted-foreground">
-                                                                    {formatFileSize(file.size)}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* External Link */}
-                                    <div>
-                                        <Label className="text-sm font-light" htmlFor='attachment_link'>External Link</Label>
-                                        <Input
-                                            id='attachment_link'
-                                            type='url'
-                                            value={data.attachment_link}
-                                            className="mt-1"
-                                            onChange={(e) => setData(prev => ({ ...prev, attachment_link: e.target.value }))}
-                                            placeholder="https://example.com/document"
-                                        />
-                                        <InputError message={errors.attachment_link} />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
-
-
-                </form>
-            </div >
-        </AppLayout >
+                    )}
+                </div>
+            </div>
+        </AppLayout>
     );
 }

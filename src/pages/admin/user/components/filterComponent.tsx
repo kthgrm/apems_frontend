@@ -80,21 +80,19 @@ export function FilterComponent({ onFilterChange }: FilterComponentProps) {
 
     return (
         <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-
             <Select value={userTypeFilter} onValueChange={handleUserTypeFilterChange}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[120]">
                     <SelectValue placeholder="User Type" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">All Users</SelectItem>
-                    <SelectItem value="admin">Admin Users</SelectItem>
-                    <SelectItem value="user">Regular Users</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="user">CESU</SelectItem>
                 </SelectContent>
             </Select>
 
             <Select value={campusFilter} onValueChange={handleCampusFilterChange}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-[150px]">
                     <SelectValue placeholder="Campus" />
                 </SelectTrigger>
                 <SelectContent>
@@ -108,7 +106,7 @@ export function FilterComponent({ onFilterChange }: FilterComponentProps) {
             </Select>
 
             <Select value={collegeFilter} onValueChange={handleCollegeFilterChange}>
-                <SelectTrigger className="w-[320px]">
+                <SelectTrigger className="w-[300px]">
                     <SelectValue placeholder="College" />
                 </SelectTrigger>
                 <SelectContent>

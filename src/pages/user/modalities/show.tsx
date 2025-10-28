@@ -157,7 +157,7 @@ export default function UserModalityShow() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     {getModalityIcon()}
-                                    Basic Information
+                                    Modality Information
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -171,6 +171,22 @@ export default function UserModalityShow() {
                                         />
                                     </div>
                                     <div>
+                                        <Label className="text-sm font-light">Delivery Mode</Label>
+                                        <Input
+                                            value={modality.modality || 'Not specified'}
+                                            className='mt-1'
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-light">Period / Duration</Label>
+                                        <Input
+                                            value={modality.period || 'Not specified'}
+                                            readOnly
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
                                         <Label className="text-sm font-light">Air Time / Schedule</Label>
                                         <Input
                                             value={modality.time_air || 'Not specified'}
@@ -178,29 +194,6 @@ export default function UserModalityShow() {
                                             className="mt-1"
                                         />
                                     </div>
-                                    <div>
-                                        <Label className="text-sm font-light">Delivery Mode</Label>
-                                        <div className="mt-1">
-                                            <Badge className={`flex items-center gap-1 w-fit ${getModalityColor()}`}>
-                                                {getModalityIcon()}
-                                                {modality.modality || 'Not specified'}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Media Channels */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Tv className="h-5 w-5" />
-                                    Media Channels
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label className="text-sm font-light">TV Channel</Label>
                                         <Input
@@ -240,28 +233,6 @@ export default function UserModalityShow() {
                                             />
                                         )}
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Partnership Details */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Building className="h-5 w-5" />
-                                    Partnership Details
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label className="text-sm font-light">Period / Duration</Label>
-                                        <Input
-                                            value={modality.period || 'Not specified'}
-                                            readOnly
-                                            className="mt-1"
-                                        />
-                                    </div>
                                     <div>
                                         <Label className="text-sm font-light">Hosted By</Label>
                                         <Input
@@ -270,7 +241,7 @@ export default function UserModalityShow() {
                                             className="mt-1"
                                         />
                                     </div>
-                                    <div className='col-span-2'>
+                                    <div>
                                         <Label className="text-sm font-light">Partner Agency</Label>
                                         <Input
                                             value={modality.partner_agency || 'Not specified'}
@@ -298,7 +269,7 @@ export default function UserModalityShow() {
                                     <CardContent>
                                         <div className="flex items-center justify-between">
                                             <h2 className="text-lg font-semibold">{modality.tech_transfer.name}</h2>
-                                            <Link to={`/user/technology-transfer/project/${modality.tech_transfer.id}`} className="text-blue-600 hover:underline flex space-x-1 items-center">
+                                            <Link to={`/user/technology-transfer/${modality.tech_transfer.id}`} className="text-blue-600 hover:underline flex space-x-1 items-center">
                                                 <span className='text-sm'>View Project Details</span>
                                                 <ExternalLink className="w-4" />
                                             </Link>

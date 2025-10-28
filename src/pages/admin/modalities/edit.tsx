@@ -140,7 +140,7 @@ export default function ModalityEdit() {
                                         disabled={processing}
                                         type='submit'
                                     >
-                                        {processing ? 'Updating...' : 'Update Modality'}
+                                        {processing ? 'Updating...' : 'Update'}
                                     </Button>
                                     <Button
                                         type="button"

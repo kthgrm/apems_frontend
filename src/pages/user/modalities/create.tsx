@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Building, LoaderCircle, Radio, Tv } from 'lucide-react';
+import { Radio } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '@/lib/axios';
 import InputError from '@/components/input-error';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 export default function UserModalitiesCreate() {
     const navigate = useNavigate();
-    const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<any>({});
-    const [activeTab, setActiveTab] = useState('basic-information');
+    const [processing, setProcessing] = useState(false);
+    const [step, setStep] = useState(1);
     const [techTransfers, setTechTransfers] = useState<any[]>([]);
 
     const [data, setData] = useState({
@@ -30,6 +30,10 @@ export default function UserModalitiesCreate() {
         partner_agency: '',
         hosted_by: '',
     });
+
+    const steps = [
+        { title: "Modality Information", icon: Radio },
+    ];
 
     useEffect(() => {
         const fetchTechTransfers = async () => {
@@ -70,224 +74,190 @@ export default function UserModalitiesCreate() {
 
     const breadcrumbs = [
         { title: 'Modalities', href: '/user/modalities' },
-        { title: 'Add New Modality', href: '/user/modalities/create' },
+        { title: 'New Modality', href: '/user/modalities/create' },
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-medium">Add New Modality</h1>
+                <div className="flex items-center justify-center">
+                    <h1 className="text-2xl font-medium">New Modality</h1>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-5">
-                            <TabsTrigger value="basic-information" className="text-sm">
-                                Basic Information
-                            </TabsTrigger>
-                            <TabsTrigger value="media-channel" className="text-sm">
-                                Media Channels
-                            </TabsTrigger>
-                            <TabsTrigger value="partnership-details" className="text-sm">
-                                Partnership Details
-                            </TabsTrigger>
-                        </TabsList>
 
-                        {/* Modality Details Tab */}
-                        <TabsContent value="basic-information" className="space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Radio className="h-5 w-5" />
-                                        Basic Information
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <Label>Technology Transfer Project</Label>
-                                            <Select
-                                                value={data.tech_transfer_id}
-                                                onValueChange={(value) => {
-                                                    setData(prev => ({ ...prev, tech_transfer_id: value }));
-                                                }}
-                                            >
-                                                <SelectTrigger className="mt-1 w-full">
-                                                    <SelectValue placeholder="Select project" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {techTransfers.map((techTransfer) => (
-                                                            <SelectItem
-                                                                key={techTransfer.id}
-                                                                value={techTransfer.id.toString()}
-                                                            >
-                                                                {techTransfer.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <InputError message={errors.tech_transfer_id} />
-                                        </div>
+                <div className="flex justify-center max-w-3xl mx-auto w-full">
+                    {steps.map((s, index) => {
+                        const Icon = s.icon;
+                        const isActive = step === index + 1;
+                        const isCompleted = step > index + 1;
+                        return (
+                            <div key={index} className="flex flex-col items-center w-1/3 text-center">
+                                <div
+                                    className={cn(
+                                        "flex items-center justify-center w-12 h-12 rounded-full border-2",
+                                        isActive
+                                            ? "border-orange-600 bg-orange-50 text-orange-600"
+                                            : "border-gray-300 text-gray-400",
 
-                                        <div className="space-y-2">
-                                            <Label htmlFor="modality">
-                                                Delivery Mode
-                                            </Label>
-                                            <Select
-                                                value={data.modality}
-                                                onValueChange={(value) => {
-                                                    setData(prev => ({ ...prev, modality: value }));
-                                                }}
-                                            >
-                                                <SelectTrigger className="mt-1 w-full">
-                                                    <SelectValue placeholder="Select delivery mode" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        <SelectItem value="TV">Television</SelectItem>
-                                                        <SelectItem value="Radio">Radio</SelectItem>
-                                                        <SelectItem value="Online">Online</SelectItem>
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            <InputError message={errors.modality} />
-                                        </div>
+                                        isCompleted ? "bg-orange-600 border-orange-600 text-white" : ""
+                                    )}
+                                >
+                                    <Icon size={24} />
+                                </div>
+                                <p className={`mt-2 text-sm ${isActive ? "text-orange-600" : "text-gray-500"}`}>
+                                    {s.title}
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
 
-                                        <div className="space-y-2">
-                                            <Label htmlFor="time_air">
-                                                Air Time / Schedule
-                                            </Label>
-                                            <Input
-                                                id="time_air"
-                                                value={data.time_air}
-                                                onChange={handleChange}
-                                                placeholder="e.g., 8:00 AM - 9:00 AM"
-                                                className="h-10"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.time_air} />
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
+                <Card className="max-w-3xl mx-auto w-full border-1 border-orange-500/50">
+                    <CardContent>
+                        <div className={cn("grid gap-6 md:grid-cols-2", step !== 1 && "hidden")}>
+                            <div className="space-y-2 col-span-2">
+                                <Label>Technology Transfer Project<span className="text-red-500">*</span></Label>
+                                <Select
+                                    value={data.tech_transfer_id}
+                                    onValueChange={(value) => {
+                                        setData(prev => ({ ...prev, tech_transfer_id: value }));
+                                    }}
+                                >
+                                    <SelectTrigger className="mt-1 w-full">
+                                        <SelectValue placeholder="Select project" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {techTransfers.map((techTransfer) => (
+                                                <SelectItem
+                                                    key={techTransfer.id}
+                                                    value={techTransfer.id.toString()}
+                                                >
+                                                    {techTransfer.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.tech_transfer_id} />
+                            </div>
 
-                        <TabsContent value="media-channel" className="space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Tv className="h-5 w-5" />
-                                        Media Channels
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="tv_channel">TV Channel</Label>
-                                            <Input
-                                                id="tv_channel"
-                                                value={data.tv_channel}
-                                                onChange={handleChange}
-                                                placeholder="Enter TV channel name"
-                                                className="h-10"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.tv_channel} />
-                                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="modality">
+                                    Delivery Mode<span className="text-red-500">*</span>
+                                </Label>
+                                <Select
+                                    value={data.modality}
+                                    onValueChange={(value) => {
+                                        setData(prev => ({ ...prev, modality: value }));
+                                    }}
+                                >
+                                    <SelectTrigger className="mt-1 w-full">
+                                        <SelectValue placeholder="Select delivery mode" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem value="TV">Television</SelectItem>
+                                            <SelectItem value="Radio">Radio</SelectItem>
+                                            <SelectItem value="Online">Online</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.modality} />
+                            </div>
 
-                                        <div className="space-y-2">
-                                            <Label htmlFor="radio">Radio Station</Label>
-                                            <Input
-                                                id="radio"
-                                                value={data.radio}
-                                                onChange={handleChange}
-                                                placeholder="Enter radio station name"
-                                                className="h-10"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.radio} />
-                                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="time_air">
+                                    Air Time
+                                </Label>
+                                <Input
+                                    id="time_air"
+                                    value={data.time_air}
+                                    onChange={handleChange}
+                                    placeholder="e.g., 8:00 AM - 9:00 AM"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.time_air} />
+                            </div>
 
-                                        <div className="space-y-2 col-span-2">
-                                            <Label htmlFor="online_link">Online Link / Platform</Label>
-                                            <Input
-                                                id="online_link"
-                                                value={data.online_link}
-                                                onChange={handleChange}
-                                                placeholder="Enter URL or platform name"
-                                                className="h-10"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.online_link} />
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
+                            <div className="space-y-2">
+                                <Label htmlFor="tv_channel">TV Channel</Label>
+                                <Input
+                                    id="tv_channel"
+                                    value={data.tv_channel}
+                                    onChange={handleChange}
+                                    placeholder="Enter TV channel name"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.tv_channel} />
+                            </div>
 
-                        <TabsContent value="partnership-details" className="space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Building className="h-5 w-5" />
-                                        Partnership Details
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="period">Period / Duration</Label>
-                                            <Input
-                                                id="period"
-                                                value={data.period}
-                                                onChange={handleChange}
-                                                placeholder="e.g., 1 month, 6 weeks"
-                                                className="h-10"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.period} />
-                                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="radio">Radio Station</Label>
+                                <Input
+                                    id="radio"
+                                    value={data.radio}
+                                    onChange={handleChange}
+                                    placeholder="Enter radio station name"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.radio} />
+                            </div>
 
-                                        <div className="space-y-2">
-                                            <Label htmlFor="hosted_by">Hosted By</Label>
-                                            <Input
-                                                id="hosted_by"
-                                                value={data.hosted_by}
-                                                onChange={handleChange}
-                                                placeholder="Enter host organization"
-                                                className="h-10"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.hosted_by} />
-                                        </div>
+                            <div className="space-y-2 col-span-2">
+                                <Label htmlFor="online_link">Online Link</Label>
+                                <Input
+                                    id="online_link"
+                                    value={data.online_link}
+                                    onChange={handleChange}
+                                    placeholder="Enter URL"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.online_link} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="period">Period<span className="text-red-500">*</span></Label>
+                                <Input
+                                    id="period"
+                                    value={data.period}
+                                    onChange={handleChange}
+                                    placeholder="e.g., 1 month, 6 weeks"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.period} />
+                            </div>
 
-                                        <div className="space-y-2 col-span-2">
-                                            <Label htmlFor="partner_agency">Partner Agency</Label>
-                                            <Input
-                                                id="partner_agency"
-                                                value={data.partner_agency}
-                                                onChange={handleChange}
-                                                placeholder="Enter partner agency name"
-                                                className="h-10"
-                                                disabled={processing}
-                                            />
-                                            <InputError message={errors.partner_agency} />
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-                    </Tabs>
+                            <div className="space-y-2">
+                                <Label htmlFor="hosted_by">Hosted By<span className="text-red-500">*</span></Label>
+                                <Input
+                                    id="hosted_by"
+                                    value={data.hosted_by}
+                                    onChange={handleChange}
+                                    placeholder="Enter host organization"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.hosted_by} />
+                            </div>
 
-                    <div className="flex justify-end">
-                        <Button type="submit" disabled={processing}>
-                            {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                            Submit Form
-                        </Button>
-                    </div>
-                </form>
+                            <div className="space-y-2 col-span-2">
+                                <Label htmlFor="partner_agency">Partner Agency<span className="text-red-500">*</span></Label>
+                                <Input
+                                    id="partner_agency"
+                                    value={data.partner_agency}
+                                    onChange={handleChange}
+                                    placeholder="Enter partner agency name"
+                                    className="h-10"
+                                    disabled={processing}
+                                />
+                                <InputError message={errors.partner_agency} />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Navigation buttons */}
+                <div className="flex justify-end max-w-3xl mx-auto w-full">
+                    <Button onClick={handleSubmit} className='bg-orange-500 hover:bg-orange-600'>Submit</Button>
+                </div>
             </div>
         </AppLayout>
     );

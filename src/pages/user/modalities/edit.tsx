@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LoaderCircle, Radio, Tv, Folder, Building } from 'lucide-react';
+import { LoaderCircle, Radio, Tv, Folder, Building, Save } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -118,10 +118,11 @@ export default function UserModalityEdit() {
                             <Button
                                 type="submit"
                                 variant="default"
+                                className='bg-green-600 hover:bg-green-700'
                                 disabled={processing}
                             >
-                                {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                Save Changes
+                                {processing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                Save
                             </Button>
                             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>Cancel</Button>
                         </div>
@@ -167,7 +168,7 @@ export default function UserModalityEdit() {
                                             </Select>
                                             <InputError message={errors.modality} />
                                         </div>
-                                        <div className='col-span-2'>
+                                        <div>
                                             <Label className="text-sm font-light">Air Time / Schedule</Label>
                                             <Input
                                                 id='time_air'
@@ -178,20 +179,17 @@ export default function UserModalityEdit() {
                                             />
                                             <InputError message={errors.time_air} />
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Media Channels */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Tv className="h-5 w-5" />
-                                        Media Channels
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <Label className="text-sm font-light">Period</Label>
+                                            <Input
+                                                id='period'
+                                                value={data.period}
+                                                onChange={handleChange}
+                                                className="mt-1"
+                                                placeholder="e.g., 1 month"
+                                            />
+                                            <InputError message={errors.period} />
+                                        </div>
                                         <div>
                                             <Label className="text-sm font-light">TV Channel</Label>
                                             <Input
@@ -225,31 +223,6 @@ export default function UserModalityEdit() {
                                             />
                                             <InputError message={errors.online_link} />
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Partnership Details */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Building className="h-5 w-5" />
-                                        Partnership Details
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <Label className="text-sm font-light">Period / Duration</Label>
-                                            <Input
-                                                id='period'
-                                                value={data.period}
-                                                onChange={handleChange}
-                                                className="mt-1"
-                                                placeholder="e.g., 1 month, 6 weeks"
-                                            />
-                                            <InputError message={errors.period} />
-                                        </div>
                                         <div>
                                             <Label className="text-sm font-light">Hosted By</Label>
                                             <Input
@@ -261,7 +234,7 @@ export default function UserModalityEdit() {
                                             />
                                             <InputError message={errors.hosted_by} />
                                         </div>
-                                        <div className='col-span-2'>
+                                        <div>
                                             <Label className="text-sm font-light">Partner Agency</Label>
                                             <Input
                                                 id='partner_agency'

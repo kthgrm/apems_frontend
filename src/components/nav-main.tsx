@@ -15,10 +15,11 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import type { NavItem } from "@/types"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
-  const currentPath = window.location.pathname;
+  const location = useLocation();
+  const currentPath = location.pathname.replace(/\/+$/, '');
 
   return (
     <SidebarGroup>
@@ -33,7 +34,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton isActive={currentPath.startsWith(item.href)} tooltip={item.title} className="data-[active=true]:bg-sidebar-primary/20">
+                  <SidebarMenuButton isActive={currentPath.startsWith(item.href)} tooltip={item.title}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -43,7 +44,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                   <SidebarMenuSub>
                     {item.subItems?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild size="md" isActive={currentPath === subItem.href} className="data-[active=true]:bg-sidebar-primary/20">
+                        <SidebarMenuSubButton asChild size="md" isActive={currentPath.startsWith(subItem.href)} >
                           <Link to={subItem.href} prefetch="intent">
                             {subItem.icon && <subItem.icon />}
                             <span>{subItem.title}</span>
@@ -63,42 +64,30 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
               </SidebarMenuButton>
               <SidebarMenuSub>
                 {item.items?.map((subItem) => (
-                  subItem.isDropdown ? (
-                    <Collapsible
-                      key={subItem.title}
-                      asChild
-                      className="group/collapsible"
-                      defaultOpen={currentPath.startsWith(subItem.href)}
-                    >
-                      <SidebarMenuSubItem>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuSubButton size="md" isActive={currentPath.startsWith(subItem.href)} className="data-[active=true]:bg-sidebar-primary/20">
-                            {subItem.icon && <subItem.icon />}
-                            <span>{subItem.title}</span>
-                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                          </SidebarMenuSubButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {subItem.subItems?.map((nestedItem) => (
-                              <SidebarMenuSubItem key={nestedItem.title}>
-                                <SidebarMenuSubButton asChild isActive={currentPath === nestedItem.href} className="data-[active=true]:bg-sidebar-primary/20">
-                                  <Link to={nestedItem.href} prefetch="intent">
-                                    {nestedItem.icon && <nestedItem.icon />}
-                                    <span>{nestedItem.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuSubItem>
-                    </Collapsible>
+                  subItem.isGroup ? (
+                    <SidebarMenuItem key={subItem.title} className="pr-0">
+                      <SidebarMenuButton tooltip={subItem.title}>
+                        {subItem.icon && <subItem.icon />}
+                        <span>{subItem.title}</span>
+                      </SidebarMenuButton>
+                      <SidebarMenuSub>
+                        {subItem.items?.map((nestedItem) => (
+                          <SidebarMenuSubItem key={nestedItem.title}>
+                            <SidebarMenuSubButton asChild isActive={currentPath.startsWith(nestedItem.href)}>
+                              <Link to={nestedItem.href} prefetch="intent">
+                                {nestedItem.icon && <nestedItem.icon />}
+                                <span>{nestedItem.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </SidebarMenuItem>
                   ) : (
                     <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild size="md" isActive={currentPath === subItem.href} className="data-[active=true]:bg-sidebar-primary/20">
+                      <SidebarMenuSubButton asChild size="md" isActive={currentPath.startsWith(subItem.href)}>
                         <Link to={subItem.href} prefetch="intent">
-                          {subItem.icon && <subItem.icon />}
+                          {subItem.icon && <subItem.icon className="text-sidebar-foreground" />}
                           <span>{subItem.title}</span>
                         </Link>
                       </SidebarMenuSubButton>
@@ -109,9 +98,9 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
             </SidebarMenuItem>
           ) : (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild isActive={currentPath.startsWith(item.href)} tooltip={{ children: item.title }} className="data-[active=true]:bg-sidebar-primary/20">
+              <SidebarMenuButton asChild isActive={currentPath.startsWith(item.href)}>
                 <Link to={item.href} prefetch="intent">
-                  {item.icon && <item.icon />}
+                  {item.icon && <item.icon className="text-sidebar-foreground" />}
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

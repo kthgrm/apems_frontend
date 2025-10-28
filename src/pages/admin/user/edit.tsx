@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import AppLayout from "@/layout/app-layout";
 import type { BreadcrumbItem } from "@/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -139,16 +139,6 @@ export default function EditUser() {
         }
     };
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
     if (loading) {
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
@@ -177,12 +167,6 @@ export default function EditUser() {
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5">
                 {/* Header */}
                 <div className="flex items-center gap-4">
-                    <Link to="/admin/users">
-                        <Button variant="outline" size="sm">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back
-                        </Button>
-                    </Link>
                     <div>
                         <h1 className="text-3xl font-bold">Edit User</h1>
                         <p className="text-muted-foreground">
@@ -190,230 +174,194 @@ export default function EditUser() {
                         </p>
                     </div>
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* User Info Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>User Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <Label className="text-sm font-medium">User ID</Label>
-                                <p className="text-sm text-muted-foreground">#{user.id}</p>
-                            </div>
-                            <div>
-                                <Label className="text-sm font-medium">Created</Label>
-                                <p className="text-sm text-muted-foreground">
-                                    {formatDate(user.created_at)}
-                                </p>
-                            </div>
-                            <div>
-                                <Label className="text-sm font-medium">Last Updated</Label>
-                                <p className="text-sm text-muted-foreground">
-                                    {formatDate(user.updated_at)}
-                                </p>
-                            </div>
-                            {user.email_verified_at && (
-                                <div>
-                                    <Label className="text-sm font-medium">Email Verified</Label>
-                                    <p className="text-sm text-muted-foreground">
-                                        {formatDate(user.email_verified_at)}
-                                    </p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Edit Form */}
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Edit Information</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* First Name */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="first_name">First Name *</Label>
-                                        <Input
-                                            id="first_name"
-                                            value={formData.first_name}
-                                            onChange={(e) => handleChange('first_name', e.target.value)}
-                                            placeholder="Enter first name"
-                                            className={errors.first_name ? 'border-destructive' : ''}
-                                            required
-                                        />
-                                        {errors.first_name && (
-                                            <p className="text-sm text-destructive">{errors.first_name}</p>
-                                        )}
-                                    </div>
-
-                                    {/* Last Name */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="last_name">Last Name *</Label>
-                                        <Input
-                                            id="last_name"
-                                            value={formData.last_name}
-                                            onChange={(e) => handleChange('last_name', e.target.value)}
-                                            placeholder="Enter last name"
-                                            className={errors.last_name ? 'border-destructive' : ''}
-                                            required
-                                        />
-                                        {errors.last_name && (
-                                            <p className="text-sm text-destructive">{errors.last_name}</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Email */}
+                {/* Edit Form */}
+                <Card className="max-w-2xl">
+                    <CardHeader>
+                        <CardTitle>Edit Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* First Name */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="email">Email Address *</Label>
+                                    <Label htmlFor="first_name">First Name *</Label>
                                     <Input
-                                        id="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => handleChange('email', e.target.value)}
-                                        placeholder="Enter email address"
-                                        className={errors.email ? 'border-destructive' : ''}
+                                        id="first_name"
+                                        value={formData.first_name}
+                                        onChange={(e) => handleChange('first_name', e.target.value)}
+                                        placeholder="Enter first name"
+                                        className={errors.first_name ? 'border-destructive' : ''}
                                         required
                                     />
-                                    {errors.email && (
-                                        <p className="text-sm text-destructive">{errors.email}</p>
+                                    {errors.first_name && (
+                                        <p className="text-sm text-destructive">{errors.first_name}</p>
                                     )}
                                 </div>
 
-                                {/* College */}
+                                {/* Last Name */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="college_id">College *</Label>
-                                    <Select
-                                        value={formData.college_id}
-                                        onValueChange={(value) => handleChange('college_id', value)}
-                                    >
-                                        <SelectTrigger className={errors.college_id ? 'border-destructive' : '' + 'w-full'}>
-                                            <SelectValue placeholder="Select college" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {colleges.map((college) => (
-                                                <SelectItem key={college.id} value={college.id.toString()}>
-                                                    {college.campus?.name ? `${college.campus.name} - ${college.name}` : college.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.college_id && (
-                                        <p className="text-sm text-destructive">{errors.college_id}</p>
+                                    <Label htmlFor="last_name">Last Name *</Label>
+                                    <Input
+                                        id="last_name"
+                                        value={formData.last_name}
+                                        onChange={(e) => handleChange('last_name', e.target.value)}
+                                        placeholder="Enter last name"
+                                        className={errors.last_name ? 'border-destructive' : ''}
+                                        required
+                                    />
+                                    {errors.last_name && (
+                                        <p className="text-sm text-destructive">{errors.last_name}</p>
                                     )}
                                 </div>
+                            </div>
 
-                                <Separator />
+                            {/* Email */}
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email Address *</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => handleChange('email', e.target.value)}
+                                    placeholder="Enter email address"
+                                    className={errors.email ? 'border-destructive' : ''}
+                                    required
+                                />
+                                {errors.email && (
+                                    <p className="text-sm text-destructive">{errors.email}</p>
+                                )}
+                            </div>
 
-                                {/* Password Section */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-lg font-medium">Change Password</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Leave password fields empty to keep the current password
-                                        </p>
+                            {/* College */}
+                            <div className="space-y-2">
+                                <Label htmlFor="college_id">College *</Label>
+                                <Select
+                                    value={formData.college_id}
+                                    onValueChange={(value) => handleChange('college_id', value)}
+                                >
+                                    <SelectTrigger className={errors.college_id ? 'border-destructive' : '' + 'w-full'}>
+                                        <SelectValue placeholder="Select college" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {colleges.map((college) => (
+                                            <SelectItem key={college.id} value={college.id.toString()}>
+                                                {college.campus?.name ? `${college.campus.name} - ${college.name}` : college.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.college_id && (
+                                    <p className="text-sm text-destructive">{errors.college_id}</p>
+                                )}
+                            </div>
+
+                            <Separator />
+
+                            {/* Password Section */}
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="text-lg font-medium">Change Password</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Leave password fields empty to keep the current password
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Password */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password">New Password</Label>
+                                        <Input
+                                            id="password"
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={(e) => handleChange('password', e.target.value)}
+                                            placeholder="Enter new password"
+                                            className={errors.password ? 'border-destructive' : ''}
+                                        />
+                                        {errors.password && (
+                                            <p className="text-sm text-destructive">{errors.password}</p>
+                                        )}
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {/* Password */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="password">New Password</Label>
-                                            <Input
-                                                id="password"
-                                                type="password"
-                                                value={formData.password}
-                                                onChange={(e) => handleChange('password', e.target.value)}
-                                                placeholder="Enter new password"
-                                                className={errors.password ? 'border-destructive' : ''}
-                                            />
-                                            {errors.password && (
-                                                <p className="text-sm text-destructive">{errors.password}</p>
-                                            )}
-                                        </div>
+                                    {/* Confirm Password */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password_confirmation">Confirm New Password</Label>
+                                        <Input
+                                            id="password_confirmation"
+                                            type="password"
+                                            value={formData.password_confirmation}
+                                            onChange={(e) => handleChange('password_confirmation', e.target.value)}
+                                            placeholder="Confirm new password"
+                                            className={errors.password_confirmation ? 'border-destructive' : ''}
+                                        />
+                                        {errors.password_confirmation && (
+                                            <p className="text-sm text-destructive">{errors.password_confirmation}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
 
-                                        {/* Confirm Password */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="password_confirmation">Confirm New Password</Label>
-                                            <Input
-                                                id="password_confirmation"
-                                                type="password"
-                                                value={formData.password_confirmation}
-                                                onChange={(e) => handleChange('password_confirmation', e.target.value)}
-                                                placeholder="Confirm new password"
-                                                className={errors.password_confirmation ? 'border-destructive' : ''}
+                            <Separator />
+
+                            {/* Role and Status */}
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="text-lg font-medium">Permissions & Status</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Manage user access levels and account status
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Role */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="role">Role</Label>
+                                        <Select
+                                            value={formData.role}
+                                            onValueChange={(value) => handleChange('role', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select role" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="user">User</SelectItem>
+                                                <SelectItem value="admin">Admin</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    {/* Active Status */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="is_active">Account Status</Label>
+                                        <div className="flex items-center space-x-2 mt-2">
+                                            <Checkbox
+                                                id="is_active"
+                                                checked={formData.is_active}
+                                                onCheckedChange={(checked) => handleChange('is_active', checked as boolean)}
                                             />
-                                            {errors.password_confirmation && (
-                                                <p className="text-sm text-destructive">{errors.password_confirmation}</p>
-                                            )}
+                                            <Label htmlFor="is_active" className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                Account is active
+                                            </Label>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <Separator />
-
-                                {/* Role and Status */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-lg font-medium">Permissions & Status</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Manage user access levels and account status
-                                        </p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {/* Role */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="role">Role</Label>
-                                            <Select
-                                                value={formData.role}
-                                                onValueChange={(value) => handleChange('role', value)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select role" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="user">User</SelectItem>
-                                                    <SelectItem value="admin">Admin</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-
-                                        {/* Active Status */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="is_active">Account Status</Label>
-                                            <div className="flex items-center space-x-2 mt-2">
-                                                <Checkbox
-                                                    id="is_active"
-                                                    checked={formData.is_active}
-                                                    onCheckedChange={(checked) => handleChange('is_active', checked as boolean)}
-                                                />
-                                                <Label htmlFor="is_active" className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                    Account is active
-                                                </Label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Submit Button */}
-                                <div className="flex justify-end gap-4">
-                                    <Link to="/admin/users">
-                                        <Button variant="outline" type="button">
-                                            Cancel
-                                        </Button>
-                                    </Link>
-                                    <Button type="submit" disabled={processing}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        {processing ? 'Updating...' : 'Update User'}
+                            {/* Submit Button */}
+                            <div className="flex justify-end gap-4">
+                                <Link to="/admin/users">
+                                    <Button variant="outline" type="button">
+                                        Cancel
                                     </Button>
-                                </div>
-                            </form>
-                        </CardContent>
-                    </Card>
-                </div>
+                                </Link>
+                                <Button type="submit" disabled={processing}>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    {processing ? 'Updating...' : 'Update User'}
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </AppLayout>
     );

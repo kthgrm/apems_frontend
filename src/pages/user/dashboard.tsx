@@ -18,13 +18,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface UserStats {
     total_projects: number;
     total_awards: number;
-    total_international_partners: number;
+    total_engagements: number;
 }
 
 interface RecentSubmission {
     id: number;
     name: string;
-    type: 'Project' | 'Award' | 'International Partner';
+    type: 'Project' | 'Award' | 'Engagement';
     user_name: string;
     campus: string;
     college: string;
@@ -37,7 +37,7 @@ interface RecentSubmission {
 interface RecentSubmissions {
     projects: RecentSubmission[];
     awards: RecentSubmission[];
-    international_partners: RecentSubmission[];
+    engagements: RecentSubmission[];
 }
 
 const formatDate = (dateString: string) => {
@@ -84,63 +84,56 @@ const QuickActions = () => (
                 Quick Actions
             </CardTitle>
         </CardHeader>
-        <CardContent>
-            <div className="grid grid-rows-4 gap-4">
-                <Link
-                    to="/user/technology-transfer/create"
-                    className="group flex flex-col items-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
-                >
-                    <div className="p-3 bg-blue-500 text-white rounded-full group-hover:bg-blue-600 transition-colors duration-200">
-                        <PlusCircle className="h-6 w-6" />
-                    </div>
-                    <span className="mt-2 text-sm font-medium text-blue-700">New Project</span>
-                    <span className="text-xs text-blue-600/70">Technology Transfer</span>
-                </Link>
+        <CardContent className="grid grid-col-5 gap-4">
+            <Link
+                to="/user/technology-transfer/create"
+                className="group flex flex-col items-center p-4 bg-gradient-to-b from-sky-300 to-blue-600 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
+            >
+                <div className="p-3 bg-blue-600 text-white rounded-full group-hover:bg-blue-700 transition-colors duration-200">
+                    <PlusCircle className="h-6 w-6" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-white text-center">New Technology Transfer</span>
+            </Link>
 
-                <Link
-                    to="/user/awards-recognition/create"
-                    className="group flex flex-col items-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
-                >
-                    <div className="p-3 bg-yellow-500 text-white rounded-full group-hover:bg-yellow-600 transition-colors duration-200">
-                        <Award className="h-6 w-6" />
-                    </div>
-                    <span className="mt-2 text-sm font-medium text-yellow-700">Add Award</span>
-                    <span className="text-xs text-yellow-600/70">Recognition</span>
-                </Link>
+            <Link
+                to="/user/awards-recognition/create"
+                className="group flex flex-col items-center p-4 bg-gradient-to-b from-amber-100 to-yellow-400 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
+            >
+                <div className="p-3 bg-yellow-500 text-white rounded-full group-hover:bg-yellow-600 transition-colors duration-200">
+                    <Award className="h-6 w-6" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-white text-center">New Award</span>
+            </Link>
 
-                <Link
-                    to="/user/international-partner/create"
-                    className="group flex flex-col items-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
-                >
-                    <div className="p-3 bg-green-500 text-white rounded-full group-hover:bg-green-600 transition-colors duration-200">
-                        <Globe className="h-6 w-6" />
-                    </div>
-                    <span className="mt-2 text-sm font-medium text-green-700">Add Partnership</span>
-                    <span className="text-xs text-green-600/70">International Partner</span>
-                </Link>
+            <Link
+                to="/user/engagements/create"
+                className="group flex flex-col items-center p-4 bg-gradient-to-b from-emerald-300 to-green-600 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
+            >
+                <div className="p-3 bg-green-600 text-white rounded-full group-hover:bg-green-700 transition-colors duration-200">
+                    <Globe className="h-6 w-6" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-white text-center">New Engagement</span>
+            </Link>
 
-                <Link
-                    to="/user/impact-assessment/create"
-                    className="group flex flex-col items-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
-                >
-                    <div className="p-3 bg-purple-500 text-white rounded-full group-hover:bg-purple-600 transition-colors duration-200">
-                        <BarChart className="h-6 w-6" />
-                    </div>
-                    <span className="mt-2 text-sm font-medium text-purple-700">New Assessment</span>
-                    <span className="text-xs text-purple-600/70">Impact Evaluation</span>
-                </Link>
+            <Link
+                to="/user/impact-assessment/create"
+                className="group flex flex-col items-center p-4 bg-gradient-to-b from-purple-300 to-violet-600 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
+            >
+                <div className="p-3 bg-purple-600 text-white rounded-full group-hover:bg-purple-700 transition-colors duration-200">
+                    <BarChart className="h-6 w-6" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-white text-center">New Assessment</span>
+            </Link>
 
-                <Link
-                    to="/user/modalities/create"
-                    className="group flex flex-col items-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
-                >
-                    <div className="p-3 bg-orange-500 text-white rounded-full group-hover:bg-orange-600 transition-colors duration-200">
-                        <Radio className="h-6 w-6" />
-                    </div>
-                    <span className="mt-2 text-sm font-medium text-orange-700">New Modality</span>
-                    <span className="text-xs text-orange-600/70">Modalities</span>
-                </Link>
-            </div>
+            <Link
+                to="/user/modalities/create"
+                className="group flex flex-col items-center p-4 bg-gradient-to-b from-amber-400 to-orange-500 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
+            >
+                <div className="p-3 bg-orange-500 text-white rounded-full group-hover:bg-orange-600 transition-colors duration-200">
+                    <Radio className="h-6 w-6" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-white text-center">New Modality</span>
+            </Link>
         </CardContent>
     </Card>
 );
@@ -149,12 +142,12 @@ export default function UserDashboard() {
     const [userStats, setUserStats] = useState<UserStats>({
         total_projects: 0,
         total_awards: 0,
-        total_international_partners: 0,
+        total_engagements: 0,
     });
     const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmissions>({
         projects: [],
         awards: [],
-        international_partners: [],
+        engagements: [],
     });
     const [loading, setLoading] = useState(true);
 
@@ -167,12 +160,12 @@ export default function UserDashboard() {
                     setUserStats(response.data.userStats || {
                         total_projects: 0,
                         total_awards: 0,
-                        total_international_partners: 0,
+                        total_engagements: 0,
                     });
                     setRecentSubmissions(response.data.recentSubmissions || {
                         projects: [],
                         awards: [],
-                        international_partners: [],
+                        engagements: [],
                     });
                 }
             } catch (error) {
@@ -189,7 +182,7 @@ export default function UserDashboard() {
     const allSubmissions = [
         ...recentSubmissions.projects,
         ...recentSubmissions.awards,
-        ...recentSubmissions.international_partners,
+        ...recentSubmissions.engagements,
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     if (loading) {
@@ -254,9 +247,9 @@ export default function UserDashboard() {
                                     </div>
                                 </CardHeader>
                                 <CardContent className="relative z-10">
-                                    <div className="text-2xl font-bold text-green-700">{userStats.total_international_partners}</div>
+                                    <div className="text-2xl font-bold text-green-700">{userStats.total_engagements}</div>
                                     <p className="text-xs text-muted-foreground">
-                                        International partnerships established
+                                        Engagements established
                                     </p>
                                 </CardContent>
                             </Card>

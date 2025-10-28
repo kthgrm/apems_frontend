@@ -17,14 +17,14 @@ import {
 import api from '@/lib/axios';
 import type { BreadcrumbItem, Campus, College } from '@/types';
 
-interface IntlPartner {
+interface Engagement {
     id: number;
     agency_partner: string;
     location: string | null;
     activity_conducted: string | null;
     narrative: string | null;
     number_of_participants: number | null;
-    number_of_committee: number | null;
+    faculty_involved: string | null;
     start_date: string | null;
     end_date: string | null;
     created_at: string | null;
@@ -45,7 +45,7 @@ interface IntlPartner {
 
 interface PaginationData {
     current_page: number;
-    data: IntlPartner[];
+    data: Engagement[];
     from: number;
     last_page: number;
     per_page: number;
@@ -54,18 +54,17 @@ interface PaginationData {
 }
 
 interface ReportData {
-    partners: PaginationData;
+    engagements: PaginationData;
     campuses: Campus[];
     colleges: College[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Administration', href: '/admin/dashboard' },
-    { title: 'Reports', href: '/admin/reports/international-partners' },
-    { title: 'International Partners Report', href: '/admin/reports/international-partners' },
+    { title: 'Reports', href: '/admin/reports/engagements' },
+    { title: 'Engagements', href: '/admin/reports/engagements' },
 ];
 
-export default function InternationalPartnersReport() {
+export default function EngagementReport() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [reportData, setReportData] = useState<ReportData | null>(null);
@@ -93,7 +92,7 @@ export default function InternationalPartnersReport() {
                 }
             });
 
-            const response = await api.get('/reports/international-partners', { params });
+            const response = await api.get('/reports/engagements', { params });
 
             if (response.data.success) {
                 setReportData(response.data.data);
@@ -145,7 +144,7 @@ export default function InternationalPartnersReport() {
 
         try {
             const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-            const url = `${baseURL}/reports/international-partners/pdf?${params.toString()}`;
+            const url = `${baseURL}/reports/engagements/pdf?${params.toString()}`;
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
             if (!token) {
@@ -202,7 +201,7 @@ export default function InternationalPartnersReport() {
         );
     }
 
-    const { partners, campuses, colleges } = reportData;
+    const { engagements, campuses, colleges } = reportData;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -311,7 +310,7 @@ export default function InternationalPartnersReport() {
                         <CardTitle className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Globe className="h-5 w-5" />
-                                International Partnerships ({partners.total})
+                                Engagements ({engagements.total})
                             </div>
                             <Button onClick={generatePDF} variant='outline'>
                                 <Download className="h-4 w-4 mr-2" />
@@ -328,19 +327,27 @@ export default function InternationalPartnersReport() {
                                         <TableHead>Location</TableHead>
                                         <TableHead>College</TableHead>
                                         <TableHead>Participants</TableHead>
-                                        <TableHead>Duration</TableHead>
+                                        <TableHead>Faculty Involved</TableHead>
+                                        <TableHead>Timeline</TableHead>
                                         <TableHead>Created</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {partners.data.map((partner) => (
-                                        <TableRow key={partner.id}>
+                                    {engagements.data.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="text-center">
+                                                No engagements found.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                    {engagements.data.map((engagement) => (
+                                        <TableRow key={engagement.id}>
                                             <TableCell className="font-medium">
                                                 <div>
-                                                    <p className="font-semibold">{partner.agency_partner}</p>
-                                                    {partner.activity_conducted && (
+                                                    <p className="font-semibold">{engagement.agency_partner}</p>
+                                                    {engagement.activity_conducted && (
                                                         <p className="text-sm text-muted-foreground">
-                                                            {partner.activity_conducted.substring(0, 60)}...
+                                                            {engagement.activity_conducted}
                                                         </p>
                                                     )}
                                                 </div>
@@ -348,7 +355,7 @@ export default function InternationalPartnersReport() {
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
                                                     <MapPin className="h-3 w-3 text-muted-foreground" />
-                                                    <span className="text-sm">{partner.location || 'Not specified'}</span>
+                                                    <span className="text-sm">{engagement.location || 'Not specified'}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
@@ -356,11 +363,11 @@ export default function InternationalPartnersReport() {
                                                     <div>
                                                         <div className="flex items-center gap-1">
                                                             <Building2 className="h-3 w-3" />
-                                                            <span className="text-xs">{partner.college?.campus?.name || 'N/A'}</span>
+                                                            <span className="text-xs">{engagement.college?.campus?.name || 'N/A'}</span>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             <GraduationCap className="h-3 w-3" />
-                                                            <span className="text-xs">{partner.college?.name || 'N/A'}</span>
+                                                            <span className="text-xs">{engagement.college?.name || 'N/A'}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -369,25 +376,25 @@ export default function InternationalPartnersReport() {
                                                 <div className="text-sm">
                                                     <div className="flex items-center gap-1">
                                                         <Users className="h-3 w-3" />
-                                                        <span>{formatParticipants(partner.number_of_participants)}</span>
+                                                        <span>{formatParticipants(engagement.number_of_participants)}</span>
                                                     </div>
-                                                    {partner.number_of_committee && (
-                                                        <div className="text-muted-foreground mt-1">
-                                                            Committee: {partner.number_of_committee}
-                                                        </div>
-                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-sm">{engagement.faculty_involved || 'Not specified'}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="text-sm">
-                                                    <p>{formatDate(partner.start_date)}</p>
-                                                    <p className="text-muted-foreground">to {formatDate(partner.end_date)}</p>
+                                                    <p>{formatDate(engagement.start_date)}</p>
+                                                    <p className="text-muted-foreground">to {formatDate(engagement.end_date)}</p>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="text-sm">
-                                                    <p>{formatDate(partner.created_at)}</p>
-                                                    <p className="text-muted-foreground">by {partner.user?.first_name + ' ' + partner.user?.last_name || 'N/A'}</p>
+                                                    <p>{formatDate(engagement.created_at)}</p>
+                                                    <p className="text-muted-foreground">by {engagement.user?.first_name + ' ' + engagement.user?.last_name || 'N/A'}</p>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -396,26 +403,26 @@ export default function InternationalPartnersReport() {
                             </Table>
                         </div>
 
-                        {partners.last_page > 1 && (
+                        {engagements.last_page > 1 && (
                             <div className="flex items-center justify-between px-2 py-4">
                                 <div className="text-sm text-muted-foreground">
-                                    Showing {partners.from} to {partners.to} of {partners.total} results
+                                    Showing {engagements.from} to {engagements.to} of {engagements.total} results
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    {partners.current_page > 1 && (
+                                    {engagements.current_page > 1 && (
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handlePageChange(partners.current_page - 1)}
+                                            onClick={() => handlePageChange(engagements.current_page - 1)}
                                         >
                                             Previous
                                         </Button>
                                     )}
-                                    {partners.current_page < partners.last_page && (
+                                    {engagements.current_page < engagements.last_page && (
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handlePageChange(partners.current_page + 1)}
+                                            onClick={() => handlePageChange(engagements.current_page + 1)}
                                         >
                                             Next
                                         </Button>

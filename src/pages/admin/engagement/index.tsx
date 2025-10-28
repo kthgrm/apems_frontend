@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import api from "@/lib/axios";
 import { asset } from "@/lib/utils";
-import type { College as BaseCollege, Campus as BaseCampus, BreadcrumbItem } from "@/types";
+import type { College as BaseCollege, Campus as BaseCampus, BreadcrumbItem, Engagement } from "@/types";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Activity, Building, Users } from "lucide-react";
@@ -12,27 +12,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { columns } from "./columns";
 
 type College = BaseCollege & {
-    intl_partners_count: number;
+    engagements_count: number;
 };
 
 type Campus = BaseCampus & {
-    intl_partners_count: number;
+    engagements_count: number;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'International Partner',
-        href: '/admin/international-partner',
+        title: 'Engagement',
+        href: '/admin/engagement',
     },
 ]
 
-export default function InternationalPartner() {
+export default function Engagement() {
     const [colleges, setColleges] = useState<College[]>([]);
     const [campuses, setCampuses] = useState<Campus[]>([]);
     const [selectedCampus, setSelectedCampus] = useState<Campus | null>(null);
     const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
-    const [partners, setPartners] = useState<any[]>([]);
-    const [totalPartners, setTotalPartners] = useState<number>(0);
+    const [engagements, setEngagements] = useState<Engagement[]>([]);
+    const [totalEngagements, setTotalEngagements] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(true);
     const [invalidSelection, setInvalidSelection] = useState(false);
     const [searchParams] = useSearchParams();
@@ -81,30 +81,30 @@ export default function InternationalPartner() {
                                 setInvalidSelection(true);
                                 setSelectedCollege(null);
                                 setSelectedCampus(null);
-                                setPartners([]);
-                                setTotalPartners(0);
+                                setEngagements([]);
+                                setTotalEngagements(0);
                             } else {
                                 setInvalidSelection(false);
                                 setSelectedCollege(validation.college);
                                 setSelectedCampus(validation.campus);
 
-                                // Fetch partners for the validated college and campus
-                                const partnerRes = await api.get(`/international-partners`, {
+                                // Fetch engagements for the validated college and campus
+                                const engagementRes = await api.get(`/engagements`, {
                                     params: {
                                         college_id: collegeId,
                                         campus: campusId,
                                     }
                                 });
 
-                                setPartners(partnerRes.data.data);
-                                setTotalPartners(partnerRes.data.data.length);
+                                setEngagements(engagementRes.data.data);
+                                setTotalEngagements(engagementRes.data.data.length);
                             }
                         }
                     } catch (error) {
-                        console.error("Failed to fetch partners:", error);
+                        console.error("Failed to fetch engagements:", error);
                         setInvalidSelection(true);
-                        setPartners([]);
-                        setTotalPartners(0);
+                        setEngagements([]);
+                        setTotalEngagements(0);
                     }
                 }
             } catch (error) {
@@ -118,15 +118,12 @@ export default function InternationalPartner() {
     }, [campusId, collegeId]);
 
     const handleArchived = (id: number | string) => {
-        setPartners(prev => prev.filter(p => String(p.id) !== String(id)));
-        setTotalPartners(prev => Math.max(0, prev - 1));
+        setEngagements(prev => prev.filter(p => String(p.id) !== String(id)));
+        setTotalEngagements(prev => Math.max(0, prev - 1));
     };
 
-    const totalParticipants = partners.reduce((sum, partnership) =>
-        sum + Number(partnership.number_of_participants), 0
-    );
-    const totalCommittee = partners.reduce((sum, partnership) =>
-        sum + Number(partnership.number_of_committee), 0
+    const totalParticipants = engagements.reduce((sum, engagement) =>
+        sum + Number(engagement.number_of_participants), 0
     );
 
     if (campusId && collegeId) {
@@ -134,7 +131,7 @@ export default function InternationalPartner() {
             <AppLayout breadcrumbs={breadcrumbs} >
                 {isLoading ? (
                     <div className="text-center py-8 text-muted-foreground">
-                        Loading Partners...
+                        Loading Engagements...
                     </div>
                 ) : (
                     invalidSelection ? (
@@ -143,13 +140,10 @@ export default function InternationalPartner() {
                         </div>
                     ) : (selectedCampus && selectedCollege ? (
                         <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
-                            <h1 className='text-2xl font-bold'>International Partners</h1>
-
                             {/* Campus and College Information */}
-                            <Card>
+                            <Card className="bg-gradient-to-t from-amber-500/80 to-red-700/80 text-white">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Building className="h-5 w-5" />
                                         Department Information
                                     </CardTitle>
                                 </CardHeader>
@@ -164,7 +158,7 @@ export default function InternationalPartner() {
                                             )}
                                             <div>
                                                 <h3 className="font-semibold text-lg">{selectedCampus?.name}</h3>
-                                                <p className="text-sm text-muted-foreground">Campus</p>
+                                                <p className="text-sm">Campus</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-3">
@@ -176,7 +170,7 @@ export default function InternationalPartner() {
                                             )}
                                             <div>
                                                 <h3 className="font-semibold text-lg">{selectedCollege?.name}</h3>
-                                                <p className="text-sm text-muted-foreground">
+                                                <p className="text-sm">
                                                     College{selectedCollege?.code && ` • ${selectedCollege.code}`}
                                                 </p>
                                             </div>
@@ -195,7 +189,7 @@ export default function InternationalPartner() {
                                         <Activity className="h-4 w-4 text-muted-foreground" />
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-2xl font-bold">{totalPartners}</div>
+                                        <div className="text-2xl font-bold">{totalEngagements}</div>
                                         <p className="text-xs text-muted-foreground">
                                             Community activities
                                         </p>
@@ -218,34 +212,17 @@ export default function InternationalPartner() {
                                         </p>
                                     </CardContent>
                                 </Card>
-
-                                <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">
-                                            Committee Members
-                                        </CardTitle>
-                                        <Users className="h-4 w-4 text-green-600" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-green-700">
-                                            {totalCommittee.toLocaleString()}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Organizing committee
-                                        </p>
-                                    </CardContent>
-                                </Card>
                             </div>
 
                             {/* Partner Table */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Partners List</CardTitle>
+                                    <CardTitle>Engagement List</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <DataTable
                                         columns={columns(handleArchived)}
-                                        data={partners}
+                                        data={engagements}
                                         searchKey="agency_partner"
                                         searchPlaceholder="Search partners..."
                                     />
@@ -277,7 +254,7 @@ export default function InternationalPartner() {
                             <div className="grid auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-4">
                                 {colleges.map((college) => (
                                     <Card key={college.id} className="hover:shadow-lg transition-shadow duration-200">
-                                        <Link to={`/admin/international-partner?campus=${campusId}&college=${college.id}`} className="flex flex-col items-center gap-2">
+                                        <Link to={`/admin/engagements?campus=${campusId}&college=${college.id}`} className="flex flex-col items-center gap-2">
                                             <CardContent>
                                                 <div className="flex flex-col items-center gap-2 justify-between text-center">
                                                     <Avatar className="size-24">
@@ -296,7 +273,7 @@ export default function InternationalPartner() {
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                                     </svg>
-                                                    {college.intl_partners_count} Partner{college.intl_partners_count > 1 ? "s" : ""}
+                                                    {college.engagements_count} Engagement{college.engagements_count > 1 ? "s" : ""}
                                                 </span>
                                             </Badge>
                                         </Link>
@@ -328,7 +305,7 @@ export default function InternationalPartner() {
                         <div className="grid auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-4">
                             {campuses.map((campus) => (
                                 <Card key={campus.id} className="hover:shadow-lg transition-shadow duration-200">
-                                    <Link to={`/admin/international-partner?campus=${campus.id}`}>
+                                    <Link to={`/admin/engagements?campus=${campus.id}`}>
                                         <CardContent className="p-6">
                                             <div className="flex flex-col items-center gap-3">
                                                 <Avatar className="size-24">
@@ -344,7 +321,7 @@ export default function InternationalPartner() {
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                                         </svg>
-                                                        {campus.intl_partners_count} Partner{campus.intl_partners_count > 1 ? "s" : ""}
+                                                        {campus.engagements_count} Engagement{campus.engagements_count > 1 ? "s" : ""}
                                                     </span>
                                                 </Badge>
                                             </div>

@@ -5,8 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import AppLayout from '@/layout/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import { Award, Globe, TrendingUp, Users, Clock, PlusCircle, BarChart, Zap, Folder, Radio } from 'lucide-react';
+import { Award, Globe, TrendingUp, Users, Clock, PlusCircle, BarChart, Zap, Folder, Radio, FileText, FolderOpen, Trophy } from 'lucide-react';
 import api from '@/lib/axios';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import toast from 'react-hot-toast';
+import { Separator } from '@/components/ui/separator';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -84,7 +89,7 @@ const QuickActions = () => (
                 Quick Actions
             </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-col-5 gap-4">
+        <CardContent className="grid grid-cols-5 gap-4">
             <Link
                 to="/user/technology-transfer/create"
                 className="group flex flex-col items-center p-4 bg-gradient-to-b from-sky-300 to-blue-600 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-105"
@@ -139,6 +144,11 @@ const QuickActions = () => (
 );
 
 export default function UserDashboard() {
+    const user = useAuth();
+    const [selectedReport, setSelectedReport] = useState('');
+    const [dateRange, setDateRange] = useState({ start: '', end: '' });
+    const [generating, setGenerating] = useState(false);
+
     const [userStats, setUserStats] = useState<UserStats>({
         total_projects: 0,
         total_awards: 0,
@@ -198,132 +208,278 @@ export default function UserDashboard() {
         );
     }
 
+    const reportTypes = [
+        { id: 'technology-transfers', name: 'Technology Transfers', icon: FolderOpen },
+        { id: 'awards', name: 'Awards', icon: Trophy },
+        { id: 'engagements', name: 'Engagements', icon: Globe },
+        { id: 'modalities', name: 'Modalities', icon: Radio },
+        { id: 'impact-assessments', name: 'Impact Assessments', icon: BarChart },
+    ];
+
+    const handleGenerateReport = async () => {
+        if (!selectedReport) {
+            alert('Please select a report type.');
+            return;
+        }
+
+        setGenerating(true);
+
+        try {
+            const params = new URLSearchParams();
+            if (dateRange.start) params.append('date_from', dateRange.start);
+            if (dateRange.end) params.append('date_to', dateRange.end);
+
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+            if (!token) {
+                console.error('No authentication token found');
+                return;
+            }
+
+            const response = await api.get(`/reports/${selectedReport}/pdf`, {
+                params,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                responseType: 'blob', // important for downloading files
+            });
+
+            if (response.status === 200) {
+                // Create a blob from the response
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+
+                // Create a temporary URL for the blob
+                const blobUrl = window.URL.createObjectURL(blob);
+
+                // Open PDF in a new tab
+                window.open(blobUrl, '_blank');
+
+                // Optional: Clean up the blob URL after a delay to ensure it opens
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(blobUrl);
+                }, 1000);
+            } else {
+                console.error('Unexpected response:', response);
+                toast.error('Failed to generate PDF. Please try again.');
+            }
+        } catch (error) {
+            console.error('Failed to generate report:', error);
+            toast.error('Failed to generate report. Please try again.');
+        } finally {
+            setGenerating(false);
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-6 overflow-x-auto">
-                <div className="grid grid-cols-6 gap-4">
+            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
+                <div className='flex justify-between'>
+                    <div>
+                        <h1 className='text-3xl font-bold'>Dashboard</h1>
+                        <p className="text-md text-muted-foreground">Welcome back, {user.user?.first_name} {user.user?.last_name}!</p>
+                    </div>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className='bg-blue-500 hover:bg-blue-600'>
+                                <FileText className="h-4 w-4" />
+                                Generate Report
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px] md:max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle>Generate Report</DialogTitle>
+                                <DialogDescription>
+                                    Select the type of report you would like to generate.
+                                </DialogDescription>
+                            </DialogHeader>
+                            {reportTypes.map((report) => (
+                                <button
+                                    key={report.id}
+                                    onClick={() => setSelectedReport(report.id)}
+                                    className={`flex items-center gap-4 p-2 rounded-lg border-2 transition-all text-left ${selectedReport === report.id
+                                        ? 'border-red-500 bg-red-50'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                >
+                                    <div className={`p-3 rounded-lg ${selectedReport === report.id ? 'bg-red-100' : 'bg-gray-100'
+                                        }`}>
+                                        <report.icon className={
+                                            selectedReport === report.id ? 'text-red-600' : 'text-gray-600'
+                                        } size={24} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-semibold text-gray-900">{report.name}</h3>
+                                    </div>
+                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedReport === report.id
+                                        ? 'border-red-500 bg-red-500'
+                                        : 'border-gray-300'
+                                        }`}>
+                                        {selectedReport === report.id && (
+                                            <div className="w-2 h-2 bg-white rounded-full" />
+                                        )}
+                                    </div>
+                                </button>
+                            ))}
+                            <Separator />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                        Start Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={dateRange.start}
+                                        onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                        End Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={dateRange.end}
+                                        onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+                                <Button
+                                    onClick={handleGenerateReport}
+                                    disabled={generating || !selectedReport}
+                                >
+                                    {generating ? 'Generating...' : 'Generate'}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+                <div className="space-y-4">
                     <QuickActions />
-                    <div className='col-span-5 space-y-4'>
-                        {/* Statistics Cards */}
-                        <div className="grid gap-4 md:grid-cols-3">
-                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-blue-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                                    <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-                                    <div className="p-2 bg-blue-100 rounded-full">
-                                        <Folder className="h-4 w-4 text-blue-600" />
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="relative z-10">
-                                    <div className="text-2xl font-bold text-blue-700">{userStats.total_projects}</div>
-                                    <p className="text-xs text-muted-foreground">
-                                        Technology Transfer projects submitted
-                                    </p>
-                                </CardContent>
-                            </Card>
+                    {/* Statistics Cards */}
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-blue-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                                <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+                                <div className="p-2 bg-blue-100 rounded-full">
+                                    <Folder className="h-4 w-4 text-blue-600" />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="relative z-10">
+                                <div className="text-2xl font-bold text-blue-700">{userStats.total_projects}</div>
+                                <p className="text-xs text-muted-foreground">
+                                    Technology Transfer projects submitted
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
-                                <div className="absolute inset-0 bg-gradient-to-r from-yellow-50/50 to-yellow-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                                    <CardTitle className="text-sm font-medium">Total Awards</CardTitle>
-                                    <div className="p-2 bg-yellow-100 rounded-full">
-                                        <Award className="h-4 w-4 text-yellow-600" />
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="relative z-10">
-                                    <div className="text-2xl font-bold text-yellow-700">{userStats.total_awards}</div>
-                                    <p className="text-xs text-muted-foreground">
-                                        Awards and recognitions received
-                                    </p>
-                                </CardContent>
-                            </Card>
+                        <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+                            <div className="absolute inset-0 bg-gradient-to-r from-yellow-50/50 to-yellow-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                                <CardTitle className="text-sm font-medium">Total Awards</CardTitle>
+                                <div className="p-2 bg-yellow-100 rounded-full">
+                                    <Award className="h-4 w-4 text-yellow-600" />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="relative z-10">
+                                <div className="text-2xl font-bold text-yellow-700">{userStats.total_awards}</div>
+                                <p className="text-xs text-muted-foreground">
+                                    Awards and recognitions received
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                            <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
-                                <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-green-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                                    <CardTitle className="text-sm font-medium">International Partners</CardTitle>
-                                    <div className="p-2 bg-green-100 rounded-full">
-                                        <Globe className="h-4 w-4 text-green-600" />
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="relative z-10">
-                                    <div className="text-2xl font-bold text-green-700">{userStats.total_engagements}</div>
-                                    <p className="text-xs text-muted-foreground">
-                                        Engagements established
-                                    </p>
-                                </CardContent>
-                            </Card>
-                        </div>
+                        <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
+                            <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-green-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                                <CardTitle className="text-sm font-medium">International Partners</CardTitle>
+                                <div className="p-2 bg-green-100 rounded-full">
+                                    <Globe className="h-4 w-4 text-green-600" />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="relative z-10">
+                                <div className="text-2xl font-bold text-green-700">{userStats.total_engagements}</div>
+                                <p className="text-xs text-muted-foreground">
+                                    Engagements established
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                        <div className='flex flex-row gap-6'>
-                            {/* Recent Submissions from Other Users */}
-                            <Card className="flex-1">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Users className="h-5 w-5" />
-                                        Recent Community Activity
-                                    </CardTitle>
-                                    <CardDescription>
-                                        See what others in your community have been submitting recently
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <ScrollArea className="h-[500px] pr-4">
-                                        {allSubmissions.length === 0 ? (
-                                            <div className="flex items-center justify-center h-32 text-muted-foreground">
-                                                <div className="text-center">
-                                                    <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                                    <p>No recent submissions from other users</p>
-                                                </div>
+                    <div className='flex flex-row gap-6'>
+                        {/* Recent Submissions from Other Users */}
+                        <Card className="flex-1">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Users className="h-5 w-5" />
+                                    Recent Community Activity
+                                </CardTitle>
+                                <CardDescription>
+                                    See what others in your community have been submitting recently
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ScrollArea className="h-full pr-4">
+                                    {allSubmissions.length === 0 ? (
+                                        <div className="flex items-center justify-center h-32 text-muted-foreground">
+                                            <div className="text-center">
+                                                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                                <p>No recent submissions from other users</p>
                                             </div>
-                                        ) : (
-                                            <div className="space-y-4">
-                                                {allSubmissions.map((submission) => (
-                                                    <div
-                                                        key={`${submission.type}-${submission.id}`}
-                                                        className="flex items-start space-x-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors duration-200 group"
-                                                    >
-                                                        <div className="flex-shrink-0 mt-1 p-2 rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors">
-                                                            {getTypeIcon(submission.type)}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="flex items-start justify-between gap-2">
-                                                                <div className="flex-1">
-                                                                    <h4 className="font-semibold text-sm truncate">
-                                                                        {submission.name}
-                                                                    </h4>
-                                                                    <p className="text-xs text-muted-foreground mt-1">
-                                                                        by {submission.user_name}
-                                                                    </p>
-                                                                </div>
-                                                                <Badge
-                                                                    variant="secondary"
-                                                                    className={`text-xs ${getTypeBadgeColor(submission.type)}`}
-                                                                >
-                                                                    {submission.type}
-                                                                </Badge>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {allSubmissions.map((submission) => (
+                                                <div
+                                                    key={`${submission.type}-${submission.id}`}
+                                                    className="flex items-start space-x-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors duration-200 group"
+                                                >
+                                                    <div className="flex-shrink-0 mt-1 p-2 rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors">
+                                                        {getTypeIcon(submission.type)}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-start justify-between gap-2">
+                                                            <div className="flex-1">
+                                                                <h4 className="font-semibold text-sm truncate">
+                                                                    {submission.name}
+                                                                </h4>
+                                                                <p className="text-xs text-muted-foreground mt-1">
+                                                                    by {submission.user_name}
+                                                                </p>
                                                             </div>
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className={`text-xs ${getTypeBadgeColor(submission.type)}`}
+                                                            >
+                                                                {submission.type}
+                                                            </Badge>
+                                                        </div>
 
-                                                            <div className="mt-2 space-y-1">
-                                                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                                                    <span className="flex items-center gap-1">
-                                                                        {submission.campus} - {submission.college}
-                                                                    </span>
-                                                                    <span className="flex items-center gap-1">
-                                                                        <Clock className="h-3 w-3" />
-                                                                        {formatDate(submission.created_at)}
-                                                                    </span>
-                                                                </div>
+                                                        <div className="mt-2 space-y-1">
+                                                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                                                <span className="flex items-center gap-1">
+                                                                    {submission.campus} - {submission.college}
+                                                                </span>
+                                                                <span className="flex items-center gap-1">
+                                                                    <Clock className="h-3 w-3" />
+                                                                    {formatDate(submission.created_at)}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </ScrollArea>
-                                </CardContent>
-                            </Card>
-                        </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </ScrollArea>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 

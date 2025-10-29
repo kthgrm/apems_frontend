@@ -65,6 +65,7 @@ import UserEngagementsShow from "./pages/user/engagements/show"
 import Engagement from "./pages/admin/engagement"
 import EngagementShow from "./pages/admin/engagement/show"
 import EngagementEdit from "./pages/admin/engagement/edit"
+import Review from "./pages/admin/review"
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={<AdminRoute />}>
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="review" element={<Review />} />
             <Route path="technology-transfer">
               <Route index element={<TechnologyTransfer />} />
               <Route path=":id/edit" element={<TechnologyTransferEdit />} />

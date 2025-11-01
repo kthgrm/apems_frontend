@@ -25,7 +25,10 @@ import {
     Globe,
     TrendingUp,
     Target,
+    ArrowRight,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -59,6 +62,15 @@ interface CampusStats {
     total_engagements: number;
 }
 
+interface ReviewStats {
+    total: number;
+    tech_transfers: number;
+    awards: number;
+    engagements: number;
+    modalities: number;
+    impact_assessments: number;
+}
+
 // Chart colors
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
@@ -73,6 +85,15 @@ export default function AdminDashboard() {
         total_engagements: 0,
         total_campuses: 0,
         total_colleges: 0,
+    });
+    const navigate = useNavigate();
+    const [reviewStats, setReviewStats] = useState<ReviewStats>({
+        total: 0,
+        tech_transfers: 0,
+        awards: 0,
+        engagements: 0,
+        modalities: 0,
+        impact_assessments: 0,
     });
     const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
     const [campusStats, setCampusStats] = useState<CampusStats[]>([]);
@@ -93,7 +114,10 @@ export default function AdminDashboard() {
                     setMonthlyStats(data.monthly_stats);
                     setCampusStats(data.campus_stats);
                     setAvailableYears(data.available_years);
+                    setReviewStats(data.review_stats);
                 }
+
+                console.log(response.data)
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {
@@ -137,6 +161,8 @@ export default function AdminDashboard() {
         );
     };
 
+    const hasReviews = reviewStats.total > 0;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
@@ -172,7 +198,7 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
                             <Card className='bg-linear-to-b from-indigo-600 to-sky-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <CardTitle className="text-sm font-medium">Technology Transfers</CardTitle>
@@ -198,6 +224,25 @@ export default function AdminDashboard() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">{overallStats.total_engagements}</div>
+                                </CardContent>
+                            </Card>
+                            <Card className='bg-linear-to-b from-red-600 to-rose-400 text-white drop-shadow-lg drop-shadow-zinc-400/50 border-0'>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold flex items-start justify-between">
+                                        <p>{reviewStats.total}</p>
+                                        {hasReviews &&
+                                            <Button
+                                                className='bg-white text-sm text-black hover:bg-gray-200'
+                                                onClick={() => navigate(`/admin/dashboard/review`)}
+                                            >
+                                                Review Now
+                                                <ArrowRight className="w-4 ml-2" />
+                                            </Button>
+                                        }
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>

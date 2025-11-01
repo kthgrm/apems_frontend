@@ -79,6 +79,8 @@ export interface TechnologyTransfer {
     college: College;
 
     is_archived?: boolean;
+    status: 'pending' | 'approved' | 'rejected';
+    remarks?: string | null;
 
     created_at: string;
     updated_at: string;
@@ -115,6 +117,9 @@ export interface Engagement {
     attachment_link?: string | null;
     is_archived: boolean;
 
+    status: 'pending' | 'approved' | 'rejected';
+    remarks?: string | null;
+
     created_at: string;
     updated_at: string;
 }
@@ -139,6 +144,9 @@ export interface Award {
     attachment_link?: string | null;
     is_archived: boolean;
 
+    status: 'pending' | 'approved' | 'rejected';
+    remarks?: string | null;
+
     created_at: string;
     updated_at: string;
 }
@@ -157,6 +165,9 @@ export interface ImpactAssessment {
     
     attachment_paths?: string[] | null;
     is_archived: boolean;
+
+    status: 'pending' | 'approved' | 'rejected';
+    remarks?: string | null;
 
     created_at: string;
     updated_at: string;
@@ -180,6 +191,9 @@ export interface Modalities {
     partner_agency: string;
     hosted_by: string;
     is_archived: boolean;
+
+    status: 'pending' | 'approved' | 'rejected';
+    remarks?: string | null;
 
     created_at: string;
     updated_at: string;

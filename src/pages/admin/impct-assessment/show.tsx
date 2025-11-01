@@ -11,7 +11,7 @@ import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, ImpactAssessment } from '@/types'
-import { Building, Edit3, ExternalLink, File, Target } from 'lucide-react'
+import { Building, Check, Edit3, ExternalLink, File, Target, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -21,6 +21,10 @@ export default function ImpactAssessmentShow() {
     const [password, setPassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+    const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
+    const [reviewNotes, setReviewNotes] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [assessment, setAssessment] = useState<ImpactAssessment | null>(null);
     const { id } = useParams();
@@ -60,6 +64,22 @@ export default function ImpactAssessmentShow() {
     const handleEdit = () => {
         navigate(`/admin/impact-assessment/${id}/edit`);
     };
+
+    const handleReview = async () => {
+        setIsProcessing(true);
+        try {
+            const status = reviewAction === 'approved' ? 'approved' : 'rejected';
+            const res = await api.post(`/review/impact-assessment/${id}`, { status: status, notes: reviewNotes });
+            toast.success(`Impact Assessment ${status} successfully`);
+            navigate(`/admin/impact-assessment?campus=${assessment?.tech_transfer.college.campus_id}&college=${assessment?.tech_transfer.college_id}`);
+            console.log(res.data);
+        } catch (error) {
+            console.error('Failed to submit review:', error);
+            toast.error('Failed to submit review');
+        } finally {
+            setIsProcessing(false);
+        }
+    }
 
     const resetArchiveDialog = () => {
         setIsArchiveDialogOpen(false);
@@ -109,20 +129,49 @@ export default function ImpactAssessmentShow() {
                         <div className="flex items-center justify-between">
                             <h1 className='text-2xl font-bold'>Assessment Details</h1>
                             <div className="flex gap-2">
-                                <Button
-                                    variant="outline"
-                                    onClick={handleEdit}
-                                >
-                                    <Edit3 className="h-4 w-4 mr-2" />
-                                    Edit
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    className="justify-start bg-red-800 hover:bg-red-900"
-                                    onClick={() => setIsArchiveDialogOpen(true)}
-                                >
-                                    Delete
-                                </Button>
+                                {assessment.status === 'approved' ? (
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            onClick={handleEdit}
+                                        >
+                                            <Edit3 className="h-4 w-4 mr-2" />
+                                            Edit Project
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            className="justify-start bg-red-800 hover:bg-red-900"
+                                            onClick={() => setIsArchiveDialogOpen(true)}
+                                        >
+                                            Delete Project
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            onClick={() => {
+                                                setIsReviewDialogOpen(true)
+                                                setReviewAction('approved')
+                                            }}
+                                            className='bg-green-500 hover:bg-green-600 text-white'
+                                            disabled={isProcessing}
+                                        >
+                                            <Check className="h-4 w-4" />
+                                            Approve
+                                        </Button>
+                                        <Button
+                                            className="justify-start bg-red-800 hover:bg-red-900 text-white"
+                                            onClick={() => {
+                                                setIsReviewDialogOpen(true)
+                                                setReviewAction('rejected')
+                                            }}
+                                            disabled={isProcessing}
+                                        >
+                                            <X className="h-4 w-4" />
+                                            Reject
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -322,6 +371,88 @@ export default function ImpactAssessmentShow() {
                                     </Button>
                                     <Button variant="destructive" onClick={handleArchive} disabled={isDeleting} className="bg-red-800 hover:bg-red-900">
                                         {isDeleting ? 'Deleting...' : 'Delete Assessment'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
+                        <Dialog
+                            open={isReviewDialogOpen}
+                            onOpenChange={() => {
+                                setIsReviewDialogOpen(false);
+                                setReviewAction(null);
+                                setReviewNotes('');
+                            }}
+                        >
+                            <DialogContent className="max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        {reviewAction === 'approved' ? 'Approve' : 'Reject'} Submission
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        {reviewAction === 'approved'
+                                            ? 'This submission will be published and visible to the user.'
+                                            : 'The submitter will be notified and can revise their submission.'}
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div className="bg-muted p-3 rounded-lg">
+                                        <p className="font-medium text-sm">{assessment.title}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Submitted by {assessment.user.first_name} {assessment.user.last_name}
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">
+                                            Review Notes{' '}
+                                            {reviewAction === 'rejected' && (
+                                                <span className="text-red-500">*</span>
+                                            )}
+                                        </label>
+                                        <Textarea
+                                            placeholder={
+                                                reviewAction === 'approved'
+                                                    ? 'Add any comments (optional)'
+                                                    : 'Please provide reasons for rejection'
+                                            }
+                                            value={reviewNotes}
+                                            onChange={(e) => setReviewNotes(e.target.value)}
+                                            rows={4}
+                                            className="resize-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <DialogFooter>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setIsReviewDialogOpen(false);
+                                            setReviewAction(null);
+                                            setReviewNotes('');
+                                        }}
+                                        disabled={isProcessing}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        className={
+                                            reviewAction === 'approved'
+                                                ? 'bg-green-600 hover:bg-green-700'
+                                                : ''
+                                        }
+                                        variant={reviewAction === 'rejected' ? 'destructive' : 'default'}
+                                        onClick={handleReview}
+                                        disabled={
+                                            isProcessing ||
+                                            (reviewAction === 'rejected' && !reviewNotes.trim())
+                                        }
+                                    >
+                                        {isProcessing
+                                            ? 'Submitting...'
+                                            : `Confirm ${reviewAction === 'approved' ? 'Approval' : 'Rejection'
+                                            }`}
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>

@@ -77,8 +77,10 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={<AdminRoute />}>
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="review" element={<Review />} />
+            <Route path="dashboard">
+              <Route index element={<AdminDashboard />} />
+              <Route path="review" element={<Review />} />
+            </Route>
             <Route path="technology-transfer">
               <Route index element={<TechnologyTransfer />} />
               <Route path=":id/edit" element={<TechnologyTransferEdit />} />

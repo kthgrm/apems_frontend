@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/tabs';
 import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, TechnologyTransfer } from '@/types';
 import {
     AlertCircle,
     BarChart,
@@ -61,19 +61,16 @@ interface Submission {
             name: string;
         }
     };
+    tech_transfer?: TechnologyTransfer
     // Type-specific fields
     leader?: string;
     awardee?: string;
     coordinator?: string;
-    partner?: string;
-    assessor?: string;
-    category?: string;
-    award_type?: string;
-    modality_type?: string;
-    engagement_type?: string;
 
+    award_name?: string;
     agency_partner?: string;
     activity_conducted?: string;
+    title?: string;
 }
 
 interface Stats {
@@ -86,6 +83,10 @@ interface Stats {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: `/admin/dashboard`,
+    },
     {
         title: 'Review Submissions',
         href: `/admin/review`,
@@ -162,7 +163,7 @@ const SubmissionCard = ({
                                         Pending
                                     </Badge>
                                 </div>
-                                <h3 className="text-lg font-semibold mb-1">{submission.name || submission.agency_partner}</h3>
+                                <h3 className="text-lg font-semibold mb-1">{submission.name || submission.agency_partner || submission.title || submission.tech_transfer?.name || submission.award_name}</h3>
                                 <p className="text-sm text-muted-foreground line-clamp-2">
                                     {submission.description || submission.activity_conducted}
                                 </p>
@@ -183,8 +184,8 @@ const SubmissionCard = ({
                             <div className="flex items-start gap-2">
                                 <Building className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                                 <div className="min-w-0">
-                                    <p className="font-medium truncate">{submission.college.name}</p>
-                                    <p className="text-muted-foreground text-xs">{submission.college.campus.name}</p>
+                                    <p className="font-medium truncate">{submission.tech_transfer?.college?.name || submission.college?.name}</p>
+                                    <p className="text-muted-foreground text-xs">{submission.tech_transfer?.college?.campus?.name || submission.college?.campus?.name}</p>
                                 </div>
                             </div>
 
@@ -206,8 +207,6 @@ const SubmissionCard = ({
                                         {submission.leader && `Leader: ${submission.leader}`}
                                         {submission.awardee && `Awardee: ${submission.awardee}`}
                                         {submission.coordinator && `Coordinator: ${submission.coordinator}`}
-                                        {submission.partner && `Partner: ${submission.partner}`}
-                                        {submission.assessor && `Assessor: ${submission.assessor}`}
                                     </p>
                                 </div>
                             </div>
@@ -224,10 +223,10 @@ const SubmissionCard = ({
                                 // Navigate to details page based on type
                                 const typeRoutes: Record<string, string> = {
                                     'tech-transfer': `/admin/technology-transfer/${submission.id}`,
-                                    'award': `/admin/awards/${submission.id}`,
+                                    'award': `/admin/awards-recognition/${submission.id}`,
                                     'engagement': `/admin/engagements/${submission.id}`,
                                     'modality': `/admin/modalities/${submission.id}`,
-                                    'impact-assessment': `/admin/impact-assessments/${submission.id}`,
+                                    'impact-assessment': `/admin/impact-assessment/${submission.id}`,
                                 };
                                 // You can implement navigation here
                                 navigate(typeRoutes[submission.type]);
@@ -383,7 +382,7 @@ const Review = () => {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total</CardTitle>
-                            <Target className="h-4 w-4 text-muted-foreground" />
+                            <Target className="h-4 w-4 text-red-500" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{stats.total}</div>

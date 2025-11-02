@@ -20,7 +20,6 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import type { BreadcrumbItem, TechnologyTransfer } from '@/types';
 import {
-    AlertCircle,
     BarChart,
     Building,
     Calendar,
@@ -62,10 +61,6 @@ interface Submission {
         }
     };
     tech_transfer?: TechnologyTransfer
-    // Type-specific fields
-    leader?: string;
-    awardee?: string;
-    coordinator?: string;
 
     award_name?: string;
     agency_partner?: string;
@@ -147,29 +142,34 @@ const SubmissionCard = ({
 
     return (
         <Card className="overflow-hidden hover:shadow-md transition-shadow">
+            <CardHeader>
+                <CardTitle>
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                                <Badge className={`${config.color} text-white text-xs`}>
+                                    <IconComponent className="h-3 w-3 mr-1" />
+                                    {config.label}
+                                </Badge>
+                                <Badge className="bg-yellow-400 text-white text-xs">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    Pending
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
+                </CardTitle>
+            </CardHeader>
             <CardContent>
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Left Section */}
                     <div className="flex-1 space-y-4">
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Badge className={`${config.color} text-white text-xs`}>
-                                        <IconComponent className="h-3 w-3 mr-1" />
-                                        {config.label}
-                                    </Badge>
-                                    <Badge className="bg-yellow-400 text-white text-xs">
-                                        <Clock className="h-3 w-3 mr-1" />
-                                        Pending
-                                    </Badge>
-                                </div>
-                                <h3 className="text-lg font-semibold mb-1">{submission.name || submission.agency_partner || submission.title || submission.tech_transfer?.name || submission.award_name}</h3>
-                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                    {submission.description || submission.activity_conducted}
-                                </p>
-                            </div>
-                        </div>
-
+                        <h3 className="text-lg font-semibold mb-1">
+                            {submission.name || submission.agency_partner || submission.title || submission.tech_transfer?.name || submission.award_name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                            {submission.description || submission.activity_conducted}
+                        </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                             <div className="flex items-start gap-2">
                                 <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
@@ -195,18 +195,6 @@ const SubmissionCard = ({
                                     <p className="font-medium">Submitted</p>
                                     <p className="text-muted-foreground text-xs">
                                         {formatDate(submission.created_at)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Type-specific field */}
-                            <div className="flex items-start gap-2">
-                                <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                                <div className="min-w-0">
-                                    <p className="font-medium text-xs">
-                                        {submission.leader && `Leader: ${submission.leader}`}
-                                        {submission.awardee && `Awardee: ${submission.awardee}`}
-                                        {submission.coordinator && `Coordinator: ${submission.coordinator}`}
                                     </p>
                                 </div>
                             </div>
@@ -274,7 +262,7 @@ const Review = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
     const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
-    const [reviewNotes, setReviewNotes] = useState('');
+    const [remarks, setRemarks] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const fetchStats = async () => {
@@ -316,7 +304,7 @@ const Review = () => {
     const handleReviewClick = (submission: Submission, action: 'approved' | 'rejected') => {
         setSelectedSubmission(submission);
         setReviewAction(action);
-        setReviewNotes('');
+        setRemarks('');
     };
 
     const handleSubmitReview = async () => {
@@ -326,7 +314,7 @@ const Review = () => {
         try {
             const response = await api.post(`/review/${selectedSubmission.type}/${selectedSubmission.id}`, {
                 status: reviewAction,
-                review_notes: reviewNotes,
+                remarks: remarks,
             });
 
             console.log(response.data)
@@ -342,7 +330,7 @@ const Review = () => {
             // Close dialog
             setSelectedSubmission(null);
             setReviewAction(null);
-            setReviewNotes('');
+            setRemarks('');
         } catch (error) {
             console.error('Failed to submit review:', error);
             toast.error('Failed to submit review');
@@ -505,7 +493,7 @@ const Review = () => {
                 onOpenChange={() => {
                     setSelectedSubmission(null);
                     setReviewAction(null);
-                    setReviewNotes('');
+                    setRemarks('');
                 }}
             >
                 <DialogContent className="max-w-md">
@@ -548,8 +536,8 @@ const Review = () => {
                                             ? 'Add any comments (optional)'
                                             : 'Please provide reasons for rejection'
                                     }
-                                    value={reviewNotes}
-                                    onChange={(e) => setReviewNotes(e.target.value)}
+                                    value={remarks}
+                                    onChange={(e) => setRemarks(e.target.value)}
                                     rows={4}
                                     className="resize-none"
                                 />
@@ -563,7 +551,7 @@ const Review = () => {
                             onClick={() => {
                                 setSelectedSubmission(null);
                                 setReviewAction(null);
-                                setReviewNotes('');
+                                setRemarks('');
                             }}
                             disabled={isSubmitting}
                         >
@@ -579,7 +567,7 @@ const Review = () => {
                             onClick={handleSubmitReview}
                             disabled={
                                 isSubmitting ||
-                                (reviewAction === 'rejected' && !reviewNotes.trim())
+                                (reviewAction === 'rejected' && !remarks.trim())
                             }
                         >
                             {isSubmitting

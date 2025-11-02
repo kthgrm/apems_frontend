@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -9,7 +10,7 @@ import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, Engagement } from '@/types'
-import { Download, Edit3, ExternalLink, File, Globe, Trash } from 'lucide-react'
+import { Download, Edit3, ExternalLink, File, Globe, Trash, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -194,6 +195,29 @@ export default function UserEngagementsShow() {
 
                             {/* Sidebar */}
                             <div className="space-y-6">
+                                {engagement.status && engagement.status === 'rejected' && (
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center justify-between">
+                                                Submission Status
+                                                <Badge variant="destructive" className="flex items-center gap-1">
+                                                    <XCircle className="w-4" />
+                                                    Rejected
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div>
+                                                <Label className="text-sm font-light">Remarks</Label>
+                                                <Textarea
+                                                    value={engagement.remarks || 'No remarks provided'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
                                 {/* Attachments */}
                                 <Card>
                                     <CardHeader>

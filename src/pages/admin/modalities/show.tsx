@@ -25,7 +25,7 @@ export default function ModalityShow() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
     const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
-    const [reviewNotes, setReviewNotes] = useState('');
+    const [remarks, setRemarks] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [modality, setModality] = useState<Modalities | null>(null);
     const { id } = useParams();
@@ -70,7 +70,7 @@ export default function ModalityShow() {
         setIsProcessing(true);
         try {
             const status = reviewAction === 'approved' ? 'approved' : 'rejected';
-            const res = await api.post(`/review/modality/${id}`, { status: status, notes: reviewNotes });
+            const res = await api.post(`/review/modality/${id}`, { status: status, remarks: remarks });
             toast.success(`Modality ${status} successfully`);
             navigate(`/admin/modalities?campus=${modality?.tech_transfer.college.campus_id}&college=${modality?.tech_transfer.college_id}`);
             console.log(res.data);
@@ -465,7 +465,7 @@ export default function ModalityShow() {
                             onOpenChange={() => {
                                 setIsReviewDialogOpen(false);
                                 setReviewAction(null);
-                                setReviewNotes('');
+                                setRemarks('');
                             }}
                         >
                             <DialogContent className="max-w-md">
@@ -500,8 +500,8 @@ export default function ModalityShow() {
                                                     ? 'Add any comments (optional)'
                                                     : 'Please provide reasons for rejection'
                                             }
-                                            value={reviewNotes}
-                                            onChange={(e) => setReviewNotes(e.target.value)}
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
                                             rows={4}
                                             className="resize-none"
                                         />
@@ -514,7 +514,7 @@ export default function ModalityShow() {
                                         onClick={() => {
                                             setIsReviewDialogOpen(false);
                                             setReviewAction(null);
-                                            setReviewNotes('');
+                                            setRemarks('');
                                         }}
                                         disabled={isProcessing}
                                     >
@@ -530,7 +530,7 @@ export default function ModalityShow() {
                                         onClick={handleReview}
                                         disabled={
                                             isProcessing ||
-                                            (reviewAction === 'rejected' && !reviewNotes.trim())
+                                            (reviewAction === 'rejected' && !remarks.trim())
                                         }
                                     >
                                         {isProcessing

@@ -16,7 +16,7 @@ export default function UserTechTransfer() {
     const fetchTechTransfers = async () => {
         setIsLoading(true);
         try {
-            const response = await api.get('/tech-transfers');
+            const response = await api.get('user/tech-transfers');
             setTechTransfers(response.data.data || []);
         } catch (error) {
             console.error('Failed to fetch technology transfers:', error);
@@ -24,7 +24,6 @@ export default function UserTechTransfer() {
             setIsLoading(false);
         }
     };
-
 
     useEffect(() => {
         fetchTechTransfers();
@@ -61,24 +60,24 @@ export default function UserTechTransfer() {
                         {/* Header */}
                         <div className="flex items-center justify-between">
                             <div>
-                                <h1 className="text-2xl font-medium">Projects</h1>
+                                <h1 className="text-2xl font-medium">Technology Transfers</h1>
                                 <p className="text-muted-foreground">Manage your technology transfer projects</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200 text-white">
-                                <div className="absolute inset-0 bg-gradient-to-b from-sky-300 to-blue-600" />
+                                <div className="absolute inset-0 bg-gradient-to-b to-sky-400 from-blue-600" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
-                                        Total Projects
+                                        Total
                                     </CardTitle>
                                     <Folder className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
                                     <div className="text-2xl font-bold">{techTransfers.length}</div>
                                     <p className="text-xs">
-                                        Active projects
+                                        Submitted projects
                                     </p>
                                 </CardContent>
                             </Card>
@@ -87,7 +86,7 @@ export default function UserTechTransfer() {
                         <Card>
                             <CardHeader>
                                 <CardTitle>
-                                    Project List
+                                    Technology Transfer List
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>

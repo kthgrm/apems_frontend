@@ -72,6 +72,8 @@ export interface TechnologyTransfer {
     attachment_paths?: string[] | null;
     attachment_link?: string | null;
 
+    sdg_goals?: number[] | null;
+
     user_id: number;
     user: User;
 
@@ -105,6 +107,7 @@ export interface Engagement {
     college: College;
 
     agency_partner: string;
+    category: 'local' | 'international';
     location: string;
     activity_conducted: string;
     start_date: string;

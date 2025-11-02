@@ -217,6 +217,20 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<M
         },
     },
     {
+        accessorKey: "online_link",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Online Link" />
+        },
+        cell: ({ row }: any) => {
+            const onlineLink = row.getValue("online_link") as string;
+            return onlineLink ? (
+                <span className="line-clamp-2">{onlineLink}</span>
+            ) : (
+                <span className="text-muted-foreground text-sm">—</span>
+            );
+        },
+    },
+    {
         accessorKey: "time_air",
         header: ({ column }) => {
             return <DataTableColumnHeader column={column} title="Air Time" />
@@ -245,6 +259,20 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<M
             ) : (
                 <span className="text-muted-foreground text-sm">—</span>
             );
+        },
+    },
+    {
+        accessorKey: "status",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Status" />
+        },
+        cell: ({ row }) => {
+            const modality = row.original
+            return (
+                <Badge className={`capitalize ${modality.status === 'approved' ? 'bg-green-200 text-green-800' : modality.status === 'pending' ? 'bg-yellow-200 text-yellow-600' : 'bg-red-200 text-red-800'}`}>
+                    {modality.status}
+                </Badge>
+            )
         },
     },
     {

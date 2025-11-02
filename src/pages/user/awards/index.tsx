@@ -16,7 +16,7 @@ export default function UserAwards() {
     const fetchAwards = async () => {
         setIsLoading(true);
         try {
-            const response = await api.get('/awards');
+            const response = await api.get('user/awards');
             setAwards(response.data.data || []);
         } catch (error) {
             console.error('Failed to fetch awards:', error);
@@ -70,14 +70,14 @@ export default function UserAwards() {
                                 <div className="absolute inset-0 bg-gradient-to-b from-amber-300 to-yellow-400" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
-                                        Total Awards
+                                        Total
                                     </CardTitle>
                                     <Trophy className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
                                     <div className="text-2xl font-bold">{awards.length}</div>
                                     <p className="text-xs">
-                                        Recognition achievements
+                                        Submitted awards
                                     </p>
                                 </CardContent>
                             </Card>

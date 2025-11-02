@@ -240,6 +240,20 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<E
         },
     },
     {
+        accessorKey: "status",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Status" />
+        },
+        cell: ({ row }) => {
+            const partner = row.original
+            return (
+                <Badge className={`capitalize ${partner.status === 'approved' ? 'bg-green-200 text-green-800' : partner.status === 'pending' ? 'bg-yellow-200 text-yellow-600' : 'bg-red-200 text-red-800'}`}>
+                    {partner.status}
+                </Badge>
+            )
+        },
+    },
+    {
         id: "actions",
         cell: ({ row }) => {
             const engagement = row.original

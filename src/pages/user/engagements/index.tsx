@@ -16,7 +16,7 @@ export default function UserEngagements() {
     const fetchEngagements = async () => {
         setIsLoading(true);
         try {
-            const response = await api.get('/engagements');
+            const response = await api.get('user/engagements');
             setEngagements(response.data.data || []);
         } catch (error) {
             console.error('Failed to fetch engagements:', error);
@@ -69,14 +69,14 @@ export default function UserEngagements() {
                                 <div className="absolute inset-0 bg-gradient-to-b from-emerald-400 to-green-600" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
-                                        Total Engagements
+                                        Total
                                     </CardTitle>
                                     <Globe className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
                                     <div className="text-2xl font-bold">{engagements.length}</div>
                                     <p className="text-xs">
-                                        Engagements recorded.
+                                        Submitted Engagements
                                     </p>
                                 </CardContent>
                             </Card>

@@ -6,11 +6,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
+import { SDG_GOALS } from '@/constants/sdgGoals'
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, TechnologyTransfer } from '@/types'
-import { CheckCircle, CircleDot, CircleX, Download, Edit3, ExternalLink, File, FileText, Handshake, Phone, Target } from 'lucide-react'
+import { CheckCircle, CircleDot, CircleX, Download, Edit3, ExternalLink, File, FileText, Handshake, Phone, Target, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -210,12 +212,58 @@ export default function UserTechnTransferShow() {
                                                 <div className="mt-1 text-sm text-muted-foreground">No tags specified</div>
                                             )}
                                         </div>
+                                        <div>
+                                            <Label className="text-sm font-light">SDG Goals</Label>
+                                            {techTransfer?.sdg_goals && techTransfer.sdg_goals.length > 0 ? (
+                                                <div className="mt-1 flex flex-wrap gap-1">
+                                                    {techTransfer.sdg_goals.map((goalId, index) => {
+                                                        const goal = SDG_GOALS.find(g => g.id === Number(goalId));
+                                                        return (
+                                                            <Badge
+                                                                key={index}
+                                                                variant="outline"
+                                                                className={`${goal?.color || 'bg-gray-200'} text-white border-0`}
+                                                            >
+                                                                {goal ? goal.name : `Goal ${goalId}`}
+                                                            </Badge>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <div className="mt-1 text-sm text-muted-foreground">
+                                                    No SDG goals specified
+                                                </div>
+                                            )}
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </div>
 
                             {/* Sidebar */}
                             <div className="space-y-6">
+                                {techTransfer.status && techTransfer.status === 'rejected' && (
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center justify-between">
+                                                Submission Status
+                                                <Badge variant="destructive" className="flex items-center gap-1">
+                                                    <XCircle className="w-4" />
+                                                    Rejected
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div>
+                                                <Label className="text-sm font-light">Remarks</Label>
+                                                <Textarea
+                                                    value={techTransfer.remarks || 'No remarks provided'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
                                 {/* Intellectual Property */}
                                 <Card>
                                     <CardContent className="space-y-4">

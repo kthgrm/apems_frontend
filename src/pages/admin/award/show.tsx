@@ -25,7 +25,7 @@ export default function AwardShow() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
     const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
-    const [reviewNotes, setReviewNotes] = useState('');
+    const [remarks, setRemarks] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [award, setAward] = useState<Award | null>(null);
     const { id } = useParams();
@@ -70,7 +70,7 @@ export default function AwardShow() {
         setIsProcessing(true);
         try {
             const status = reviewAction === 'approved' ? 'approved' : 'rejected';
-            const res = await api.post(`/review/award/${id}`, { status: status, notes: reviewNotes });
+            const res = await api.post(`/review/award/${id}`, { status: status, remarks: remarks });
             toast.success(`Award ${status} successfully`);
             navigate(`/admin/awards-recognition?campus=${award?.college.campus_id}&college=${award?.college_id}`);
             console.log(res.data);
@@ -440,7 +440,7 @@ export default function AwardShow() {
                             onOpenChange={() => {
                                 setIsReviewDialogOpen(false);
                                 setReviewAction(null);
-                                setReviewNotes('');
+                                setRemarks('');
                             }}
                         >
                             <DialogContent className="max-w-md">
@@ -475,8 +475,8 @@ export default function AwardShow() {
                                                     ? 'Add any comments (optional)'
                                                     : 'Please provide reasons for rejection'
                                             }
-                                            value={reviewNotes}
-                                            onChange={(e) => setReviewNotes(e.target.value)}
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
                                             rows={4}
                                             className="resize-none"
                                         />
@@ -489,7 +489,7 @@ export default function AwardShow() {
                                         onClick={() => {
                                             setIsReviewDialogOpen(false);
                                             setReviewAction(null);
-                                            setReviewNotes('');
+                                            setRemarks('');
                                         }}
                                         disabled={isProcessing}
                                     >
@@ -505,7 +505,7 @@ export default function AwardShow() {
                                         onClick={handleReview}
                                         disabled={
                                             isProcessing ||
-                                            (reviewAction === 'rejected' && !reviewNotes.trim())
+                                            (reviewAction === 'rejected' && !remarks.trim())
                                         }
                                     >
                                         {isProcessing

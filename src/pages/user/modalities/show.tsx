@@ -1,13 +1,15 @@
 import InputError from '@/components/input-error';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import type { BreadcrumbItem, Modalities } from '@/types';
-import { Edit3, Radio, Tv, Globe, Folder, LoaderCircle, ExternalLink } from 'lucide-react';
+import { Edit3, Radio, Tv, Globe, Folder, LoaderCircle, ExternalLink, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -240,6 +242,29 @@ export default function UserModalityShow() {
 
                     {/* Sidebar */}
                     <div className="space-y-6">
+                        {modality.status && modality.status === 'rejected' && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center justify-between">
+                                        Submission Status
+                                        <Badge variant="destructive" className="flex items-center gap-1">
+                                            <XCircle className="w-4" />
+                                            Rejected
+                                        </Badge>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <Label className="text-sm font-light">Remarks</Label>
+                                        <Textarea
+                                            value={modality.remarks || 'No remarks provided'}
+                                            readOnly
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
                         {/* Associated Project */}
                         <Card>
                             <CardHeader>

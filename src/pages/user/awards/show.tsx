@@ -10,7 +10,7 @@ import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
 import type { BreadcrumbItem, Award } from '@/types'
-import { Calendar, Download, Edit3, ExternalLink, File, Trophy } from 'lucide-react'
+import { Calendar, Download, Edit3, ExternalLink, File, Trophy, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -200,6 +200,29 @@ export default function UserAwardShow() {
 
                             {/* Sidebar */}
                             <div className="space-y-6">
+                                {award.status && award.status === 'rejected' && (
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center justify-between">
+                                                Submission Status
+                                                <Badge variant="destructive" className="flex items-center gap-1">
+                                                    <XCircle className="w-4" />
+                                                    Rejected
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div>
+                                                <Label className="text-sm font-light">Remarks</Label>
+                                                <Textarea
+                                                    value={award.remarks || 'No remarks provided'}
+                                                    readOnly
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
                                 {/* Attachments */}
                                 <Card>
                                     <CardHeader>

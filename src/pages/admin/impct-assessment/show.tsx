@@ -24,7 +24,7 @@ export default function ImpactAssessmentShow() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
     const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
-    const [reviewNotes, setReviewNotes] = useState('');
+    const [remarks, setRemarks] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [assessment, setAssessment] = useState<ImpactAssessment | null>(null);
     const { id } = useParams();
@@ -69,7 +69,7 @@ export default function ImpactAssessmentShow() {
         setIsProcessing(true);
         try {
             const status = reviewAction === 'approved' ? 'approved' : 'rejected';
-            const res = await api.post(`/review/impact-assessment/${id}`, { status: status, notes: reviewNotes });
+            const res = await api.post(`/review/impact-assessment/${id}`, { status: status, remarks: remarks });
             toast.success(`Impact Assessment ${status} successfully`);
             navigate(`/admin/impact-assessment?campus=${assessment?.tech_transfer.college.campus_id}&college=${assessment?.tech_transfer.college_id}`);
             console.log(res.data);
@@ -381,7 +381,7 @@ export default function ImpactAssessmentShow() {
                             onOpenChange={() => {
                                 setIsReviewDialogOpen(false);
                                 setReviewAction(null);
-                                setReviewNotes('');
+                                setRemarks('');
                             }}
                         >
                             <DialogContent className="max-w-md">
@@ -416,8 +416,8 @@ export default function ImpactAssessmentShow() {
                                                     ? 'Add any comments (optional)'
                                                     : 'Please provide reasons for rejection'
                                             }
-                                            value={reviewNotes}
-                                            onChange={(e) => setReviewNotes(e.target.value)}
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
                                             rows={4}
                                             className="resize-none"
                                         />
@@ -430,7 +430,7 @@ export default function ImpactAssessmentShow() {
                                         onClick={() => {
                                             setIsReviewDialogOpen(false);
                                             setReviewAction(null);
-                                            setReviewNotes('');
+                                            setRemarks('');
                                         }}
                                         disabled={isProcessing}
                                     >
@@ -446,7 +446,7 @@ export default function ImpactAssessmentShow() {
                                         onClick={handleReview}
                                         disabled={
                                             isProcessing ||
-                                            (reviewAction === 'rejected' && !reviewNotes.trim())
+                                            (reviewAction === 'rejected' && !remarks.trim())
                                         }
                                     >
                                         {isProcessing

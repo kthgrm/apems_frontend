@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 // Archive Project Component with Password Confirmation
 const ArchiveProjectButton = ({ project, onArchived }: { project: TechnologyTransfer, onArchived?: (id: number | string) => void }) => {
@@ -244,6 +245,20 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<T
             const project = row.original
             return (
                 <span>{project.user.first_name + " " + project.user.last_name}</span>
+            )
+        },
+    },
+    {
+        accessorKey: "status",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Status" />
+        },
+        cell: ({ row }) => {
+            const project = row.original
+            return (
+                <Badge className={`capitalize ${project.status === 'approved' ? 'bg-green-200 text-green-800' : project.status === 'pending' ? 'bg-yellow-200 text-yellow-600' : 'bg-red-200 text-red-800'}`}>
+                    {project.status}
+                </Badge>
             )
         },
     },

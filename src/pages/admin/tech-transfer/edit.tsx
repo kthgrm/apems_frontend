@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -8,13 +8,15 @@ import AppLayout from '@/layout/app-layout';
 import api from '@/lib/axios';
 import { asset } from '@/lib/utils';
 import type { TechnologyTransfer } from '@/types';
-import { Building, Download, Eye, FileText, Handshake, Image, Phone, Target } from 'lucide-react';
+import { Building, Check, ChevronDown, Download, Eye, FileText, Handshake, Image, Phone, Target, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SDG_GOALS } from '@/constants/sdgGoals';
+import { Badge } from '@/components/ui/badge';
 
 const TechnologyTransferEdit = () => {
     const { id } = useParams();
@@ -23,6 +25,7 @@ const TechnologyTransferEdit = () => {
 
     const [techTransfer, setTechTransfer] = useState<TechnologyTransfer | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<any>({});
     const [data, setData] = useState({
@@ -41,6 +44,7 @@ const TechnologyTransferEdit = () => {
         contact_phone: '',
         copyright: 'no',
         ip_details: '',
+        sdg_goals: [] as string[],
         attachments: [] as File[],
         attachment_link: '',
     });
@@ -121,6 +125,7 @@ const TechnologyTransferEdit = () => {
                     contact_phone: project.contact_phone || '',
                     copyright: project.copyright || 'no',
                     ip_details: project.ip_details || '',
+                    sdg_goals: project.sdg_goals || [],
                     attachments: [],
                     attachment_link: project.attachment_link || '',
                 });
@@ -198,6 +203,27 @@ const TechnologyTransferEdit = () => {
         const { id, value } = e.target;
         setData(prev => ({ ...prev, [id]: value }));
     };
+
+    const toggleGoal = (goalId: number) => {
+        setData(prev => {
+            const alreadySelected = prev.sdg_goals.includes(String(goalId));
+            const updatedGoals = alreadySelected
+                ? prev.sdg_goals.filter(id => id !== String(goalId))
+                : [...prev.sdg_goals, String(goalId)];
+            return { ...prev, sdg_goals: updatedGoals };
+        });
+    };
+
+    const removeGoal = (goalId: number) => {
+        setData(prev => ({
+            ...prev,
+            sdg_goals: prev.sdg_goals.filter(id => id !== String(goalId)),
+        }));
+    };
+
+    const selectedGoalObjects = SDG_GOALS.filter(goal =>
+        data.sdg_goals.includes(String(goal.id))
+    );
 
     const breadcrumbs = [
         {
@@ -370,6 +396,123 @@ const TechnologyTransferEdit = () => {
 
                                 {/* Sidebar */}
                                 <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex-1">
+                                                    <CardTitle className="flex items-center gap-2">
+                                                        <Target className="h-5 w-5 text-primary" />
+                                                        Sustainable Development Goals (SDGs)
+                                                    </CardTitle>
+                                                    <CardDescription className="mt-1">
+                                                        Select the UN SDG goals that align with this submission
+                                                    </CardDescription>
+                                                </div>
+                                                <Badge variant="secondary" className="text-xs">
+                                                    {data.sdg_goals.length} / 17 Selected
+                                                </Badge>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+
+                                            {/* Dropdown Selector */}
+                                            <div className="relative">
+                                                <Button
+                                                    type='button'
+                                                    variant="outline"
+                                                    className="w-full justify-between"
+                                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                                >
+                                                    <span className="text-muted-foreground">
+                                                        {data.sdg_goals.length === 0
+                                                            ? 'Select SDG Goals...'
+                                                            : `${data.sdg_goals.length} goal${data.sdg_goals.length > 1 ? 's' : ''} selected`}
+                                                    </span>
+                                                    <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                                                </Button>
+
+                                                {/* Dropdown Menu */}
+                                                {isDropdownOpen && (
+                                                    <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                                        <div className="p-2 space-y-1">
+                                                            {SDG_GOALS.map((goal) => {
+                                                                const isSelected = data.sdg_goals.includes(String(goal.id));
+                                                                return (
+                                                                    <button
+                                                                        type='button'
+                                                                        key={goal.id}
+                                                                        onClick={() => toggleGoal(goal.id)}
+                                                                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 transition-colors ${isSelected ? 'bg-slate-50' : ''
+                                                                            }`}
+                                                                    >
+                                                                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected ? goal.color + ' border-transparent' : 'border-slate-300'
+                                                                            }`}>
+                                                                            {isSelected && <Check className="h-3 w-3 text-white" />}
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2 flex-1 text-left">
+                                                                            <span className="text-sm font-medium">{goal.id}.</span>
+                                                                            <span className="text-sm">{goal.name}</span>
+                                                                        </div>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <InputError message={errors.sdg_goals} />
+
+                                            {/* Selected Goals Display */}
+                                            {data.sdg_goals.length > 0 ? (
+                                                <div className="space-y-3">
+                                                    <p className="text-sm font-medium text-muted-foreground">
+                                                        Selected Goals:
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {selectedGoalObjects.map((goal) => (
+                                                            <Badge
+                                                                key={goal.id}
+                                                                className={`${goal.color} text-white pr-1 hover:opacity-90 transition-opacity`}
+                                                            >
+                                                                <span className="mr-2">
+                                                                    <span className="font-bold">{goal.id}.</span> {goal.name}
+                                                                </span>
+                                                                <button
+                                                                    type='button'
+                                                                    onClick={() => removeGoal(goal.id)}
+                                                                    className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                                                                >
+                                                                    <X className="h-3 w-3" />
+                                                                </button>
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                                                    <Target className="h-12 w-12 mx-auto mb-2 opacity-30" />
+                                                    <p className="text-sm">No SDG goals selected</p>
+                                                    <p className="text-xs mt-1">Click the dropdown above to select goals</p>
+                                                </div>
+                                            )}
+
+                                            {/* Quick Stats */}
+                                            {data.sdg_goals.length > 0 && (
+                                                <div className="flex items-center justify-end pt-2 border-t">
+                                                    <Button
+                                                        type='button'
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setData(prev => ({ ...prev, sdg_goals: [] }))}
+                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                    >
+                                                        Clear All
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                        </CardContent>
+                                    </Card>
                                     {/* Institution Information */}
                                     <Card>
                                         <CardHeader>

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
+import { SDG_GOALS } from '@/constants/sdgGoals'
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios'
 import { asset } from '@/lib/utils'
@@ -25,7 +26,7 @@ const TechnologyTransferShow = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
     const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
-    const [reviewNotes, setReviewNotes] = useState('');
+    const [remarks, setRemarks] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [techTransfer, setTechTransfer] = useState<TechnologyTransfer | null>(null);
     const { id } = useParams();
@@ -70,7 +71,7 @@ const TechnologyTransferShow = () => {
         setIsProcessing(true);
         try {
             const status = reviewAction === 'approved' ? 'approved' : 'rejected';
-            const res = await api.post(`/review/tech-transfer/${id}`, { status: status, notes: reviewNotes });
+            const res = await api.post(`/review/tech-transfer/${id}`, { status: status, remarks: remarks });
             toast.success(`Project ${status} successfully`);
             navigate(`/admin/technology-transfer?campus=${techTransfer?.college.campus_id}&college=${techTransfer?.college_id}`);
             console.log(res.data);
@@ -128,7 +129,7 @@ const TechnologyTransferShow = () => {
                 techTransfer ? (
                     <div className="flex h-full flex-1 flex-col gap-6 rounded-xl px-10 py-5 overflow-x-auto">
                         <div className="flex items-center justify-between">
-                            <h1 className='text-2xl font-bold'>Project Details</h1>
+                            <h1 className='text-2xl font-bold'>Technology Transfer Details</h1>
                             <div className="flex gap-2">
                                 {techTransfer.status === 'approved' ? (
                                     <>
@@ -184,7 +185,7 @@ const TechnologyTransferShow = () => {
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <Target className="h-5 w-5" />
-                                            Basic Information
+                                            Project Information
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
@@ -255,6 +256,29 @@ const TechnologyTransferShow = () => {
                                             )}
                                             {!techTransfer?.tags && (
                                                 <div className="mt-1 text-sm text-muted-foreground">No tags specified</div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm font-light">SDG Goals</Label>
+                                            {techTransfer?.sdg_goals && techTransfer.sdg_goals.length > 0 ? (
+                                                <div className="mt-1 flex flex-wrap gap-1">
+                                                    {techTransfer.sdg_goals.map((goalId, index) => {
+                                                        const goal = SDG_GOALS.find(g => g.id === Number(goalId));
+                                                        return (
+                                                            <Badge
+                                                                key={index}
+                                                                variant="outline"
+                                                                className={`${goal?.color || 'bg-gray-200'} text-white border-0`}
+                                                            >
+                                                                {goal ? goal.name : `Goal ${goalId}`}
+                                                            </Badge>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <div className="mt-1 text-sm text-muted-foreground">
+                                                    No SDG goals specified
+                                                </div>
                                             )}
                                         </div>
                                     </CardContent>
@@ -500,7 +524,7 @@ const TechnologyTransferShow = () => {
                             onOpenChange={() => {
                                 setIsReviewDialogOpen(false);
                                 setReviewAction(null);
-                                setReviewNotes('');
+                                setRemarks('');
                             }}
                         >
                             <DialogContent className="max-w-md">
@@ -535,8 +559,8 @@ const TechnologyTransferShow = () => {
                                                     ? 'Add any comments (optional)'
                                                     : 'Please provide reasons for rejection'
                                             }
-                                            value={reviewNotes}
-                                            onChange={(e) => setReviewNotes(e.target.value)}
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
                                             rows={4}
                                             className="resize-none"
                                         />
@@ -549,7 +573,7 @@ const TechnologyTransferShow = () => {
                                         onClick={() => {
                                             setIsReviewDialogOpen(false);
                                             setReviewAction(null);
-                                            setReviewNotes('');
+                                            setRemarks('');
                                         }}
                                         disabled={isProcessing}
                                     >
@@ -565,7 +589,7 @@ const TechnologyTransferShow = () => {
                                         onClick={handleReview}
                                         disabled={
                                             isProcessing ||
-                                            (reviewAction === 'rejected' && !reviewNotes.trim())
+                                            (reviewAction === 'rejected' && !remarks.trim())
                                         }
                                     >
                                         {isProcessing

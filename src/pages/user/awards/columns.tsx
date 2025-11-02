@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 // Archive Award Component with Password Confirmation
 const ArchiveAwardButton = ({ award, onArchived }: { award: Award, onArchived?: (id: number | string) => void }) => {
@@ -206,6 +207,20 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<A
             ) : (
                 <span className="text-muted-foreground text-sm">Not specified</span>
             );
+        },
+    },
+    {
+        accessorKey: "status",
+        header: ({ column }) => {
+            return <DataTableColumnHeader column={column} title="Status" />
+        },
+        cell: ({ row }) => {
+            const award = row.original
+            return (
+                <Badge className={`capitalize ${award.status === 'approved' ? 'bg-green-200 text-green-800' : award.status === 'pending' ? 'bg-yellow-200 text-yellow-600' : 'bg-red-200 text-red-800'}`}>
+                    {award.status}
+                </Badge>
+            )
         },
     },
     {

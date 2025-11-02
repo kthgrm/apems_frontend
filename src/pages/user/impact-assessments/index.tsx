@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layout/app-layout'
 import api from '@/lib/axios';
 import type { ImpactAssessment } from '@/types';
-import { Target, Plus } from 'lucide-react';
+import { Plus, BarChart } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { columns } from './columns';
@@ -16,7 +16,7 @@ export default function UserImpactAssessments() {
     const fetchAssessments = async () => {
         setIsLoading(true);
         try {
-            const response = await api.get('/impact-assessments');
+            const response = await api.get('user/impact-assessments');
             setAssessments(response.data.data || []);
         } catch (error) {
             console.error('Failed to fetch impact assessments:', error);
@@ -69,14 +69,14 @@ export default function UserImpactAssessments() {
                                 <div className="absolute inset-0 bg-gradient-to-b from-purple-300 to-violet-600" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
-                                        Total Assessments
+                                        Total
                                     </CardTitle>
-                                    <Target className="h-4 w-4" />
+                                    <BarChart className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
                                     <div className="text-2xl font-bold">{assessments.length}</div>
                                     <p className="text-xs">
-                                        Active assessments
+                                        Submitted Impact Assessments
                                     </p>
                                 </CardContent>
                             </Card>

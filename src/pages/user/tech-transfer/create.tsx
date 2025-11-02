@@ -1,10 +1,14 @@
 import React, { useRef, useState } from 'react';
 import {
-    FileText, Folder, Handshake, Image
+    Check,
+    ChevronDown,
+    FileText, Folder, Handshake, Image,
+    Target,
+    X
 } from 'lucide-react';
 import AppLayout from '@/layout/app-layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
@@ -21,12 +25,15 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { SDG_GOALS } from '@/constants/sdgGoals';
 
 export default function UserTechTransferCreate() {
     const navigate = useNavigate();
     const [processing, setProcessing] = useState(false);
     const [step, setStep] = useState(1);
     const [errors, setErrors] = useState<any>({});
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [data, setData] = useState({
@@ -45,6 +52,7 @@ export default function UserTechTransferCreate() {
         contact_phone: '',
         copyright: 'no',
         ip_details: '',
+        sdg_goals: [] as string[],
         attachments: [] as File[],
         attachment_link: '',
     });
@@ -52,6 +60,7 @@ export default function UserTechTransferCreate() {
     const steps = [
         { title: "Project Details", icon: Folder },
         { title: "Partner & IP Information", icon: Handshake },
+        { title: "SDG Goals", icon: Target },
         { title: "Upload File", icon: FileText },
     ];
 
@@ -78,6 +87,8 @@ export default function UserTechTransferCreate() {
             if (!data.agency_partner) newErrors.agency_partner = 'Agency partner is required.';
             if (!data.contact_person) newErrors.contact_person = 'Contact person is required.';
             if (!data.copyright) newErrors.copyright = 'Copyright information is required.';
+        } else if (step === 3) {
+            if (!data.sdg_goals || data.sdg_goals.length === 0) newErrors.sdg_goals = 'At least one SDG goal is required.';
         }
 
         setErrors(newErrors);
@@ -149,6 +160,10 @@ export default function UserTechTransferCreate() {
                     } else if (typeof value === 'boolean') {
                         // Convert boolean to '1' or '0' for Laravel
                         formData.append(key, value ? '1' : '0');
+                    } else if (key === 'sdg_goals') {
+                        data.sdg_goals.forEach((goalId) =>
+                            formData.append('sdg_goals[]', goalId)
+                        );
                     } else {
                         formData.append(key, String(value));
                     }
@@ -171,6 +186,27 @@ export default function UserTechTransferCreate() {
             setProcessing(false);
         }
     };
+
+    const toggleGoal = (goalId: number) => {
+        setData(prev => {
+            const alreadySelected = prev.sdg_goals.includes(String(goalId));
+            const updatedGoals = alreadySelected
+                ? prev.sdg_goals.filter(id => id !== String(goalId))
+                : [...prev.sdg_goals, String(goalId)];
+            return { ...prev, sdg_goals: updatedGoals };
+        });
+    };
+
+    const removeGoal = (goalId: number) => {
+        setData(prev => ({
+            ...prev,
+            sdg_goals: prev.sdg_goals.filter(id => id !== String(goalId)),
+        }));
+    };
+
+    const selectedGoalObjects = SDG_GOALS.filter(goal =>
+        data.sdg_goals.includes(String(goal.id))
+    );
 
     const breadcrumbs = [
         { title: 'Technology Transfers', href: '/user/tech-transfer' },
@@ -400,6 +436,121 @@ export default function UserTechTransferCreate() {
                             </div>
                         </div>
                         <div className={cn("grid gap-6", step !== 3 && "hidden")}>
+                            <Card>
+                                <CardHeader>
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Target className="h-5 w-5 text-primary" />
+                                                Sustainable Development Goals (SDGs)
+                                            </CardTitle>
+                                            <CardDescription className="mt-1">
+                                                Select the UN SDG goals that align with this submission
+                                            </CardDescription>
+                                        </div>
+                                        <Badge variant="secondary" className="text-xs">
+                                            {data.sdg_goals.length} / 17 Selected
+                                        </Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+
+                                    {/* Dropdown Selector */}
+                                    <div className="relative">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-between"
+                                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                        >
+                                            <span className="text-muted-foreground">
+                                                {data.sdg_goals.length === 0
+                                                    ? 'Select SDG Goals...'
+                                                    : `${data.sdg_goals.length} goal${data.sdg_goals.length > 1 ? 's' : ''} selected`}
+                                            </span>
+                                            <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                                        </Button>
+
+                                        {/* Dropdown Menu */}
+                                        {isDropdownOpen && (
+                                            <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                                <div className="p-2 space-y-1">
+                                                    {SDG_GOALS.map((goal) => {
+                                                        const isSelected = data.sdg_goals.includes(String(goal.id));
+                                                        return (
+                                                            <button
+                                                                key={goal.id}
+                                                                onClick={() => toggleGoal(goal.id)}
+                                                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 transition-colors ${isSelected ? 'bg-slate-50' : ''
+                                                                    }`}
+                                                            >
+                                                                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected ? goal.color + ' border-transparent' : 'border-slate-300'
+                                                                    }`}>
+                                                                    {isSelected && <Check className="h-3 w-3 text-white" />}
+                                                                </div>
+                                                                <div className="flex items-center gap-2 flex-1 text-left">
+                                                                    <span className="text-sm font-medium">{goal.id}.</span>
+                                                                    <span className="text-sm">{goal.name}</span>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <InputError message={errors.sdg_goals} />
+
+                                    {/* Selected Goals Display */}
+                                    {data.sdg_goals.length > 0 ? (
+                                        <div className="space-y-3">
+                                            <p className="text-sm font-medium text-muted-foreground">
+                                                Selected Goals:
+                                            </p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {selectedGoalObjects.map((goal) => (
+                                                    <Badge
+                                                        key={goal.id}
+                                                        className={`${goal.color} text-white pr-1 hover:opacity-90 transition-opacity`}
+                                                    >
+                                                        <span className="mr-2">
+                                                            <span className="font-bold">{goal.id}.</span> {goal.name}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => removeGoal(goal.id)}
+                                                            className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                                                        >
+                                                            <X className="h-3 w-3" />
+                                                        </button>
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                                            <Target className="h-12 w-12 mx-auto mb-2 opacity-30" />
+                                            <p className="text-sm">No SDG goals selected</p>
+                                            <p className="text-xs mt-1">Click the dropdown above to select goals</p>
+                                        </div>
+                                    )}
+
+                                    {/* Quick Stats */}
+                                    {data.sdg_goals.length > 0 && (
+                                        <div className="flex items-center justify-end pt-2 border-t">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setData(prev => ({ ...prev, sdg_goals: [] }))}
+                                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                                Clear All
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                </CardContent>
+                            </Card>
+                        </div>
+                        <div className={cn("grid gap-6", step !== 4 && "hidden")}>
                             <div className="grid gap-6 md:grid-cols-2">
                                 <div className="space-y-2 md:col-span-2">
                                     <Label htmlFor="attachments">Terminal Report</Label>

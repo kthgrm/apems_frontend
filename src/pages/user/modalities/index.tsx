@@ -16,7 +16,7 @@ export default function UserModalities() {
     const fetchModalities = async () => {
         setIsLoading(true);
         try {
-            const response = await api.get('/modalities');
+            const response = await api.get('user/modalities');
             setModalities(response.data.data || []);
         } catch (error) {
             console.error('Failed to fetch modalities:', error);
@@ -69,14 +69,14 @@ export default function UserModalities() {
                                 <div className="absolute inset-0 bg-gradient-to-b from-amber-400 to-orange-600" />
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
                                     <CardTitle className="text-sm font-medium">
-                                        Total Modalities
+                                        Total
                                     </CardTitle>
                                     <Radio className="h-4 w-4" />
                                 </CardHeader>
                                 <CardContent className='relative z-10'>
                                     <div className="text-2xl font-bold">{modalities.length}</div>
                                     <p className="text-xs">
-                                        Project delivery modalities
+                                        Submitted Modalities
                                     </p>
                                 </CardContent>
                             </Card>

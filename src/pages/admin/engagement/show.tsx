@@ -24,7 +24,7 @@ export default function EngagementShow() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
     const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
-    const [reviewNotes, setReviewNotes] = useState('');
+    const [remarks, setRemarks] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [engagement, setEngagement] = useState<Engagement | null>(null);
     const { id } = useParams();
@@ -69,7 +69,7 @@ export default function EngagementShow() {
         setIsProcessing(true);
         try {
             const status = reviewAction === 'approved' ? 'approved' : 'rejected';
-            const res = await api.post(`/review/engagement/${id}`, { status: status, notes: reviewNotes });
+            const res = await api.post(`/review/engagement/${id}`, { status: status, remarks: remarks });
             toast.success(`Engagement ${status} successfully`);
             navigate(`/admin/engagements?campus=${engagement?.college.campus_id}&college=${engagement?.college_id}`);
             console.log(res.data);
@@ -437,7 +437,7 @@ export default function EngagementShow() {
                             onOpenChange={() => {
                                 setIsReviewDialogOpen(false);
                                 setReviewAction(null);
-                                setReviewNotes('');
+                                setRemarks('');
                             }}
                         >
                             <DialogContent className="max-w-md">
@@ -472,8 +472,8 @@ export default function EngagementShow() {
                                                     ? 'Add any comments (optional)'
                                                     : 'Please provide reasons for rejection'
                                             }
-                                            value={reviewNotes}
-                                            onChange={(e) => setReviewNotes(e.target.value)}
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
                                             rows={4}
                                             className="resize-none"
                                         />
@@ -486,7 +486,7 @@ export default function EngagementShow() {
                                         onClick={() => {
                                             setIsReviewDialogOpen(false);
                                             setReviewAction(null);
-                                            setReviewNotes('');
+                                            setRemarks('');
                                         }}
                                         disabled={isProcessing}
                                     >
@@ -502,7 +502,7 @@ export default function EngagementShow() {
                                         onClick={handleReview}
                                         disabled={
                                             isProcessing ||
-                                            (reviewAction === 'rejected' && !reviewNotes.trim())
+                                            (reviewAction === 'rejected' && !remarks.trim())
                                         }
                                     >
                                         {isProcessing

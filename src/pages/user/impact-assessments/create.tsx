@@ -31,11 +31,9 @@ export default function UserImpactAssessmentsCreate() {
 
     const steps = [
         { title: "Assessment Details", icon: ChartNoAxesColumnIncreasing },
-        { title: "Upload File", icon: FileText },
     ];
 
     const nextStep = () => setStep((prev) => Math.min(prev + 1, steps.length));
-    const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
     const validateStep = () => {
         const newErrors: any = {};
@@ -179,7 +177,6 @@ export default function UserImpactAssessmentsCreate() {
                                 <p className={`mt-2 text-sm ${isActive ? "text-violet-600" : "text-gray-500"}`}>
                                     {s.title}
                                 </p>
-                                <p className="text-xs text-gray-400">Step {index + 1} of {steps.length}</p>
                             </div>
                         );
                     })}
@@ -236,9 +233,7 @@ export default function UserImpactAssessmentsCreate() {
                                 </Select>
                                 <InputError message={errors.tech_transfer_id} />
                             </div>
-                        </div>
-                        <div className={cn("grid gap-6", step !== 2 && "hidden")}>
-                            <div className="grid gap-6 md:grid-cols-2">
+                            <div className="grid gap-6 md:grid-cols-2 col-span-2">
                                 <div className="space-y-2 md:col-span-2">
                                     <Label htmlFor="attachments">Terminal Report</Label>
                                     <Input
@@ -305,10 +300,7 @@ export default function UserImpactAssessmentsCreate() {
                 </Card>
 
                 {/* Navigation buttons */}
-                <div className="flex justify-between max-w-3xl mx-auto w-full">
-                    <Button variant="outline" disabled={step === 1} onClick={prevStep}>
-                        Previous
-                    </Button>
+                <div className="flex justify-end max-w-3xl mx-auto w-full">
                     {step < steps.length ? (
                         <Button onClick={validateStep} className='bg-violet-500 hover:bg-violet-600'>Next</Button>
                     ) : (

@@ -102,7 +102,7 @@ export const columns = ({ onDelete, onToggleAdmin, selectedUsers, onSelectAll, o
         cell: ({ row }) => {
             const isAdmin = row.getValue("role") === "admin";
             return (
-                <Badge variant={isAdmin ? "default" : "secondary"}>
+                <Badge variant={isAdmin ? "default" : "secondary"} className={isAdmin ? "bg-blue-600" : ""}>
                     {isAdmin ? (
                         <>
                             <ShieldCheck className="mr-1 h-3 w-3" />

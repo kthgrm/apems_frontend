@@ -299,6 +299,7 @@ export default function ModalitiesReport() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
+                                        <TableHead>Extension Modality</TableHead>
                                         <TableHead>Modality Type</TableHead>
                                         <TableHead>TV Channel</TableHead>
                                         <TableHead>Radio Station</TableHead>
@@ -312,6 +313,10 @@ export default function ModalitiesReport() {
                                 <TableBody>
                                     {modalities.data.map((modality) => (
                                         <TableRow key={modality.id}>
+                                            <TableCell>
+                                                <p className="text-sm font-medium">{modality.tech_transfer.name}</p>
+                                                <p className="text-sm text-muted-foreground">ID: {modality.id}</p>
+                                            </TableCell>
                                             <TableCell className="font-medium">
                                                 <Badge>{modality.modality}</Badge>
                                             </TableCell>

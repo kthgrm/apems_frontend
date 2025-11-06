@@ -354,9 +354,8 @@ export default function EditUser() {
                                         Cancel
                                     </Button>
                                 </Link>
-                                <Button type="submit" disabled={processing}>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    {processing ? 'Updating...' : 'Update User'}
+                                <Button type="submit" disabled={processing} className='bg-blue-500 hover:bg-blue-600'>
+                                    {processing ? 'Updating...' : 'Update'}
                                 </Button>
                             </div>
                         </form>

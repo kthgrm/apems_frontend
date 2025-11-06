@@ -72,7 +72,7 @@ export default function Campus() {
                             <CardHeader>
                                 <CardTitle className="flex items-center justify-between">
                                     Campus List
-                                    <Button asChild>
+                                    <Button asChild className='bg-blue-500 hover:bg-blue-600'>
                                         <Link to="/admin/campus/create">
                                             <Plus className="h-4 w-4 mr-2" />
                                             Add Campus

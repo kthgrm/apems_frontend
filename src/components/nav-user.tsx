@@ -24,6 +24,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/AuthContext"
+import { Link } from "react-router-dom"
 
 export function NavUser() {
   const { user, logout } = useAuth();
@@ -77,8 +78,10 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Settings />
-              Settings
+              <Link to="/settings" className="flex items-center gap-2">
+                <Settings />
+                Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>

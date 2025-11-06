@@ -62,6 +62,15 @@ interface CampusStats {
     total_engagements: number;
 }
 
+interface CollegeStats {
+    id: number;
+    name: string;
+    code: string;
+    total_projects: number;
+    total_awards: number;
+    total_engagements: number;
+}
+
 interface ReviewStats {
     total: number;
     tech_transfers: number;
@@ -77,6 +86,7 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
 export default function AdminDashboard() {
     const [target, setTarget] = useState<number>(10);
     const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+    const [selectedCampus, setSelectedCampus] = useState<string>('all');
     const [loading, setLoading] = useState<boolean>(true);
     const [overallStats, setOverallStats] = useState<OverallStats>({
         total_users: 0,
@@ -97,6 +107,7 @@ export default function AdminDashboard() {
     });
     const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
     const [campusStats, setCampusStats] = useState<CampusStats[]>([]);
+    const [collegeStats, setCollegeStats] = useState<CollegeStats[]>([]);
     const [availableYears, setAvailableYears] = useState<string[]>([new Date().getFullYear().toString()]);
 
     // Fetch dashboard data
@@ -104,8 +115,15 @@ export default function AdminDashboard() {
         const fetchDashboardData = async () => {
             setLoading(true);
             try {
+                const params: { year: string; campus_id?: string } = { year: selectedYear };
+
+                // Only add campus_id if a specific campus is selected
+                if (selectedCampus !== 'all') {
+                    params.campus_id = selectedCampus;
+                }
+
                 const response = await api.get('/dashboard/admin-stats', {
-                    params: { year: selectedYear }
+                    params
                 });
 
                 if (response.data.success) {
@@ -126,10 +144,42 @@ export default function AdminDashboard() {
         };
 
         fetchDashboardData();
-    }, [selectedYear]);
+    }, [selectedYear, selectedCampus]);
+
+    // Fetch college stats when campus is selected
+    useEffect(() => {
+        const fetchCollegeStats = async () => {
+            if (selectedCampus === 'all') {
+                setCollegeStats([]);
+                return;
+            }
+
+            try {
+                const response = await api.get('/dashboard/college-stats', {
+                    params: {
+                        year: selectedYear,
+                        campus_id: selectedCampus
+                    }
+                });
+
+                if (response.data.success) {
+                    setCollegeStats(response.data.data.college_stats);
+                }
+            } catch (error) {
+                console.error('Error fetching college data:', error);
+                setCollegeStats([]);
+            }
+        };
+
+        fetchCollegeStats();
+    }, [selectedCampus, selectedYear]);
 
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
+    };
+
+    const handleCampusChange = (campusId: string) => {
+        setSelectedCampus(campusId);
     };
 
     // Prepare data for campus performance bar chart
@@ -175,7 +225,10 @@ export default function AdminDashboard() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-                                <p className="text-sm text-muted-foreground">Showing data for {selectedYear}</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Showing data for {selectedYear}
+                                    {selectedCampus !== 'all' && ` - ${campusStats.find(c => c.id.toString() === selectedCampus)?.name}`}
+                                </p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2">
@@ -190,6 +243,24 @@ export default function AdminDashboard() {
                                             {availableYears.map((year) => (
                                                 <SelectItem key={year} value={year}>
                                                     {year}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Label htmlFor="campus-filter" className="text-sm font-medium">
+                                        Filter by Campus:
+                                    </Label>
+                                    <Select value={selectedCampus} onValueChange={handleCampusChange}>
+                                        <SelectTrigger className="w-48">
+                                            <SelectValue placeholder="Select campus" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Campuses</SelectItem>
+                                            {campusStats.map((campus) => (
+                                                <SelectItem key={campus.id} value={campus.id.toString()}>
+                                                    {campus.name}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -256,6 +327,7 @@ export default function AdminDashboard() {
                                     </CardTitle>
                                     <CardDescription>
                                         Tracking submissions across all categories for {selectedYear}
+                                        {selectedCampus !== 'all' && ` at ${campusStats.find(c => c.id.toString() === selectedCampus)?.name}`}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="pl-2">
@@ -382,128 +454,286 @@ export default function AdminDashboard() {
                                 </CardContent>
                             </Card>
 
-                            <Card className="col-span-full">
-                                <CardHeader>
-                                    <CardTitle>Campus Distribution Analytics</CardTitle>
-                                    <CardDescription>
-                                        Comparative breakdown of submissions across all university campuses for {selectedYear}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 px-14">
-                                        {/* Technology Transfers Pie Chart */}
-                                        <div>
-                                            <h3 className="text-sm font-medium text-center mb-4">Technology Transfers</h3>
-                                            <ResponsiveContainer width="100%" height={300}>
-                                                <PieChart>
-                                                    <Pie
-                                                        data={campusStats.filter(campus => campus.total_projects > 0) as any}
-                                                        cx="50%"
-                                                        cy="50%"
-                                                        labelLine={false}
-                                                        label={({ value }) => {
-                                                            if (!value || value === 0) return '';
-                                                            const total = campusStats.filter(campus => campus.total_projects > 0).reduce((sum, campus) => sum + campus.total_projects, 0);
-                                                            const percentage = ((Number(value) / total) * 100).toFixed(1);
-                                                            return `${percentage}%`;
-                                                        }}
-                                                        outerRadius={80}
-                                                        fill="#8884d8"
-                                                        dataKey="total_projects"
-                                                        nameKey="name"
-                                                    >
-                                                        {campusStats.filter(campus => campus.total_projects > 0).map((_entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                        ))}
-                                                    </Pie>
-                                                    <Tooltip
-                                                        formatter={(value, name) => [
-                                                            `${value} technology transfers`,
-                                                            name
-                                                        ]}
-                                                        labelFormatter={() => ''}
-                                                    />
-                                                    <Legend />
-                                                </PieChart>
-                                            </ResponsiveContainer>
-                                        </div>
+                            {/* Campus Distribution - Only visible when "All Campuses" is selected */}
+                            {selectedCampus === 'all' && (
+                                <Card className="col-span-full">
+                                    <CardHeader>
+                                        <CardTitle>Campus Distribution Analytics</CardTitle>
+                                        <CardDescription>
+                                            Comparative breakdown of submissions across all university campuses for {selectedYear}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 px-14">
+                                            {/* Technology Transfers Pie Chart */}
+                                            <div>
+                                                <h3 className="text-sm font-medium text-center mb-4">Technology Transfers</h3>
+                                                <ResponsiveContainer width="100%" height={300}>
+                                                    <PieChart>
+                                                        <Pie
+                                                            data={campusStats.filter(campus => campus.total_projects > 0) as any}
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            labelLine={false}
+                                                            label={({ value }) => {
+                                                                if (!value || value === 0) return '';
+                                                                const total = campusStats.filter(campus => campus.total_projects > 0).reduce((sum, campus) => sum + campus.total_projects, 0);
+                                                                const percentage = ((Number(value) / total) * 100).toFixed(1);
+                                                                return `${percentage}%`;
+                                                            }}
+                                                            outerRadius={80}
+                                                            fill="#8884d8"
+                                                            dataKey="total_projects"
+                                                            nameKey="name"
+                                                        >
+                                                            {campusStats.filter(campus => campus.total_projects > 0).map((_entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                            ))}
+                                                        </Pie>
+                                                        <Tooltip
+                                                            formatter={(value, name) => [
+                                                                `${value} technology transfers`,
+                                                                name
+                                                            ]}
+                                                            labelFormatter={() => ''}
+                                                        />
+                                                        <Legend />
+                                                    </PieChart>
+                                                </ResponsiveContainer>
+                                            </div>
 
-                                        {/* Awards Pie Chart */}
-                                        <div>
-                                            <h3 className="text-sm font-medium text-center mb-4">Awards & Recognition</h3>
-                                            <ResponsiveContainer width="100%" height={300}>
-                                                <PieChart>
-                                                    <Pie
-                                                        data={campusStats.filter(campus => campus.total_awards > 0) as any}
-                                                        cx="50%"
-                                                        cy="50%"
-                                                        labelLine={false}
-                                                        label={({ value }) => {
-                                                            if (!value || value === 0) return '';
-                                                            const total = campusStats.filter(campus => campus.total_awards > 0).reduce((sum, campus) => sum + campus.total_awards, 0);
-                                                            const percentage = ((Number(value) / total) * 100).toFixed(1);
-                                                            return `${percentage}%`;
-                                                        }}
-                                                        outerRadius={80}
-                                                        fill="#8884d8"
-                                                        dataKey="total_awards"
-                                                        nameKey="name"
-                                                    >
-                                                        {campusStats.filter(campus => campus.total_awards > 0).map((_entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                        ))}
-                                                    </Pie>
-                                                    <Tooltip
-                                                        formatter={(value, name) => [
-                                                            `${value} Awards`,
-                                                            name
-                                                        ]}
-                                                        labelFormatter={() => ''}
-                                                    />
-                                                    <Legend />
-                                                </PieChart>
-                                            </ResponsiveContainer>
-                                        </div>
+                                            {/* Awards Pie Chart */}
+                                            <div>
+                                                <h3 className="text-sm font-medium text-center mb-4">Awards & Recognition</h3>
+                                                <ResponsiveContainer width="100%" height={300}>
+                                                    <PieChart>
+                                                        <Pie
+                                                            data={campusStats.filter(campus => campus.total_awards > 0) as any}
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            labelLine={false}
+                                                            label={({ value }) => {
+                                                                if (!value || value === 0) return '';
+                                                                const total = campusStats.filter(campus => campus.total_awards > 0).reduce((sum, campus) => sum + campus.total_awards, 0);
+                                                                const percentage = ((Number(value) / total) * 100).toFixed(1);
+                                                                return `${percentage}%`;
+                                                            }}
+                                                            outerRadius={80}
+                                                            fill="#8884d8"
+                                                            dataKey="total_awards"
+                                                            nameKey="name"
+                                                        >
+                                                            {campusStats.filter(campus => campus.total_awards > 0).map((_entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                            ))}
+                                                        </Pie>
+                                                        <Tooltip
+                                                            formatter={(value, name) => [
+                                                                `${value} Awards`,
+                                                                name
+                                                            ]}
+                                                            labelFormatter={() => ''}
+                                                        />
+                                                        <Legend />
+                                                    </PieChart>
+                                                </ResponsiveContainer>
+                                            </div>
 
-                                        {/* Engagements Pie Chart */}
-                                        <div>
-                                            <h3 className="text-sm font-medium text-center mb-4">Engagements</h3>
-                                            <ResponsiveContainer width="100%" height={300}>
-                                                <PieChart>
-                                                    <Pie
-                                                        data={campusStats.filter(campus => campus.total_engagements > 0) as any}
-                                                        cx="50%"
-                                                        cy="50%"
-                                                        labelLine={false}
-                                                        label={({ value }) => {
-                                                            if (!value || value === 0) return '';
-                                                            const total = campusStats.filter(campus => campus.total_engagements > 0).reduce((sum, campus) => sum + campus.total_engagements, 0);
-                                                            const percentage = ((Number(value) / total) * 100).toFixed(1);
-                                                            return `${percentage}%`;
-                                                        }}
-                                                        outerRadius={80}
-                                                        fill="#8884d8"
-                                                        dataKey="total_engagements"
-                                                        nameKey="name"
-                                                    >
-                                                        {campusStats.filter(campus => campus.total_engagements > 0).map((_entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                        ))}
-                                                    </Pie>
-                                                    <Tooltip
-                                                        formatter={(value, name) => [
-                                                            `${value} Engagements`,
-                                                            name
-                                                        ]}
-                                                        labelFormatter={() => ''}
-                                                    />
-                                                    <Legend />
-                                                </PieChart>
-                                            </ResponsiveContainer>
+                                            {/* Engagements Pie Chart */}
+                                            <div>
+                                                <h3 className="text-sm font-medium text-center mb-4">Engagements</h3>
+                                                <ResponsiveContainer width="100%" height={300}>
+                                                    <PieChart>
+                                                        <Pie
+                                                            data={campusStats.filter(campus => campus.total_engagements > 0) as any}
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            labelLine={false}
+                                                            label={({ value }) => {
+                                                                if (!value || value === 0) return '';
+                                                                const total = campusStats.filter(campus => campus.total_engagements > 0).reduce((sum, campus) => sum + campus.total_engagements, 0);
+                                                                const percentage = ((Number(value) / total) * 100).toFixed(1);
+                                                                return `${percentage}%`;
+                                                            }}
+                                                            outerRadius={80}
+                                                            fill="#8884d8"
+                                                            dataKey="total_engagements"
+                                                            nameKey="name"
+                                                        >
+                                                            {campusStats.filter(campus => campus.total_engagements > 0).map((_entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                            ))}
+                                                        </Pie>
+                                                        <Tooltip
+                                                            formatter={(value, name) => [
+                                                                `${value} Engagements`,
+                                                                name
+                                                            ]}
+                                                            labelFormatter={() => ''}
+                                                        />
+                                                        <Legend />
+                                                    </PieChart>
+                                                </ResponsiveContainer>
+                                            </div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                            {/* College Stats Section - Only visible when a campus is selected */}
+                            {selectedCampus !== 'all' && (
+                                <Card className="col-span-full">
+                                    <CardHeader>
+                                        <CardTitle>
+                                            College Distribution for {campusStats.find(c => c.id.toString() === selectedCampus)?.name}
+                                        </CardTitle>
+                                        <CardDescription>
+                                            Breakdown of submissions by college within the selected campus for {selectedYear}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {collegeStats.length === 0 ? (
+                                            <div className="flex items-center justify-center h-64 text-muted-foreground">
+                                                <div className="text-center">
+                                                    <p className="text-lg mb-2">No college data available</p>
+                                                    <p className="text-sm">This campus has no submissions for {selectedYear}</p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 px-14">
+                                                {/* Technology Transfers Pie Chart */}
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-center mb-4">Technology Transfers</h3>
+                                                    {collegeStats.filter(college => college.total_projects > 0).length === 0 ? (
+                                                        <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                                                            <p className="text-sm">No technology transfers</p>
+                                                        </div>
+                                                    ) : (
+                                                        <ResponsiveContainer width="100%" height={300}>
+                                                            <PieChart>
+                                                                <Pie
+                                                                    data={collegeStats.filter(college => college.total_projects > 0) as any}
+                                                                    cx="50%"
+                                                                    cy="50%"
+                                                                    labelLine={false}
+                                                                    label={({ value }) => {
+                                                                        if (!value || value === 0) return '';
+                                                                        const total = collegeStats.filter(college => college.total_projects > 0).reduce((sum, college) => sum + college.total_projects, 0);
+                                                                        const percentage = ((Number(value) / total) * 100).toFixed(1);
+                                                                        return `${percentage}%`;
+                                                                    }}
+                                                                    outerRadius={80}
+                                                                    fill="#8884d8"
+                                                                    dataKey="total_projects"
+                                                                    nameKey="code"
+                                                                >
+                                                                    {collegeStats.filter(college => college.total_projects > 0).map((_entry, index) => (
+                                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                                    ))}
+                                                                </Pie>
+                                                                <Tooltip
+                                                                    formatter={(value, name) => [
+                                                                        `${value} technology transfers`,
+                                                                        name
+                                                                    ]}
+                                                                    labelFormatter={() => ''}
+                                                                />
+                                                                <Legend />
+                                                            </PieChart>
+                                                        </ResponsiveContainer>
+                                                    )}
+                                                </div>
+
+                                                {/* Awards Pie Chart */}
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-center mb-4">Awards & Recognition</h3>
+                                                    {collegeStats.filter(college => college.total_awards > 0).length === 0 ? (
+                                                        <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                                                            <p className="text-sm">No awards</p>
+                                                        </div>
+                                                    ) : (
+                                                        <ResponsiveContainer width="100%" height={300}>
+                                                            <PieChart>
+                                                                <Pie
+                                                                    data={collegeStats.filter(college => college.total_awards > 0) as any}
+                                                                    cx="50%"
+                                                                    cy="50%"
+                                                                    labelLine={false}
+                                                                    label={({ value }) => {
+                                                                        if (!value || value === 0) return '';
+                                                                        const total = collegeStats.filter(college => college.total_awards > 0).reduce((sum, college) => sum + college.total_awards, 0);
+                                                                        const percentage = ((Number(value) / total) * 100).toFixed(1);
+                                                                        return `${percentage}%`;
+                                                                    }}
+                                                                    outerRadius={80}
+                                                                    fill="#8884d8"
+                                                                    dataKey="total_awards"
+                                                                    nameKey="code"
+                                                                >
+                                                                    {collegeStats.filter(college => college.total_awards > 0).map((_entry, index) => (
+                                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                                    ))}
+                                                                </Pie>
+                                                                <Tooltip
+                                                                    formatter={(value, name) => [
+                                                                        `${value} Awards`,
+                                                                        name
+                                                                    ]}
+                                                                    labelFormatter={() => ''}
+                                                                />
+                                                                <Legend />
+                                                            </PieChart>
+                                                        </ResponsiveContainer>
+                                                    )}
+                                                </div>
+
+                                                {/* Engagements Pie Chart */}
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-center mb-4">Engagements</h3>
+                                                    {collegeStats.filter(college => college.total_engagements > 0).length === 0 ? (
+                                                        <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                                                            <p className="text-sm">No engagements</p>
+                                                        </div>
+                                                    ) : (
+                                                        <ResponsiveContainer width="100%" height={300}>
+                                                            <PieChart>
+                                                                <Pie
+                                                                    data={collegeStats.filter(college => college.total_engagements > 0) as any}
+                                                                    cx="50%"
+                                                                    cy="50%"
+                                                                    labelLine={false}
+                                                                    label={({ value }) => {
+                                                                        if (!value || value === 0) return '';
+                                                                        const total = collegeStats.filter(college => college.total_engagements > 0).reduce((sum, college) => sum + college.total_engagements, 0);
+                                                                        const percentage = ((Number(value) / total) * 100).toFixed(1);
+                                                                        return `${percentage}%`;
+                                                                    }}
+                                                                    outerRadius={80}
+                                                                    fill="#8884d8"
+                                                                    dataKey="total_engagements"
+                                                                    nameKey="code"
+                                                                >
+                                                                    {collegeStats.filter(college => college.total_engagements > 0).map((_entry, index) => (
+                                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                                    ))}
+                                                                </Pie>
+                                                                <Tooltip
+                                                                    formatter={(value, name) => [
+                                                                        `${value} Engagements`,
+                                                                        name
+                                                                    ]}
+                                                                    labelFormatter={() => ''}
+                                                                />
+                                                                <Legend />
+                                                            </PieChart>
+                                                        </ResponsiveContainer>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
                     </>
                 )}

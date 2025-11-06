@@ -66,6 +66,8 @@ import Engagement from "./pages/admin/engagement"
 import EngagementShow from "./pages/admin/engagement/show"
 import EngagementEdit from "./pages/admin/engagement/edit"
 import Review from "./pages/admin/review"
+import Password from "./pages/settings/password"
+import Profile from "./pages/settings/profile"
 
 function App() {
   return (
@@ -171,6 +173,10 @@ function App() {
               <Route path=":id/edit" element={<UserModalityEdit />} />
               <Route path=":id" element={<UserModalityShow />} />
             </Route>
+          </Route>
+          <Route path="/settings">
+            <Route index element={<Profile />} />
+            <Route path="password" element={<Password />} />
           </Route>
           {/* Catch all unmatched routes */}
           <Route path="*" element={<NotFound />} />

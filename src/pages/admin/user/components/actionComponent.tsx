@@ -20,7 +20,7 @@ export function ActionComponent({ selectedUsers, onActivateSelected, onDeactivat
                         variant="outline"
                         className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300"
                     >
-                        <UserCheck className="mr-2 h-4 w-4" />
+                        <UserCheck className="h-4 w-4" />
                         Activate ({selectedUsers.length})
                     </Button>
                     <Button
@@ -29,14 +29,14 @@ export function ActionComponent({ selectedUsers, onActivateSelected, onDeactivat
                         variant="outline"
                         className="bg-red-50 hover:bg-red-100 text-red-700 border-red-300"
                     >
-                        <UserX className="mr-2 h-4 w-4" />
+                        <UserX className="h-4 w-4" />
                         Deactivate ({selectedUsers.length})
                     </Button>
                 </>
             )}
             <Link to="/admin/users/create">
-                <Button size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
+                <Button size="sm" className='bg-blue-500 hover:bg-blue-600'>
+                    <Plus className="h-4 w-4" />
                     Add User
                 </Button>
             </Link>

@@ -163,9 +163,10 @@ const CampusCreate = () => {
                                 <Button
                                     type="submit"
                                     disabled={processing}
+                                    className='bg-blue-500 hover:bg-blue-600'
                                 >
                                     {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                    Create Campus
+                                    Create
                                 </Button>
                             </div>
                         </CardContent>

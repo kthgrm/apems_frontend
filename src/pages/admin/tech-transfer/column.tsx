@@ -171,20 +171,6 @@ export const columns = (onArchived?: (id: number | string) => void): ColumnDef<T
         },
     },
     {
-        accessorKey: "purpose",
-        header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Purpose" />
-        },
-        cell: ({ row }) => {
-            const purpose = row.getValue("purpose") as string
-            if (!purpose) return <span className="text-xs text-muted-foreground">Not set</span>
-
-            return (
-                <span>{purpose}</span>
-            )
-        },
-    },
-    {
         accessorKey: "agency_partner",
         header: ({ column }) => {
             return <DataTableColumnHeader column={column} title="Agency Partner" />

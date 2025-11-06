@@ -210,7 +210,7 @@ const CollegeCreate = () => {
                                 {/* College Logo */}
                                 <div className="space-y-2">
                                     <Label htmlFor="logo" className="text-base font-medium">
-                                        Logo (max size: 2MB)
+                                        Logo (max size: 2MB)<span className="text-red-500">*</span>
                                     </Label>
                                     <div className="space-y-2">
                                         <Input
@@ -233,9 +233,10 @@ const CollegeCreate = () => {
                                     <Button
                                         type="submit"
                                         disabled={processing}
+                                        className='bg-blue-500 hover:bg-blue-600'
                                     >
                                         {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                        Create College
+                                        Create
                                     </Button>
                                 </div>
                             </CardContent>

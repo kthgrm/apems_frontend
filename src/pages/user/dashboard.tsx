@@ -74,7 +74,7 @@ const getTypeBadgeColor = (type: string) => {
             return 'bg-blue-100 text-blue-800';
         case 'Award':
             return 'bg-yellow-100 text-yellow-800';
-        case 'International Partner':
+        case 'Engagement':
             return 'bg-green-100 text-green-800';
         default:
             return 'bg-gray-100 text-gray-800';
@@ -366,7 +366,7 @@ export default function UserDashboard() {
                         <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-blue-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                                <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+                                <CardTitle className="text-sm font-medium">Total Technology Transfers</CardTitle>
                                 <div className="p-2 bg-blue-100 rounded-full">
                                     <Folder className="h-4 w-4 text-blue-600" />
                                 </div>
@@ -390,7 +390,7 @@ export default function UserDashboard() {
                             <CardContent className="relative z-10">
                                 <div className="text-2xl font-bold text-yellow-700">{userStats.total_awards}</div>
                                 <p className="text-xs text-muted-foreground">
-                                    Awards and recognitions received
+                                    Awards and recognitions submitted
                                 </p>
                             </CardContent>
                         </Card>
@@ -398,7 +398,7 @@ export default function UserDashboard() {
                         <Card className="relative overflow-hidden group hover:shadow-md transition-shadow duration-200">
                             <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-green-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                                <CardTitle className="text-sm font-medium">International Partners</CardTitle>
+                                <CardTitle className="text-sm font-medium">Total Engagements</CardTitle>
                                 <div className="p-2 bg-green-100 rounded-full">
                                     <Globe className="h-4 w-4 text-green-600" />
                                 </div>
@@ -406,7 +406,7 @@ export default function UserDashboard() {
                             <CardContent className="relative z-10">
                                 <div className="text-2xl font-bold text-green-700">{userStats.total_engagements}</div>
                                 <p className="text-xs text-muted-foreground">
-                                    Engagements established
+                                    Engagements submitted
                                 </p>
                             </CardContent>
                         </Card>

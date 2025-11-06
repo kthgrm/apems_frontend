@@ -5,9 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AppLayout from "@/layout/app-layout";
-import type { BreadcrumbItem, College } from "@/types";
+import type { BreadcrumbItem, Campus, College } from "@/types";
 import api from "@/lib/axios";
-import { Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -25,7 +24,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function CreateUser() {
     const navigate = useNavigate();
+    const [campuses, setCampuses] = useState<Campus[]>([]);
     const [colleges, setColleges] = useState<College[]>([]);
+    const [filteredColleges, setFilteredColleges] = useState<College[]>([]);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
 
@@ -34,6 +35,7 @@ export default function CreateUser() {
         last_name: '',
         email: '',
         role: 'user',
+        campus_id: '',
         college_id: '',
         is_active: true,
     });
@@ -41,23 +43,37 @@ export default function CreateUser() {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        const fetchColleges = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get('/colleges');
-                setColleges(response.data.data || response.data);
+                // Fetch campuses
+                const campusResponse = await api.get('/campuses');
+                setCampuses(campusResponse.data.data || campusResponse.data);
+
+                // Fetch all colleges
+                const collegeResponse = await api.get('/colleges');
+                setColleges(collegeResponse.data.data || collegeResponse.data);
+
                 setLoading(false);
             } catch (error: any) {
-                toast.error('Failed to load colleges');
-                console.error('Error loading colleges:', error);
+                toast.error('Failed to load data');
+                console.error('Error loading data:', error);
                 setLoading(false);
             }
         };
 
-        fetchColleges();
+        fetchData();
     }, []);
 
     const handleChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+
+        // If campus is changed, filter colleges and reset college_id
+        if (field === 'campus_id') {
+            const filtered = colleges.filter(college => college.campus_id.toString() === value);
+            setFilteredColleges(filtered);
+            setFormData(prev => ({ ...prev, college_id: '' }));
+        }
+
         // Clear error for this field
         if (errors[field]) {
             setErrors(prev => {
@@ -74,7 +90,9 @@ export default function CreateUser() {
         setErrors({});
 
         try {
-            const response = await api.post('/users', formData);
+            // Remove campus_id from submission since college already has the campus relationship
+            const { campus_id, ...submitData } = formData;
+            const response = await api.post('/users', submitData);
             toast.success(response.data.message || 'User created successfully');
             navigate('/admin/users');
         } catch (error: any) {
@@ -180,20 +198,44 @@ export default function CreateUser() {
                                 </p>
                             </div>
 
+                            {/* Campus */}
+                            <div className="space-y-2">
+                                <Label htmlFor="campus_id">Campus *</Label>
+                                <Select
+                                    value={formData.campus_id}
+                                    onValueChange={(value) => handleChange('campus_id', value)}
+                                >
+                                    <SelectTrigger className={errors.campus_id ? 'border-destructive' : ''}>
+                                        <SelectValue placeholder="Select campus first" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {campuses.map((campus) => (
+                                            <SelectItem key={campus.id} value={campus.id.toString()}>
+                                                {campus.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.campus_id && (
+                                    <p className="text-sm text-destructive">{errors.campus_id}</p>
+                                )}
+                            </div>
+
                             {/* College */}
                             <div className="space-y-2">
                                 <Label htmlFor="college_id">College *</Label>
                                 <Select
                                     value={formData.college_id}
                                     onValueChange={(value) => handleChange('college_id', value)}
+                                    disabled={!formData.campus_id}
                                 >
-                                    <SelectTrigger className={errors.college_id ? 'border-destructive' : '' + 'w-full'}>
-                                        <SelectValue placeholder="Select college" />
+                                    <SelectTrigger className={errors.college_id ? 'border-destructive' : ''}>
+                                        <SelectValue placeholder={formData.campus_id ? "Select college" : "Please select a campus first"} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {colleges.map((college) => (
+                                        {filteredColleges.map((college) => (
                                             <SelectItem key={college.id} value={college.id.toString()}>
-                                                {college.campus?.name ? `${college.campus.name} - ${college.name}` : college.name}
+                                                {college.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -249,9 +291,8 @@ export default function CreateUser() {
                                 >
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    {processing ? 'Creating...' : 'Create User'}
+                                <Button type="submit" disabled={processing} className="bg-blue-500 hover:bg-blue-600">
+                                    {processing ? 'Creating...' : 'Create'}
                                 </Button>
                             </div>
                         </form>

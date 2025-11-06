@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import AppLayout from "@/layout/app-layout";
 import type { BreadcrumbItem } from "@/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";

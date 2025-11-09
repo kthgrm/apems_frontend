@@ -161,13 +161,15 @@ const TechnologyTransferEdit = () => {
                         data.attachments.forEach((file) => {
                             formData.append('attachments[]', file);
                         });
-                    } else if (value !== null && value !== undefined) {
-                        // Handle boolean values properly for Laravel
-                        if (key === 'is_assessment_based') {
-                            formData.append(key, value ? '1' : '0');
-                        } else {
-                            formData.append(key, String(value));
-                        }
+                    } else if (typeof value === 'boolean') {
+                        // Convert boolean to '1' or '0' for Laravel
+                        formData.append(key, value ? '1' : '0');
+                    } else if (key === 'sdg_goals') {
+                        data.sdg_goals.forEach((goalId) =>
+                            formData.append('sdg_goals[]', goalId)
+                        );
+                    } else {
+                        formData.append(key, String(value));
                     }
                 });
 

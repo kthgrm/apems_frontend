@@ -168,7 +168,11 @@ export default function UserTechnTransferEdit() {
                         data.attachments.forEach((file) => {
                             formData.append('attachments[]', file);
                         });
-                    } else if (value !== null && value !== undefined) {
+                    } else if (key === 'sdg_goals') {
+                        data.sdg_goals.forEach((goalId) =>
+                            formData.append('sdg_goals[]', goalId)
+                        );
+                    } else {
                         formData.append(key, String(value));
                     }
                 });

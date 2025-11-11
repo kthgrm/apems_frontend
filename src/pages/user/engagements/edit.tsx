@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/input-error';
 import { asset } from '@/lib/utils';
+import GooglePlacesAutocomplete from '@/components/google-places-autocomplete';
 
 export default function UserEngagementsEdit() {
     const { id } = useParams();
@@ -222,15 +223,22 @@ export default function UserEngagementsEdit() {
                                                     />
                                                     <InputError message={errors.agency_partner} />
                                                 </div>
-                                                <div className="col-span-1 md:col-span-2">
-                                                    <Label className="text-sm font-light">Location</Label>
-                                                    <Input
+                                                <div className="md:col-span-2 space-y-2">
+                                                    <Label htmlFor="location">Location</Label>
+                                                    <GooglePlacesAutocomplete
                                                         id="location"
                                                         value={data.location}
-                                                        className="mt-1"
-                                                        onChange={handleChange}
+                                                        onChange={(value) => setData((prev) => ({ ...prev, location: value }))}
+                                                        placeholder="Search for a location..."
                                                         disabled={processing}
+                                                        onPlaceSelected={(place) => {
+                                                            setData((prev) => ({ ...prev, location: place.formatted_address || prev.location }));
+                                                            console.log('Selected place:', place);
+                                                        }}
                                                     />
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Start typing to search for locations
+                                                    </p>
                                                     <InputError message={errors.location} />
                                                 </div>
                                                 <div>

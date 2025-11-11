@@ -13,6 +13,7 @@ import api from '@/lib/axios';
 import InputError from '@/components/input-error';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import GooglePlacesAutocomplete from '@/components/google-places-autocomplete';
 
 export default function UserEngagementsCreate() {
     const navigate = useNavigate();
@@ -209,13 +210,20 @@ export default function UserEngagementsCreate() {
                             </div>
                             <div className="md:col-span-2 space-y-2">
                                 <Label htmlFor="location">Location</Label>
-                                <Input
+                                <GooglePlacesAutocomplete
                                     id="location"
                                     value={data.location}
-                                    onChange={handleChange}
-                                    placeholder="Enter location"
+                                    onChange={(value) => setData((prev) => ({ ...prev, location: value }))}
+                                    placeholder="Search for a location..."
                                     disabled={processing}
+                                    onPlaceSelected={(place) => {
+                                        setData((prev) => ({ ...prev, location: place.formatted_address || prev.location }));
+                                        console.log('Selected place:', place);
+                                    }}
                                 />
+                                <p className="text-xs text-muted-foreground">
+                                    Start typing to search for locations
+                                </p>
                                 <InputError message={errors.location} />
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:col-span-2">

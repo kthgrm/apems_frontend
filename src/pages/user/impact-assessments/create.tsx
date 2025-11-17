@@ -304,7 +304,7 @@ export default function UserImpactAssessmentsCreate() {
                     {step < steps.length ? (
                         <Button onClick={validateStep} className='bg-violet-500 hover:bg-violet-600'>Next</Button>
                     ) : (
-                        <Button onClick={handleSubmit} className='bg-violet-500 hover:bg-violet-600'>Submit</Button>
+                        <Button onClick={handleSubmit} className='bg-violet-500 hover:bg-violet-600' disabled={processing}>Submit</Button>
                     )}
                 </div>
             </div>

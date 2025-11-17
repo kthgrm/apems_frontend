@@ -356,7 +356,7 @@ export default function UserAwardsCreate() {
                     {step < steps.length ? (
                         <Button onClick={validateStep} className='bg-yellow-600 hover:bg-yellow-700'>Next</Button>
                     ) : (
-                        <Button onClick={handleSubmit} className='bg-yellow-600 hover:bg-yellow-700'>Submit</Button>
+                        <Button onClick={handleSubmit} className='bg-yellow-600 hover:bg-yellow-700' disabled={processing}>Submit</Button>
                     )}
                 </div>
             </div>

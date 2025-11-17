@@ -637,7 +637,7 @@ export default function UserTechTransferCreate() {
                     {step < steps.length ? (
                         <Button onClick={validateStep} className='bg-blue-500 hover:bg-blue-600'>Next</Button>
                     ) : (
-                        <Button onClick={handleSubmit} className='bg-blue-500 hover:bg-blue-600'>Submit</Button>
+                        <Button onClick={handleSubmit} className='bg-blue-500 hover:bg-blue-600' disabled={processing}>Submit</Button>
                     )}
                 </div>
             </div>

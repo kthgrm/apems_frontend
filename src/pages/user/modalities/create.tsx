@@ -252,7 +252,7 @@ export default function UserModalitiesCreate() {
 
                 {/* Navigation buttons */}
                 <div className="flex justify-end max-w-3xl mx-auto w-full">
-                    <Button onClick={handleSubmit} className='bg-orange-500 hover:bg-orange-600'>Submit</Button>
+                    <Button onClick={handleSubmit} className='bg-orange-500 hover:bg-orange-600' disabled={processing}>Submit</Button>
                 </div>
             </div>
         </AppLayout>

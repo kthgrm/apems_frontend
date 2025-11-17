@@ -376,7 +376,7 @@ export default function UserEngagementsCreate() {
                     {step < steps.length ? (
                         <Button onClick={validateStep} className='bg-green-500 hover:bg-green-600'>Next</Button>
                     ) : (
-                        <Button onClick={handleSubmit} className='bg-green-500 hover:bg-green-600'>Submit</Button>
+                        <Button onClick={handleSubmit} className='bg-green-500 hover:bg-green-600' disabled={processing}>Submit</Button>
                     )}
                 </div>
             </div>

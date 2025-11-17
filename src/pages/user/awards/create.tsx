@@ -187,7 +187,7 @@ export default function UserAwardsCreate() {
                         {step === 1 && (
                             <div className="grid gap-6 md:grid-cols-2">
                                 <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor="award_name">Award Name</Label>
+                                    <Label htmlFor="award_name">Award Name<span className="text-red-500">*</span></Label>
                                     <Input
                                         id="award_name"
                                         value={data.award_name}
@@ -198,7 +198,7 @@ export default function UserAwardsCreate() {
                                     <InputError message={errors.award_name} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="awarding_body">Awarding Body</Label>
+                                    <Label htmlFor="awarding_body">Awarding Body<span className="text-red-500">*</span></Label>
                                     <Input
                                         id="awarding_body"
                                         value={data.awarding_body}
@@ -209,7 +209,7 @@ export default function UserAwardsCreate() {
                                     <InputError message={errors.awarding_body} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="date_received">Date Received</Label>
+                                    <Label htmlFor="date_received">Date Received<span className="text-red-500">*</span></Label>
                                     <Input
                                         id="date_received"
                                         type="date"
@@ -220,7 +220,7 @@ export default function UserAwardsCreate() {
                                     <InputError message={errors.date_received} />
                                 </div>
                                 <div className="md:col-span-2 space-y-2">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">Description<span className="text-red-500">*</span></Label>
                                     <Textarea
                                         id="description"
                                         value={data.description}
@@ -243,7 +243,7 @@ export default function UserAwardsCreate() {
                                     <InputError message={errors.location} />
                                 </div>
                                 <div className="md:col-span-2 space-y-2">
-                                    <Label htmlFor="event_details">Event Details</Label>
+                                    <Label htmlFor="event_details">Event Details<span className="text-red-500">*</span></Label>
                                     <Textarea
                                         id="event_details"
                                         value={data.event_details}
@@ -255,7 +255,7 @@ export default function UserAwardsCreate() {
                                     <InputError message={errors.event_details} />
                                 </div>
                                 <div className="md:col-span-2 space-y-2">
-                                    <Label htmlFor="people_involved">People Involved</Label>
+                                    <Label htmlFor="people_involved">People Involved<span className="text-red-500">*</span></Label>
                                     <Textarea
                                         id="people_involved"
                                         value={data.people_involved}

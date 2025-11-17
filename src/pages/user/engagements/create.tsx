@@ -187,7 +187,7 @@ export default function UserEngagementsCreate() {
                     <CardContent>
                         <div className={cn("grid gap-6 md:grid-cols-2", step !== 1 && "hidden")}>
                             <div className="space-y-2">
-                                <Label htmlFor="agency_partner">Agency Partner</Label>
+                                <Label htmlFor="agency_partner">Agency Partner<span className="text-red-500">*</span></Label>
                                 <Input
                                     id="agency_partner"
                                     value={data.agency_partner}
@@ -198,7 +198,7 @@ export default function UserEngagementsCreate() {
                                 <InputError message={errors.agency_partner} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="activity_conducted">Activity Conducted</Label>
+                                <Label htmlFor="activity_conducted">Activity Conducted<span className="text-red-500">*</span></Label>
                                 <Input
                                     id="activity_conducted"
                                     value={data.activity_conducted}
@@ -209,7 +209,7 @@ export default function UserEngagementsCreate() {
                                 <InputError message={errors.activity_conducted} />
                             </div>
                             <div className="md:col-span-2 space-y-2">
-                                <Label htmlFor="location">Location</Label>
+                                <Label htmlFor="location">Location<span className="text-red-500">*</span></Label>
                                 <GooglePlacesAutocomplete
                                     id="location"
                                     value={data.location}
@@ -228,7 +228,7 @@ export default function UserEngagementsCreate() {
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:col-span-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="start_date">Start Date</Label>
+                                    <Label htmlFor="start_date">Start Date<span className="text-red-500">*</span></Label>
                                     <Input
                                         id="start_date"
                                         type="date"
@@ -239,7 +239,7 @@ export default function UserEngagementsCreate() {
                                     <InputError message={errors.start_date} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="end_date">End Date</Label>
+                                    <Label htmlFor="end_date">End Date<span className="text-red-500">*</span></Label>
                                     <Input
                                         id="end_date"
                                         type="date"
@@ -250,7 +250,7 @@ export default function UserEngagementsCreate() {
                                     <InputError message={errors.end_date} />
                                 </div>
                                 <div className="space-y-2 col-span-3 md:col-span-1">
-                                    <Label htmlFor="number_of_participants">Number of Participants</Label>
+                                    <Label htmlFor="number_of_participants">Number of Participants<span className="text-red-500">*</span></Label>
                                     <Input
                                         id="number_of_participants"
                                         type="number"
@@ -264,7 +264,7 @@ export default function UserEngagementsCreate() {
                                 </div>
                             </div>
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="faculty_involved">Faculty Involved</Label>
+                                <Label htmlFor="faculty_involved">Faculty Involved<span className="text-red-500">*</span></Label>
                                 <Input
                                     id="faculty_involved"
                                     value={data.faculty_involved}
@@ -275,7 +275,7 @@ export default function UserEngagementsCreate() {
                                 <InputError message={errors.faculty_involved} />
                             </div>
                             <div className="md:col-span-2 space-y-2">
-                                <Label htmlFor="narrative">Narrative</Label>
+                                <Label htmlFor="narrative">Narrative<span className="text-red-500">*</span></Label>
                                 <Textarea
                                     id="narrative"
                                     value={data.narrative}
